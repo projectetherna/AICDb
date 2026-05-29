@@ -1,0 +1,1111 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>AICDb</title>
+<link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/@tabler/icons-webfont@latest/tabler-icons.min.css">
+<script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
+<style>
+*{box-sizing:border-box;margin:0;padding:0}
+body{background:#0a0a0a;font-family:-apple-system,BlinkMacSystemFont,'Segoe UI',sans-serif;color:#fff;min-height:100vh}
+
+.nav{display:flex;align-items:center;justify-content:space-between;padding:0 36px;height:58px;position:fixed;top:0;left:0;right:0;z-index:100;background:rgba(10,10,10,.92);border-bottom:0.5px solid rgba(255,255,255,.06)}
+.logo{font-size:15px;font-weight:400;letter-spacing:.12em;color:#fff;cursor:pointer}
+.logo em{font-style:normal;color:#D85A30}
+.nav-c{display:flex;gap:24px;align-items:center}
+.nl{font-size:13px;color:rgba(255,255,255,.38);cursor:pointer;letter-spacing:.02em;transition:color .15s}
+.nl:hover,.nl.on{color:#fff}
+.nav-r{display:flex;align-items:center;gap:16px}
+.add-btn{display:flex;align-items:center;gap:6px;background:none;border:0.5px solid rgba(255,255,255,.15);color:rgba(255,255,255,.5);border-radius:24px;padding:6px 14px;font-size:12px;cursor:pointer;letter-spacing:.03em;transition:all .15s}
+.add-btn:hover{border-color:#D85A30;color:#D85A30}
+.icon-btn{background:none;border:none;color:rgba(255,255,255,.38);cursor:pointer;font-size:18px;transition:color .15s;padding:4px;display:flex;align-items:center}
+.icon-btn:hover{color:#fff}
+.avatar{width:32px;height:32px;border-radius:50%;background:#D85A30;display:flex;align-items:center;justify-content:center;font-size:12px;font-weight:500;color:#fff;cursor:pointer;flex-shrink:0;transition:opacity .15s}
+.avatar:hover{opacity:.8}
+.nbtn{background:none;border:0.5px solid rgba(255,255,255,.18);color:rgba(255,255,255,.65);border-radius:24px;padding:6px 16px;font-size:12px;cursor:pointer;transition:all .15s}
+.nbtn:hover{border-color:rgba(255,255,255,.4);color:#fff}
+
+.search-bar{position:fixed;top:58px;left:0;right:0;z-index:99;background:#0d0d0d;border-bottom:0.5px solid rgba(255,255,255,.07);padding:12px 36px;display:none}
+.search-bar.show{display:block}
+.search-wrap{position:relative}
+.search-icon-abs{position:absolute;left:16px;top:50%;transform:translateY(-50%);color:rgba(255,255,255,.3);font-size:16px;pointer-events:none}
+.search-input{width:100%;background:#1a1a1a;border:0.5px solid rgba(255,255,255,.12);border-radius:28px;padding:10px 18px 10px 42px;font-size:14px;color:#fff;outline:none;font-family:inherit}
+.search-input:focus{border-color:rgba(255,255,255,.28)}
+.search-results{background:#111;border:0.5px solid rgba(255,255,255,.1);border-radius:12px;margin-top:8px;overflow:hidden;display:none}
+.search-results.show{display:block}
+.search-item{display:flex;align-items:center;gap:12px;padding:12px 16px;cursor:pointer;transition:background .15s;border-bottom:0.5px solid rgba(255,255,255,.05)}
+.search-item:last-child{border-bottom:none}
+.search-item:hover{background:rgba(255,255,255,.04)}
+.search-thumb{width:32px;height:48px;background:#1a1a1a;border-radius:4px;flex-shrink:0;overflow:hidden}
+.search-thumb img{width:100%;height:100%;object-fit:cover}
+.search-name{font-size:13px;color:#fff}
+.search-meta{font-size:11px;color:rgba(255,255,255,.3);margin-top:2px}
+.search-empty{padding:20px;text-align:center;font-size:13px;color:rgba(255,255,255,.25)}
+
+.hero-section{position:relative;height:100vh;min-height:560px;display:flex;align-items:flex-end;overflow:hidden}
+.hero-bg{position:absolute;inset:0;background:#0a0a0a}
+.hero-bg img{width:100%;height:100%;object-fit:cover;opacity:.35}
+.hero-overlay{position:absolute;inset:0;background:linear-gradient(to bottom,rgba(10,10,10,.2) 0%,rgba(10,10,10,.65) 60%,rgba(10,10,10,1) 100%)}
+.hero-content{position:relative;z-index:1;padding:0 48px 64px;max-width:700px}
+.hero-badge{display:inline-block;font-size:10px;letter-spacing:.12em;color:#D85A30;text-transform:uppercase;margin-bottom:14px;border:0.5px solid rgba(216,90,48,.4);padding:3px 10px;border-radius:20px}
+.hero-slogan{font-size:clamp(36px,6vw,72px);font-weight:300;letter-spacing:-.03em;line-height:1.05;margin-bottom:16px;color:#fff}
+.hero-slogan em{font-style:italic;color:rgba(255,255,255,.45)}
+.hero-sub{font-size:15px;color:rgba(255,255,255,.4);margin-bottom:28px;line-height:1.6;max-width:420px}
+.hero-cta{display:inline-flex;align-items:center;gap:8px;background:#D85A30;color:#fff;border:none;padding:13px 26px;border-radius:28px;font-size:14px;cursor:pointer;letter-spacing:.03em;transition:opacity .15s}
+.hero-cta:hover{opacity:.85}
+
+.main-content{background:#0a0a0a;position:relative;z-index:2}
+.tabs-bar{display:flex;gap:0;padding:0 36px;border-bottom:0.5px solid rgba(255,255,255,.06);overflow-x:auto;scrollbar-width:none}
+.tabs-bar::-webkit-scrollbar{display:none}
+.tbtab{font-size:12px;padding:14px 16px;color:rgba(255,255,255,.32);cursor:pointer;border-bottom:2px solid transparent;transition:all .15s;white-space:nowrap;letter-spacing:.02em}
+.tbtab:hover{color:rgba(255,255,255,.7)}
+.tbtab.on{color:#fff;border-bottom-color:#D85A30}
+.sec{padding:36px 36px 0}
+.sec-header{display:flex;align-items:center;justify-content:space-between;margin-bottom:20px}
+.sec-label{font-size:10px;letter-spacing:.18em;color:rgba(255,255,255,.25);text-transform:uppercase}
+.prow{display:flex;gap:14px;overflow-x:auto;padding-bottom:36px;scrollbar-width:none}
+.prow::-webkit-scrollbar{display:none}
+.divider{height:0.5px;background:rgba(255,255,255,.05);margin:0 36px}
+
+.poster{flex-shrink:0;width:140px;cursor:pointer;position:relative}
+.poster:hover .pimg{opacity:.7}
+.pimg{width:140px;height:210px;background:#141414;border-radius:8px;position:relative;display:flex;align-items:center;justify-content:center;margin-bottom:10px;transition:opacity .2s;overflow:hidden}
+.pimg img{width:100%;height:100%;object-fit:cover;border-radius:8px}
+.pimg-overlay{position:absolute;bottom:0;left:0;right:0;height:90px;background:linear-gradient(transparent,rgba(0,0,0,.85));z-index:1;border-radius:0 0 8px 8px}
+.ptype{position:absolute;top:8px;left:8px;font-size:9px;letter-spacing:.05em;padding:2px 7px;border-radius:20px;z-index:2;text-transform:uppercase}
+.pt-movie{background:rgba(216,90,48,.28);color:#F0997B}
+.pt-series{background:rgba(93,202,165,.22);color:#5DCAA5}
+.pt-short{background:rgba(239,159,39,.22);color:#EF9F27}
+.pt-vertical{background:rgba(175,169,236,.22);color:#AFA9EC}
+.pscore{position:absolute;bottom:9px;right:9px;font-size:13px;font-weight:500;color:#fff;z-index:2}
+.pwatchlist{position:absolute;top:8px;right:8px;z-index:3;background:rgba(0,0,0,.5);border:none;border-radius:50%;width:26px;height:26px;display:flex;align-items:center;justify-content:center;cursor:pointer;color:rgba(255,255,255,.6);font-size:13px;transition:all .15s;opacity:0}
+.poster:hover .pwatchlist{opacity:1}
+.pwatchlist:hover{color:#D85A30}
+.pwatchlist.saved{opacity:1;color:#D85A30}
+.picon{font-size:26px;color:rgba(255,255,255,.06)}
+.ptitle{font-size:12px;color:rgba(255,255,255,.82);line-height:1.35;margin-bottom:3px}
+.pmeta{font-size:11px;color:rgba(255,255,255,.25)}
+
+.empty{display:flex;flex-direction:column;align-items:center;justify-content:center;padding:80px 36px;text-align:center;gap:14px}
+.empty-title{font-size:20px;font-weight:300;color:rgba(255,255,255,.5)}
+.empty-sub{font-size:13px;color:rgba(255,255,255,.22);line-height:1.7;max-width:340px}
+.empty-btn{margin-top:8px;display:flex;align-items:center;gap:8px;background:#D85A30;color:#fff;border:none;padding:11px 24px;border-radius:28px;font-size:13px;cursor:pointer}
+
+.page-view{display:none;padding-top:58px}
+.page-view.show{display:block}
+.back-btn{display:inline-flex;align-items:center;gap:6px;font-size:13px;color:rgba(255,255,255,.3);cursor:pointer;padding:20px 36px;transition:color .15s;background:none;border:none;font-family:inherit}
+.back-btn:hover{color:#fff}
+
+/* DETAIL */
+.detail-hero{display:grid;grid-template-columns:200px 1fr;gap:40px;padding:8px 48px 40px;border-bottom:0.5px solid rgba(255,255,255,.06)}
+.detail-poster{width:200px;height:300px;background:#141414;border-radius:10px;overflow:hidden;flex-shrink:0}
+.detail-poster img{width:100%;height:100%;object-fit:cover}
+.detail-poster-empty{width:100%;height:100%;display:flex;align-items:center;justify-content:center}
+.d-title{font-size:32px;font-weight:300;letter-spacing:-.02em;line-height:1.15;margin-bottom:8px;margin-top:14px}
+.d-meta{font-size:13px;color:rgba(255,255,255,.32);margin-bottom:20px;display:flex;align-items:center;gap:8px;flex-wrap:wrap}
+.d-dot{width:3px;height:3px;border-radius:50%;background:rgba(255,255,255,.2);flex-shrink:0}
+.d-score-block{display:flex;align-items:baseline;gap:8px;margin-bottom:6px}
+.d-score{font-size:52px;font-weight:300;letter-spacing:-.03em;line-height:1;color:#fff}
+.d-score-ten{font-size:18px;color:rgba(255,255,255,.25);align-self:flex-end;margin-bottom:6px}
+.d-votes{font-size:12px;color:rgba(255,255,255,.28);margin-bottom:22px}
+.d-desc{font-size:14px;color:rgba(255,255,255,.42);line-height:1.7;max-width:500px;margin-bottom:26px}
+.d-actions{display:flex;gap:10px;flex-wrap:wrap;margin-bottom:20px}
+.watch-btn{display:inline-flex;align-items:center;gap:8px;background:#D85A30;color:#fff;border:none;padding:11px 22px;border-radius:28px;font-size:13px;cursor:pointer;letter-spacing:.03em;text-decoration:none;transition:opacity .15s}
+.watch-btn:hover{opacity:.85}
+.outline-btn{display:inline-flex;align-items:center;gap:8px;background:none;border:0.5px solid rgba(255,255,255,.18);color:rgba(255,255,255,.55);padding:11px 20px;border-radius:28px;font-size:13px;cursor:pointer;letter-spacing:.03em;transition:all .15s;font-family:inherit}
+.outline-btn:hover{border-color:#D85A30;color:#D85A30}
+.outline-btn.active{border-color:#D85A30;color:#D85A30}
+.already-rated-tag{display:inline-flex;align-items:center;gap:6px;font-size:11px;color:#5DCAA5;background:rgba(93,202,165,.12);border:0.5px solid rgba(93,202,165,.25);padding:5px 12px;border-radius:20px}
+
+.detail-body{padding:36px 48px}
+.detail-section-title{font-size:10px;letter-spacing:.15em;color:rgba(255,255,255,.22);text-transform:uppercase;margin-bottom:18px}
+
+/* BREAKDOWN PARAMS */
+.params-grid{display:grid;grid-template-columns:repeat(3,1fr);gap:14px;margin-bottom:40px}
+.param-box{background:#111;border-radius:10px;padding:20px}
+.param-num{font-size:34px;font-weight:300;color:#fff;line-height:1;margin-bottom:4px}
+.param-lbl{font-size:10px;color:rgba(255,255,255,.22);letter-spacing:.1em;text-transform:uppercase;margin-bottom:12px}
+.param-bar-bg{background:rgba(255,255,255,.06);border-radius:4px;height:4px;margin-bottom:6px}
+.param-bar-fill{background:#D85A30;border-radius:4px;height:4px;transition:width .6s ease}
+.param-votes{font-size:10px;color:rgba(255,255,255,.2)}
+
+/* SCORE DISTRIBUTION */
+.dist-section{margin-bottom:40px}
+.dist-rows{display:flex;flex-direction:column;gap:6px}
+.dist-row{display:flex;align-items:center;gap:10px}
+.dist-label{font-size:11px;color:rgba(255,255,255,.3);min-width:36px;text-align:right}
+.dist-bar-bg{flex:1;background:rgba(255,255,255,.06);border-radius:4px;height:6px}
+.dist-bar-fill{background:rgba(216,90,48,.6);border-radius:4px;height:6px;transition:width .5s ease}
+.dist-count{font-size:11px;color:rgba(255,255,255,.3);min-width:24px}
+
+/* RECENT RATERS */
+.raters-section{margin-bottom:40px}
+.raters-list{display:flex;flex-direction:column;gap:10px}
+.rater-row{display:flex;align-items:center;gap:12px;padding:12px;background:#111;border-radius:8px}
+.rater-avatar{width:32px;height:32px;border-radius:50%;background:#D85A30;display:flex;align-items:center;justify-content:center;font-size:11px;font-weight:500;color:#fff;flex-shrink:0}
+.rater-name{font-size:13px;color:rgba(255,255,255,.7);flex:1}
+.rater-score{font-size:14px;font-weight:500;color:#D85A30}
+.rater-date{font-size:11px;color:rgba(255,255,255,.22)}
+
+/* EMBED */
+.embed-wrap{margin-bottom:40px}
+.embed-wrap iframe{width:100%;aspect-ratio:16/9;border-radius:10px;border:none}
+
+/* REVIEWS */
+.reviews-list{display:flex;flex-direction:column;gap:14px}
+.review-card{background:#111;border-radius:10px;padding:18px;border:0.5px solid rgba(255,255,255,.06)}
+.review-header{display:flex;align-items:center;gap:10px;margin-bottom:10px}
+.review-avatar{width:28px;height:28px;border-radius:50%;background:#D85A30;display:flex;align-items:center;justify-content:center;font-size:10px;font-weight:500;color:#fff;flex-shrink:0}
+.review-name{font-size:13px;color:rgba(255,255,255,.7)}
+.review-score{font-size:12px;color:#D85A30;margin-left:auto;font-weight:500}
+.review-text{font-size:13px;color:rgba(255,255,255,.45);line-height:1.6}
+.review-date{font-size:11px;color:rgba(255,255,255,.2);margin-top:8px}
+.write-review-btn{display:flex;align-items:center;gap:8px;background:none;border:0.5px solid rgba(255,255,255,.12);color:rgba(255,255,255,.4);border-radius:10px;padding:14px 18px;font-size:13px;cursor:pointer;width:100%;font-family:inherit;transition:all .15s;margin-bottom:16px}
+.write-review-btn:hover{border-color:rgba(255,255,255,.25);color:rgba(255,255,255,.7)}
+
+/* PROFILE */
+.profile-hero{padding:48px 48px 36px;border-bottom:0.5px solid rgba(255,255,255,.06);display:flex;align-items:flex-end;gap:32px}
+.profile-avatar-big{width:80px;height:80px;border-radius:50%;background:#D85A30;display:flex;align-items:center;justify-content:center;font-size:28px;font-weight:400;color:#fff;flex-shrink:0}
+.profile-name{font-size:28px;font-weight:300;letter-spacing:-.02em;margin-bottom:4px}
+.profile-email{font-size:13px;color:rgba(255,255,255,.3)}
+.profile-stats{display:flex;gap:32px;margin-top:12px}
+.pstat{text-align:center}
+.pstat-num{font-size:22px;font-weight:300;color:#fff;display:block}
+.pstat-lbl{font-size:10px;color:rgba(255,255,255,.28);text-transform:uppercase;letter-spacing:.08em;margin-top:2px}
+.profile-tabs{display:flex;gap:0;padding:0 48px;border-bottom:0.5px solid rgba(255,255,255,.06)}
+.ptab{font-size:13px;padding:14px 18px;color:rgba(255,255,255,.32);cursor:pointer;border-bottom:2px solid transparent;transition:all .15s}
+.ptab:hover{color:rgba(255,255,255,.7)}
+.ptab.on{color:#fff;border-bottom-color:#D85A30}
+.profile-body{padding:32px 48px}
+.rating-item{display:flex;align-items:center;gap:14px;padding:14px 0;border-bottom:0.5px solid rgba(255,255,255,.05);cursor:pointer}
+.rating-item:last-child{border-bottom:none}
+.rating-item:hover .ri-title{color:#D85A30}
+.ri-poster{width:40px;height:60px;background:#141414;border-radius:5px;overflow:hidden;flex-shrink:0}
+.ri-poster img{width:100%;height:100%;object-fit:cover}
+.ri-title{font-size:13px;color:rgba(255,255,255,.8);transition:color .15s;flex:1}
+.ri-meta{font-size:11px;color:rgba(255,255,255,.28);margin-top:2px}
+.ri-score{font-size:16px;font-weight:400;color:#D85A30;flex-shrink:0}
+.watchlist-grid{display:grid;grid-template-columns:repeat(auto-fill,minmax(120px,1fr));gap:12px}
+
+/* MODALS */
+.modal-bg{position:fixed;inset:0;background:rgba(0,0,0,.85);z-index:200;display:flex;align-items:center;justify-content:center;opacity:0;pointer-events:none;transition:opacity .2s}
+.modal-bg.show{opacity:1;pointer-events:all}
+.mbox{background:#111;border:0.5px solid rgba(255,255,255,.1);border-radius:16px;padding:36px;width:460px;max-height:90vh;overflow-y:auto;position:relative;scrollbar-width:thin;scrollbar-color:rgba(255,255,255,.08) transparent}
+.mclose{position:absolute;top:14px;right:14px;background:none;border:none;color:rgba(255,255,255,.28);cursor:pointer;font-size:18px;line-height:1;transition:color .15s}
+.mclose:hover{color:#fff}
+.mtitle{font-size:20px;font-weight:300;margin-bottom:4px;letter-spacing:-.02em}
+.msub{font-size:12px;color:rgba(255,255,255,.28);margin-bottom:28px;line-height:1.6}
+.field{margin-bottom:15px}
+.field label{display:block;font-size:10px;letter-spacing:.12em;color:rgba(255,255,255,.32);text-transform:uppercase;margin-bottom:7px}
+.field input,.field select,.field textarea{width:100%;background:#1a1a1a;border:0.5px solid rgba(255,255,255,.1);border-radius:8px;padding:10px 13px;font-size:13px;color:#fff;outline:none;font-family:inherit;appearance:none;transition:border-color .15s}
+.field input:focus,.field textarea:focus{border-color:rgba(255,255,255,.28)}
+.field select option{background:#1a1a1a}
+.field textarea{resize:vertical;min-height:70px;line-height:1.5}
+.field-row{display:grid;grid-template-columns:1fr 1fr;gap:12px}
+.fbtn{width:100%;background:#D85A30;color:#fff;border:none;border-radius:28px;padding:13px;font-size:13px;cursor:pointer;letter-spacing:.04em;transition:opacity .15s;margin-top:8px;font-family:inherit}
+.fbtn:hover{opacity:.85}
+.fbtn:disabled{opacity:.35;cursor:not-allowed}
+
+.login-box{background:#111;border:0.5px solid rgba(255,255,255,.1);border-radius:16px;padding:48px 40px;width:380px;text-align:center;position:relative}
+.login-logo{font-size:26px;font-weight:300;letter-spacing:.1em;margin-bottom:10px}
+.login-logo em{font-style:normal;color:#D85A30}
+.login-sub{font-size:13px;color:rgba(255,255,255,.28);margin-bottom:34px;line-height:1.7}
+.google-btn{display:flex;align-items:center;justify-content:center;gap:10px;width:100%;background:#fff;color:#111;border:none;border-radius:28px;padding:14px;font-size:14px;font-weight:500;cursor:pointer;transition:opacity .15s;font-family:inherit}
+.google-btn:hover{opacity:.9}
+
+/* RATING MODAL — HALF STAR */
+.rbox{background:#111;border:0.5px solid rgba(255,255,255,.1);border-radius:16px;padding:36px;width:500px;position:relative;max-height:90vh;overflow-y:auto}
+.r-title{font-size:18px;font-weight:400;margin-bottom:3px}
+.r-sub{font-size:12px;color:rgba(255,255,255,.28);margin-bottom:8px}
+.r-already-tag{display:inline-flex;align-items:center;gap:5px;font-size:11px;color:#5DCAA5;background:rgba(93,202,165,.12);border:0.5px solid rgba(93,202,165,.3);padding:4px 10px;border-radius:20px;margin-bottom:20px}
+.r-param{margin-bottom:22px}
+.r-lbl{font-size:10px;letter-spacing:.12em;color:rgba(255,255,255,.32);text-transform:uppercase;margin-bottom:10px;display:flex;justify-content:space-between;align-items:center}
+.r-val-big{font-size:22px;font-weight:300;color:#fff;letter-spacing:-.01em}
+
+/* HALF-STAR SYSTEM */
+.half-star-row{display:flex;gap:2px;position:relative}
+.hs-wrap{position:relative;width:28px;height:28px;cursor:pointer;font-size:24px;line-height:28px;color:rgba(255,255,255,.1)}
+.hs-wrap .hs-full{position:absolute;top:0;left:0;color:#D85A30;overflow:hidden;white-space:nowrap;transition:width .05s}
+.hs-wrap .hs-char{display:block}
+
+.avg-box{background:#161616;border-radius:10px;padding:18px;text-align:center;margin:20px 0 16px;border:0.5px solid rgba(255,255,255,.06)}
+.avg-num{font-size:44px;font-weight:300;color:#fff;letter-spacing:-.03em;line-height:1}
+.avg-lbl{font-size:10px;color:rgba(255,255,255,.22);margin-top:5px;letter-spacing:.12em;text-transform:uppercase}
+.rbtn{width:100%;background:#D85A30;color:#fff;border:none;border-radius:28px;padding:13px;font-size:13px;cursor:pointer;letter-spacing:.04em;transition:opacity .15s;font-family:inherit;margin-top:4px}
+.rbtn:hover{opacity:.85}
+.rbtn:disabled{opacity:.35;cursor:not-allowed}
+.r-note{font-size:11px;color:rgba(255,255,255,.22);text-align:center;margin-top:10px;line-height:1.5}
+.review-textarea{width:100%;background:#1a1a1a;border:0.5px solid rgba(255,255,255,.1);border-radius:8px;padding:12px;font-size:13px;color:#fff;outline:none;font-family:inherit;resize:vertical;min-height:90px;margin-top:4px;line-height:1.5}
+.review-textarea:focus{border-color:rgba(255,255,255,.25)}
+.review-label{font-size:10px;letter-spacing:.12em;color:rgba(255,255,255,.28);text-transform:uppercase;margin-top:16px;margin-bottom:8px;display:block}
+
+.toast{position:fixed;bottom:32px;left:50%;transform:translateX(-50%) translateY(14px);background:#fff;color:#111;border-radius:28px;padding:10px 24px;font-size:13px;font-weight:500;z-index:999;opacity:0;transition:all .28s;pointer-events:none;white-space:nowrap}
+.toast.show{opacity:1;transform:translateX(-50%) translateY(0)}
+
+/* ── MOBILE ─────────────────────────────────────────────── */
+@media (max-width: 768px) {
+  /* NAV */
+  .nav{padding:0 16px;height:52px}
+  .nav-c{display:none}
+  .nav-r{gap:12px}
+  .add-btn span{display:none}
+  .add-btn{padding:6px 10px}
+  .logo{font-size:14px}
+
+  /* MOBILE NAV DRAWER */
+  .mob-menu-btn{display:flex !important}
+  .mob-drawer{display:block !important}
+
+  /* HERO */
+  .hero-section{height:100svh;min-height:500px}
+  .hero-content{padding:0 20px 48px}
+  .hero-slogan{font-size:clamp(28px,8vw,48px)}
+  .hero-sub{font-size:13px}
+
+  /* TABS */
+  .tabs-bar{padding:0 12px}
+  .tbtab{padding:12px 10px;font-size:11px}
+
+  /* SECTIONS */
+  .sec{padding:24px 16px 0}
+  .divider{margin:0 16px}
+
+  /* POSTER ROW → 2 column grid */
+  .prow{display:grid !important;grid-template-columns:repeat(2,1fr);gap:10px;padding:0 0 24px;overflow-x:unset}
+  .poster{width:100% !important;flex-shrink:unset}
+  .pimg{width:100% !important;height:0;padding-bottom:150%;position:relative}
+  .pimg img{position:absolute;top:0;left:0;width:100%;height:100%;object-fit:cover;border-radius:8px}
+  .pimg-overlay{position:absolute}
+  .ptype{position:absolute}
+  .pscore{position:absolute}
+  .pwatchlist{opacity:1 !important}
+  .picon{position:absolute;top:50%;left:50%;transform:translate(-50%,-50%)}
+
+  /* SEARCH */
+  .search-bar{padding:10px 16px}
+
+  /* DETAIL */
+  .detail-hero{grid-template-columns:1fr;gap:20px;padding:8px 16px 28px}
+  .detail-poster{width:100%;height:auto;aspect-ratio:2/3;max-width:200px;margin:0 auto}
+  .d-title{font-size:22px}
+  .d-score{font-size:40px}
+  .detail-body{padding:24px 16px}
+  .params-grid{grid-template-columns:1fr 1fr 1fr;gap:8px}
+  .param-box{padding:14px 10px}
+  .param-num{font-size:24px}
+  .d-actions{flex-wrap:wrap;gap:8px}
+  .watch-btn,.outline-btn{font-size:12px;padding:9px 14px}
+  .back-btn{padding:14px 16px}
+  .embed-wrap iframe{border-radius:6px}
+
+  /* PROFILE */
+  .profile-hero{padding:24px 16px 20px;flex-direction:column;align-items:flex-start;gap:16px}
+  .profile-tabs{padding:0 16px}
+  .profile-body{padding:20px 16px}
+  .profile-stats{gap:20px}
+
+  /* RATING MODAL */
+  .rbox{width:95vw;padding:24px 20px;border-radius:16px}
+  .mbox{width:95vw;padding:24px 20px}
+  .login-box{width:95vw;padding:32px 20px}
+
+  /* WATCHLIST GRID */
+  .watchlist-grid{grid-template-columns:repeat(2,1fr)}
+}
+
+@media (max-width: 400px) {
+  .prow{grid-template-columns:repeat(2,1fr)}
+  .params-grid{grid-template-columns:1fr}
+}
+
+</style>
+</head>
+<body>
+
+<nav class="nav">
+  <span class="logo" onclick="showView('home')">AI<em>CDb</em></span>
+  <div class="nav-c">
+    <span class="nl on" onclick="showView('home')">discover</span>
+    <span class="nl" onclick="filterByType('movie')">movies</span>
+    <span class="nl" onclick="filterByType('series')">series</span>
+    <span class="nl" onclick="filterByType('vertical')">vertical</span>
+    <span class="nl" onclick="filterByType('short')">shorts</span>
+    <span class="nl" onclick="showTopRated()">top rated</span>
+  </div>
+  <div class="nav-r">
+    <button class="icon-btn" onclick="toggleSearch()" aria-label="Search"><i class="ti ti-search"></i></button>
+    <button class="add-btn" onclick="handleAdd()"><i class="ti ti-plus" style="font-size:13px"></i> add</button>
+    <div id="auth-area"></div>
+  </div>
+
+  <!-- MOBILE MENU BTN -->
+  <button class="mob-menu-btn" id="mob-menu-btn" onclick="toggleMobMenu()" style="display:none;background:none;border:none;color:rgba(255,255,255,.6);font-size:20px;cursor:pointer;padding:4px">
+    <i class="ti ti-menu-2"></i>
+  </button>
+</nav>
+
+<!-- MOBILE DRAWER -->
+<div class="mob-drawer" id="mob-drawer" style="display:none;position:fixed;top:52px;left:0;right:0;bottom:0;background:rgba(10,10,10,.98);z-index:99;padding:24px 20px;flex-direction:column;gap:0">
+  <a class="mob-nl" onclick="showView('home');toggleMobMenu()">discover</a>
+  <a class="mob-nl" onclick="filterByType('movie');toggleMobMenu()">movies</a>
+  <a class="mob-nl" onclick="filterByType('series');toggleMobMenu()">series</a>
+  <a class="mob-nl" onclick="filterByType('vertical');toggleMobMenu()">vertical series</a>
+  <a class="mob-nl" onclick="filterByType('short');toggleMobMenu()">shorts</a>
+  <a class="mob-nl" onclick="showTopRated();toggleMobMenu()">top rated</a>
+  <div style="height:1px;background:rgba(255,255,255,.07);margin:16px 0"></div>
+  <a class="mob-nl" onclick="handleAdd();toggleMobMenu()">+ add content</a>
+</div>
+
+<style>
+.mob-nl{display:block;font-size:18px;font-weight:300;color:rgba(255,255,255,.7);padding:14px 0;border-bottom:0.5px solid rgba(255,255,255,.06);cursor:pointer;text-decoration:none;letter-spacing:.02em}
+.mob-nl:hover{color:#fff}
+.mob-drawer{display:none !important}
+.mob-drawer.open{display:flex !important}
+</style>
+
+<div class="search-bar" id="search-bar">
+  <div class="search-wrap">
+    <i class="ti ti-search search-icon-abs"></i>
+    <input class="search-input" id="search-input" placeholder="Search titles, creators..." oninput="doSearch()">
+    <div class="search-results" id="search-results"></div>
+  </div>
+</div>
+
+<!-- HOME -->
+<div class="page-view show" id="view-home" style="padding-top:58px">
+  <div class="hero-section">
+    <div class="hero-bg"><img id="hero-img" src="" alt="" style="display:none"></div>
+    <div class="hero-overlay"></div>
+    <div class="hero-content">
+      <div class="hero-badge">AI Cinema</div>
+      <div class="hero-slogan">Where artificial<br>intelligence <em>meets</em><br>storytelling.</div>
+      <div class="hero-sub">Discover, rate and celebrate AI-generated films, series and short films from creators around the world.</div>
+      <button class="hero-cta" onclick="document.getElementById('main-content').scrollIntoView({behavior:'smooth'})">
+        <i class="ti ti-arrow-down" style="font-size:14px"></i> Explore
+      </button>
+    </div>
+  </div>
+  <div class="main-content" id="main-content">
+    <div class="tabs-bar" id="tabs-bar">
+      <span class="tbtab on" onclick="setTab('all',this)">All</span>
+      <span class="tbtab" onclick="setTab('movie',this)">Movies</span>
+      <span class="tbtab" onclick="setTab('series',this)">Series</span>
+      <span class="tbtab" onclick="setTab('vertical',this)">Vertical Series</span>
+      <span class="tbtab" onclick="setTab('short',this)">Shorts</span>
+      <span class="tbtab" onclick="setTab('top',this)">Top Rated</span>
+    </div>
+    <div id="content-area"></div>
+  </div>
+</div>
+
+<!-- DETAIL -->
+<div class="page-view" id="view-detail" style="padding-top:58px">
+  <button class="back-btn" onclick="goBack()"><i class="ti ti-arrow-left" style="font-size:15px"></i> Back</button>
+  <div class="detail-hero">
+    <div class="detail-poster" id="d-poster"></div>
+    <div>
+      <div id="d-type-badge"></div>
+      <div class="d-title" id="d-title"></div>
+      <div class="d-meta" id="d-meta"></div>
+      <div class="d-score-block">
+        <div class="d-score" id="d-score">—</div>
+        <div class="d-score-ten" id="d-score-ten"></div>
+      </div>
+      <div class="d-votes" id="d-votes"></div>
+      <div class="d-desc" id="d-desc"></div>
+      <div class="d-actions" id="d-actions"></div>
+    </div>
+  </div>
+  <div class="detail-body">
+    <div id="d-embed"></div>
+    <div id="d-params"></div>
+    <div id="d-dist"></div>
+    <div id="d-raters"></div>
+    <div id="d-reviews"></div>
+  </div>
+</div>
+
+<!-- PROFILE -->
+<div class="page-view" id="view-profile" style="padding-top:58px">
+  <div class="profile-hero">
+    <div class="profile-avatar-big" id="p-avatar"></div>
+    <div>
+      <div class="profile-name" id="p-name"></div>
+      <div class="profile-email" id="p-email"></div>
+      <div class="profile-stats" id="p-stats"></div>
+    </div>
+  </div>
+  <div class="profile-tabs">
+    <span class="ptab on" onclick="setProfileTab('ratings',this)">My Ratings</span>
+    <span class="ptab" onclick="setProfileTab('watchlist',this)">Watchlist</span>
+    <span class="ptab" onclick="setProfileTab('reviews',this)">My Reviews</span>
+  </div>
+  <div class="profile-body" id="profile-body"></div>
+</div>
+
+<!-- LOGIN -->
+<div class="modal-bg" id="m-login">
+  <div class="login-box">
+    <button class="mclose" onclick="hide('m-login')"><i class="ti ti-x"></i></button>
+    <div class="login-logo">AI<em>CDb</em></div>
+    <div class="login-sub">Sign in to rate, review and build<br>your personal watchlist.</div>
+    <button class="google-btn" onclick="loginGoogle()">
+      <svg width="18" height="18" viewBox="0 0 24 24"><path fill="#4285F4" d="M22.56 12.25c0-.78-.07-1.53-.2-2.25H12v4.26h5.92c-.26 1.37-1.04 2.53-2.21 3.31v2.77h3.57c2.08-1.92 3.28-4.74 3.28-8.09z"/><path fill="#34A853" d="M12 23c2.97 0 5.46-.98 7.28-2.66l-3.57-2.77c-.98.66-2.23 1.06-3.71 1.06-2.86 0-5.29-1.93-6.16-4.53H2.18v2.84C3.99 20.53 7.7 23 12 23z"/><path fill="#FBBC05" d="M5.84 14.09c-.22-.66-.35-1.36-.35-2.09s.13-1.43.35-2.09V7.07H2.18C1.43 8.55 1 10.22 1 12s.43 3.45 1.18 4.93l2.85-2.22.81-.62z"/><path fill="#EA4335" d="M12 5.38c1.62 0 3.06.56 4.21 1.64l3.15-3.15C17.45 2.09 14.97 1 12 1 7.7 1 3.99 3.47 2.18 7.07l3.66 2.84c.87-2.6 3.3-4.53 6.16-4.53z"/></svg>
+      Continue with Google
+    </button>
+  </div>
+</div>
+
+<!-- ADD CONTENT -->
+<div class="modal-bg" id="m-add">
+  <div class="mbox">
+    <button class="mclose" onclick="hide('m-add')"><i class="ti ti-x"></i></button>
+    <div class="mtitle">Submit content</div>
+    <div class="msub">Add an AI-generated work. Goes live after review.</div>
+    <div class="field"><label>Title</label><input type="text" id="f-title" placeholder="Title of the work"></div>
+    <div class="field-row">
+      <div class="field"><label>Creator</label><input type="text" id="f-creator" placeholder="@username or name"></div>
+      <div class="field"><label>Year</label><input type="number" id="f-year" placeholder="2025" min="2020" max="2030"></div>
+    </div>
+    <div class="field-row">
+      <div class="field"><label>Type</label>
+        <select id="f-type">
+          <option value="movie">Movie</option>
+          <option value="series">Series</option>
+          <option value="short">Short Movie</option>
+          <option value="vertical">Vertical Series</option>
+        </select>
+      </div>
+      <div class="field"><label>Duration</label><input type="text" id="f-duration" placeholder="42 min / 6 eps"></div>
+    </div>
+    <div class="field"><label>Short description</label><textarea id="f-desc" placeholder="A brief logline..."></textarea></div>
+    <div class="field"><label>Poster URL <span style="opacity:.4">(optional)</span></label><input type="text" id="f-poster" placeholder="https://i.imgur.com/..."></div>
+    <div class="field"><label>Source</label>
+      <select id="f-source-type" onchange="updateSourceHint()">
+        <option value="youtube">YouTube embed code</option>
+        <option value="instagram">Instagram link</option>
+        <option value="other">Other link</option>
+      </select>
+    </div>
+    <div class="field"><label id="source-lbl">YouTube embed code</label>
+      <textarea id="f-source" placeholder='<iframe src="https://www.youtube.com/embed/..." ...></iframe>'></textarea>
+    </div>
+    <button class="fbtn" id="add-btn" onclick="submitContent()">Submit for review</button>
+  </div>
+</div>
+
+<!-- RATING MODAL -->
+<div class="modal-bg" id="m-rate">
+  <div class="rbox">
+    <button class="mclose" onclick="hide('m-rate')"><i class="ti ti-x"></i></button>
+    <div class="r-title" id="r-title"></div>
+    <div class="r-sub" id="r-sub"></div>
+    <div id="r-already-tag"></div>
+    <div class="r-param">
+      <div class="r-lbl">Visuals <span class="r-val-big" id="v-val">—</span></div>
+      <div class="half-star-row" id="st-v"></div>
+    </div>
+    <div class="r-param">
+      <div class="r-lbl">Sound Design <span class="r-val-big" id="s-val">—</span></div>
+      <div class="half-star-row" id="st-s"></div>
+    </div>
+    <div class="r-param">
+      <div class="r-lbl">Script <span class="r-val-big" id="sc-val">—</span></div>
+      <div class="half-star-row" id="st-sc"></div>
+    </div>
+    <div class="avg-box">
+      <div class="avg-num" id="avg-num">—</div>
+      <div class="avg-lbl">average score / 10</div>
+    </div>
+    <span class="review-label">Review <span style="opacity:.4">(optional)</span></span>
+    <textarea class="review-textarea" id="review-text" placeholder="Share your thoughts..."></textarea>
+    <button class="rbtn" id="r-btn" onclick="submitRating()" disabled>Save rating</button>
+    <div class="r-note" id="r-note"></div>
+  </div>
+</div>
+
+<div class="toast" id="toast"></div>
+
+<script>
+const SB_URL = 'https://zvvkejehuludrsabsesd.supabase.co';
+const SB_KEY = 'sb_publishable_N5UqVBhIljj03kGsa3DP-w_m_w6hzPS';
+const sb = supabase.createClient(SB_URL, SB_KEY);
+
+let user = null;
+let allContents = [];
+let avgMap = {}, countMap = {}, paramMap = {};
+let watchlist = new Set();
+let activeContent = null;
+let prevView = 'home';
+let rv=0, rs=0, rsc=0;
+let currentTab = 'all';
+let currentProfileTab = 'ratings';
+let openRatingAfterLogin = false;
+
+async function init() {
+  const { data: { session } } = await sb.auth.getSession();
+  user = session?.user || null;
+  renderAuth();
+  await loadContents();
+  if (user) await loadWatchlist();
+
+  sb.auth.onAuthStateChange(async (event, session) => {
+    user = session?.user || null;
+    renderAuth();
+    if (event === 'SIGNED_IN') {
+      hide('m-login');
+      await loadWatchlist();
+      renderContentArea();
+      toast('Welcome!');
+      if (openRatingAfterLogin && activeContent) {
+        openRatingAfterLogin = false;
+        setTimeout(() => openRating(), 300);
+      }
+    }
+    if (event === 'SIGNED_OUT') { watchlist.clear(); renderContentArea(); }
+  });
+}
+
+async function loginGoogle() {
+  await sb.auth.signInWithOAuth({ provider: 'google', options: { redirectTo: window.location.href } });
+}
+async function signOut() { await sb.auth.signOut(); user=null; renderAuth(); toast('Signed out.'); }
+
+function renderAuth() {
+  const el = document.getElementById('auth-area');
+  if (user) {
+    const name = user.user_metadata?.full_name || user.email || '';
+    const initials = name.slice(0,2).toUpperCase();
+    el.innerHTML = `<div class="avatar" onclick="showView('profile')" title="Profile">${initials}</div>`;
+  } else {
+    el.innerHTML = `<button class="nbtn" onclick="show('m-login')">sign in</button>`;
+  }
+}
+
+function showView(view) {
+  ['home','detail','profile'].forEach(v => document.getElementById('view-'+v).classList.toggle('show', v===view));
+  if (view==='profile' && user) loadProfile();
+  if (view==='home') renderContentArea();
+}
+function goBack() { showView(prevView==='profile'?'profile':'home'); }
+
+function toggleSearch() {
+  const bar=document.getElementById('search-bar');
+  bar.classList.toggle('show');
+  if (bar.classList.contains('show')) document.getElementById('search-input').focus();
+  else { document.getElementById('search-input').value=''; document.getElementById('search-results').classList.remove('show'); }
+}
+function doSearch() {
+  const q=document.getElementById('search-input').value.trim().toLowerCase();
+  const res=document.getElementById('search-results');
+  if (!q) { res.classList.remove('show'); return; }
+  const matches=allContents.filter(c=>c.title.toLowerCase().includes(q)||(c.creator||'').toLowerCase().includes(q)).slice(0,8);
+  res.innerHTML = matches.length
+    ? matches.map(c=>`<div class="search-item" onclick="selectSearch('${c.id}')">
+        <div class="search-thumb">${c.poster_url?`<img src="${c.poster_url}" onerror="this.style.display='none'">`:''}</div>
+        <div><div class="search-name">${c.title}</div><div class="search-meta">${typeLabel(c.type)}${c.creator?' · @'+c.creator:''}${avgMap[c.id]?' · '+avgMap[c.id]:''}</div></div>
+      </div>`).join('')
+    : `<div class="search-empty">No results for "${q}"</div>`;
+  res.classList.add('show');
+}
+function selectSearch(id) {
+  const c=allContents.find(x=>x.id===id);
+  if(c){toggleSearch();openDetail(c);}
+}
+
+async function loadContents() {
+  const {data:contents}=await sb.from('contents').select('*').eq('approved',true).order('created_at',{ascending:false});
+  const {data:ratings}=await sb.from('ratings').select('content_id,visuals,sound_design,script');
+  avgMap={}; countMap={}; paramMap={};
+  if (ratings) {
+    const grp={};
+    ratings.forEach(r=>{ if(!grp[r.content_id]) grp[r.content_id]=[]; grp[r.content_id].push(r); });
+    Object.keys(grp).forEach(id=>{
+      const arr=grp[id];
+      const v=arr.reduce((a,b)=>a+b.visuals,0)/arr.length;
+      const s=arr.reduce((a,b)=>a+b.sound_design,0)/arr.length;
+      const sc=arr.reduce((a,b)=>a+b.script,0)/arr.length;
+      paramMap[id]={v:v.toFixed(1),s:s.toFixed(1),sc:sc.toFixed(1),count:arr.length};
+      avgMap[id]=((v+s+sc)/3).toFixed(1);
+      countMap[id]=arr.length;
+    });
+  }
+  allContents=contents||[];
+  const withPoster=allContents.filter(c=>c.poster_url);
+  if (withPoster.length) {
+    const pick=withPoster[Math.floor(Math.random()*withPoster.length)];
+    const img=document.getElementById('hero-img');
+    img.src=pick.poster_url; img.style.display='block';
+  }
+  renderContentArea();
+}
+
+function renderContentArea() {
+  if (!allContents.length) {
+    document.getElementById('content-area').innerHTML=`<div class="empty"><div class="empty-title">No content yet</div><div class="empty-sub">Be the first to submit an AI-generated film or series.</div><button class="empty-btn" onclick="handleAdd()"><i class="ti ti-plus" style="font-size:14px"></i> Add content</button></div>`;
+    return;
+  }
+  let filtered=[...allContents];
+  if (currentTab!=='all'&&currentTab!=='top') filtered=filtered.filter(c=>c.type===currentTab);
+  const sorted=[...allContents].sort((a,b)=>(parseFloat(avgMap[b.id]||0))-(parseFloat(avgMap[a.id]||0)));
+  let html='';
+  if (currentTab==='top') {
+    html=`<div class="sec"><div class="sec-header"><span class="sec-label">top rated</span></div><div class="prow">${sorted.map(c=>posterHTML(c)).join('')}</div></div>`;
+  } else if (currentTab==='all') {
+    html=`<div class="sec"><div class="sec-header"><span class="sec-label">recently added</span></div><div class="prow">${filtered.map(c=>posterHTML(c)).join('')}</div></div>`;
+    if (sorted.length>1) html+=`<div class="divider"></div><div class="sec"><div class="sec-header"><span class="sec-label">top rated</span></div><div class="prow">${sorted.map(c=>posterHTML(c)).join('')}</div></div>`;
+  } else {
+    html=`<div class="sec"><div class="sec-header"><span class="sec-label">${typeLabel(currentTab)}</span></div><div class="prow">${filtered.length?filtered.map(c=>posterHTML(c)).join(''):'<div style="padding:40px;color:rgba(255,255,255,.2);font-size:13px">No content in this category yet.</div>'}</div></div>`;
+  }
+  html+=`<div style="height:60px"></div>`;
+  document.getElementById('content-area').innerHTML=html;
+  document.querySelectorAll('.poster').forEach(el=>{
+    el.addEventListener('click',e=>{
+      if(e.target.closest('.pwatchlist')) return;
+      const c=allContents.find(x=>x.id===el.dataset.id);
+      if(c) openDetail(c);
+    });
+  });
+  document.querySelectorAll('.pwatchlist').forEach(el=>{
+    el.addEventListener('click',e=>{e.stopPropagation();toggleWatchlist(el.dataset.id);});
+  });
+}
+
+function setTab(tab,el) { currentTab=tab; document.querySelectorAll('.tbtab').forEach(t=>t.classList.remove('on')); el.classList.add('on'); renderContentArea(); }
+function filterByType(type) { currentTab=type; showView('home'); setTimeout(renderContentArea,50); }
+function showTopRated() { currentTab='top'; showView('home'); setTimeout(renderContentArea,50); }
+function typeLabel(t) { return {movie:'Movie',series:'Series',short:'Short',vertical:'Vertical'}[t]||t; }
+function typeClass(t) { return {movie:'pt-movie',series:'pt-series',short:'pt-short',vertical:'pt-vertical'}[t]||'pt-movie'; }
+function typeIcon(t) { return {movie:'ti-movie',series:'ti-device-tv',short:'ti-brand-youtube',vertical:'ti-device-mobile'}[t]||'ti-movie'; }
+
+function posterHTML(c) {
+  const avg=avgMap[c.id]; const inWL=watchlist.has(c.id);
+  return `<div class="poster" data-id="${c.id}">
+    <div class="pimg">
+      ${c.poster_url?`<img src="${c.poster_url}" alt="${c.title}" loading="lazy" onerror="this.style.display='none'">`:``}
+      <div class="pimg-overlay"></div>
+      <div class="ptype ${typeClass(c.type)}">${typeLabel(c.type)}</div>
+      ${avg?`<div class="pscore">${avg}</div>`:''}
+      <button class="pwatchlist ${inWL?'saved':''}" data-id="${c.id}"><i class="ti ${inWL?'ti-bookmark-filled':'ti-bookmark'}"></i></button>
+      ${!c.poster_url?`<i class="ti ${typeIcon(c.type)} picon"></i>`:''}
+    </div>
+    <div class="ptitle">${c.title}</div>
+    <div class="pmeta">${c.creator?'@'+c.creator:''}${c.year?' · '+c.year:''}${countMap[c.id]?' · '+countMap[c.id]+' ratings':''}</div>
+  </div>`;
+}
+
+async function loadWatchlist() {
+  if(!user) return;
+  const {data}=await sb.from('watchlist').select('content_id').eq('user_id',user.id);
+  watchlist=new Set((data||[]).map(r=>r.content_id));
+}
+async function toggleWatchlist(contentId) {
+  if(!user){show('m-login');return;}
+  if(watchlist.has(contentId)){
+    await sb.from('watchlist').delete().eq('user_id',user.id).eq('content_id',contentId);
+    watchlist.delete(contentId); toast('Removed from watchlist.');
+  } else {
+    await sb.from('watchlist').insert({user_id:user.id,content_id:contentId});
+    watchlist.add(contentId); toast('Added to watchlist!');
+  }
+  renderContentArea();
+}
+
+async function openDetail(c) {
+  activeContent=c;
+  prevView=document.getElementById('view-home').classList.contains('show')?'home':'profile';
+  showView('detail');
+  const avg=avgMap[c.id]; const count=countMap[c.id]||0; const params=paramMap[c.id];
+  const inWL=watchlist.has(c.id);
+
+  document.getElementById('d-poster').innerHTML=c.poster_url
+    ?`<img src="${c.poster_url}" alt="${c.title}" onerror="this.parentElement.innerHTML='<div class=detail-poster-empty style=font-size:40px>🎬</div>'">`
+    :`<div class="detail-poster-empty"><i class="ti ${typeIcon(c.type)}" style="font-size:40px;color:rgba(255,255,255,.06)"></i></div>`;
+  document.getElementById('d-type-badge').innerHTML=`<span class="ptype ${typeClass(c.type)}" style="position:static;display:inline-block;margin-bottom:14px">${typeLabel(c.type)}</span>`;
+  document.getElementById('d-title').textContent=c.title;
+  const metaParts=[];
+  if(c.creator) metaParts.push(`@${c.creator}`);
+  if(c.year) metaParts.push(c.year);
+  if(c.duration) metaParts.push(c.duration);
+  document.getElementById('d-meta').innerHTML=metaParts.join(`<div class="d-dot"></div>`);
+  document.getElementById('d-score').textContent=avg||'—';
+  document.getElementById('d-score-ten').textContent=avg?'/ 10':'';
+  document.getElementById('d-votes').textContent=count?`${count} rating${count>1?'s':''}`:'No ratings yet';
+  document.getElementById('d-desc').textContent=c.description||'';
+
+  // actions
+  let acts='';
+  if(c.source_value){
+    const url=c.source_type==='youtube'?(()=>{const m=c.source_value.match(/embed\/([a-zA-Z0-9_-]+)/);return m?`https://youtube.com/watch?v=${m[1]}`:c.source_value;})():c.source_value;
+    acts+=`<a class="watch-btn" href="${url}" target="_blank" rel="noopener"><i class="ti ti-player-play" style="font-size:13px"></i> Watch</a>`;
+  }
+
+  // check if user already rated
+  let alreadyRated = false;
+  if (user) {
+    const {data:ur}=await sb.from('ratings').select('id').eq('content_id',c.id).eq('user_id',user.id).single();
+    alreadyRated = !!ur;
+  }
+  acts+=`<button class="outline-btn ${alreadyRated?'active':''}" onclick="openRating()">
+    <i class="ti ti-star" style="font-size:13px"></i> ${alreadyRated?'Update rating':'Rate'}
+  </button>`;
+  if(alreadyRated) acts+=`<span class="already-rated-tag"><i class="ti ti-check" style="font-size:12px"></i> Rated</span>`;
+  acts+=`<button class="outline-btn ${inWL?'active':''}" id="wl-btn" onclick="toggleWatchlistDetail('${c.id}')">
+    <i class="ti ${inWL?'ti-bookmark-filled':'ti-bookmark'}" style="font-size:13px"></i> ${inWL?'Saved':'Watchlist'}
+  </button>`;
+  document.getElementById('d-actions').innerHTML=acts;
+
+  // embed
+  document.getElementById('d-embed').innerHTML=c.source_value&&c.source_type==='youtube'
+    ?`<div class="detail-section-title" style="margin-bottom:14px">Watch</div><div class="embed-wrap">${c.source_value}</div>`:'';
+
+  // params with progress bars
+  if(params){
+    document.getElementById('d-params').innerHTML=`
+      <div class="detail-section-title">Rating breakdown</div>
+      <div class="params-grid">
+        ${['v','s','sc'].map((k,i)=>{
+          const labels=['Visuals','Sound Design','Script'];
+          const val=parseFloat(params[k]);
+          const pct=(val/10)*100;
+          return `<div class="param-box">
+            <div class="param-num">${params[k]}</div>
+            <div class="param-lbl">${labels[i]}</div>
+            <div class="param-bar-bg"><div class="param-bar-fill" style="width:${pct}%"></div></div>
+            <div class="param-votes">${params.count} rating${params.count>1?'s':''}</div>
+          </div>`;
+        }).join('')}
+      </div>`;
+  } else {
+    document.getElementById('d-params').innerHTML='';
+  }
+
+  // load full ratings for dist + raters
+  await loadDetailStats(c.id);
+  await loadReviews(c.id);
+}
+
+async function loadDetailStats(contentId) {
+  const {data:ratings}=await sb.from('ratings').select('*').eq('content_id',contentId).order('created_at',{ascending:false});
+  if(!ratings||!ratings.length){
+    document.getElementById('d-dist').innerHTML='';
+    document.getElementById('d-raters').innerHTML='';
+    return;
+  }
+
+  // Score distribution
+  const buckets={1:0,2:0,3:0,4:0,5:0};
+  ratings.forEach(r=>{
+    const avg=(r.visuals+r.sound_design+r.script)/3;
+    if(avg<=2) buckets[1]++;
+    else if(avg<=4) buckets[2]++;
+    else if(avg<=6) buckets[3]++;
+    else if(avg<=8) buckets[4]++;
+    else buckets[5]++;
+  });
+  const maxB=Math.max(...Object.values(buckets),1);
+  const labels=['1–2','3–4','5–6','7–8','9–10'];
+  document.getElementById('d-dist').innerHTML=`
+    <div class="dist-section">
+      <div class="detail-section-title">Score distribution</div>
+      <div class="dist-rows">
+        ${[5,4,3,2,1].map(k=>`
+          <div class="dist-row">
+            <div class="dist-label">${labels[k-1]}</div>
+            <div class="dist-bar-bg"><div class="dist-bar-fill" style="width:${(buckets[k]/maxB)*100}%"></div></div>
+            <div class="dist-count">${buckets[k]}</div>
+          </div>`).join('')}
+      </div>
+    </div>`;
+
+  // Recent raters (last 5)
+  const recent=ratings.slice(0,5);
+  document.getElementById('d-raters').innerHTML=`
+    <div class="raters-section">
+      <div class="detail-section-title">Recent ratings</div>
+      <div class="raters-list">
+        ${recent.map(r=>{
+          const avg=((r.visuals+r.sound_design+r.script)/3).toFixed(1);
+          const name=r.user_name||'Anonymous';
+          const initials=name.slice(0,2).toUpperCase();
+          const date=new Date(r.created_at).toLocaleDateString('en-US',{month:'short',day:'numeric',year:'numeric'});
+          return `<div class="rater-row">
+            <div class="rater-avatar">${initials}</div>
+            <div class="rater-name">${name}</div>
+            <div class="rater-date">${date}</div>
+            <div class="rater-score">${avg}</div>
+          </div>`;
+        }).join('')}
+      </div>
+    </div>`;
+}
+
+async function loadReviews(contentId) {
+  const {data}=await sb.from('ratings').select('*').eq('content_id',contentId).not('review','is',null).order('created_at',{ascending:false});
+  const reviews=(data||[]).filter(r=>r.review&&r.review.trim());
+  const {data:userRating}=user?await sb.from('ratings').select('*').eq('content_id',contentId).eq('user_id',user.id).single():{data:null};
+  let html=`<div class="detail-section-title">Reviews</div>`;
+  html+=`<button class="write-review-btn" onclick="openRating()"><i class="ti ti-pencil" style="font-size:14px"></i> ${userRating?'Edit your rating & review':'Write a review'}</button>`;
+  if(reviews.length){
+    html+=`<div class="reviews-list">`+reviews.map(r=>{
+      const avg=((r.visuals+r.sound_design+r.script)/3).toFixed(1);
+      const initials=(r.user_name||'U').slice(0,2).toUpperCase();
+      return `<div class="review-card">
+        <div class="review-header">
+          <div class="review-avatar">${initials}</div>
+          <div class="review-name">${r.user_name||'Anonymous'}</div>
+          <div class="review-score">${avg}</div>
+        </div>
+        <div class="review-text">${r.review}</div>
+        <div class="review-date">${new Date(r.created_at).toLocaleDateString('en-US',{year:'numeric',month:'short',day:'numeric'})}</div>
+      </div>`;
+    }).join('')+`</div>`;
+  } else {
+    html+=`<div style="font-size:13px;color:rgba(255,255,255,.2);padding:16px 0">No reviews yet.</div>`;
+  }
+  document.getElementById('d-reviews').innerHTML=html;
+}
+
+async function toggleWatchlistDetail(contentId) {
+  await toggleWatchlist(contentId);
+  const inWL=watchlist.has(contentId);
+  const btn=document.getElementById('wl-btn');
+  if(btn){
+    btn.className=`outline-btn ${inWL?'active':''}`;
+    btn.innerHTML=`<i class="ti ${inWL?'ti-bookmark-filled':'ti-bookmark'}" style="font-size:13px"></i> ${inWL?'Saved':'Watchlist'}`;
+  }
+}
+
+// ── HALF-STAR RATING ──────────────────────────────────────
+async function openRating() {
+  if(!user){openRatingAfterLogin=true;show('m-login');return;}
+  const c=activeContent;
+  rv=0;rs=0;rsc=0;
+  document.getElementById('r-title').textContent=c.title;
+  document.getElementById('r-sub').textContent=c.creator?'@'+c.creator:'';
+  document.getElementById('r-already-tag').innerHTML='';
+  document.getElementById('r-note').textContent='';
+  document.getElementById('review-text').value='';
+  document.getElementById('r-btn').disabled=true;
+  document.getElementById('r-btn').textContent='Save rating';
+  updateAvg(); buildHalfStars('st-v','v'); buildHalfStars('st-s','s'); buildHalfStars('st-sc','sc');
+
+  const {data}=await sb.from('ratings').select('*').eq('content_id',c.id).eq('user_id',user.id).single();
+  if(data){
+    rv=data.visuals;rs=data.sound_design;rsc=data.script;
+    if(data.review) document.getElementById('review-text').value=data.review;
+    buildHalfStars('st-v','v');buildHalfStars('st-s','s');buildHalfStars('st-sc','sc');updateAvg();
+    document.getElementById('r-already-tag').innerHTML=`<div class="r-already-tag"><i class="ti ti-refresh" style="font-size:11px"></i> Updating your existing rating</div>`;
+    document.getElementById('r-btn').textContent='Update rating';
+    document.getElementById('r-btn').disabled=false;
+  }
+  show('m-rate');
+}
+
+function buildHalfStars(cid, key) {
+  const val=key==='v'?rv:key==='s'?rs:rsc;
+  const vid=key==='v'?'v-val':key==='s'?'s-val':'sc-val';
+  const container=document.getElementById(cid);
+  container.innerHTML='';
+  for(let i=1;i<=5;i++){
+    const wrap=document.createElement('div');
+    wrap.className='hs-wrap';
+    wrap.innerHTML=`<span class="hs-char">★</span><span class="hs-full" style="width:${getStarFill(val,i)}%"><span class="hs-char">★</span></span>`;
+
+    // left half = i-0.5, right half = i
+    wrap.addEventListener('mousemove', e => {
+      const rect=wrap.getBoundingClientRect();
+      const half=e.clientX-rect.left < rect.width/2;
+      const hoverVal=half?i-0.5:i;
+      highlightHalfStars(container,hoverVal);
+    });
+    wrap.addEventListener('mouseleave', () => {
+      const cur=key==='v'?rv:key==='s'?rs:rsc;
+      highlightHalfStars(container,cur);
+    });
+    wrap.addEventListener('click', e => {
+      const rect=wrap.getBoundingClientRect();
+      const half=e.clientX-rect.left < rect.width/2;
+      const newVal=half?i-0.5:i;
+      const scaled=newVal*2; // convert 0-5 to 0-10
+      if(key==='v') rv=scaled; else if(key==='s') rs=scaled; else rsc=scaled;
+      buildHalfStars(cid,key); updateAvg(); checkReady();
+    });
+    container.appendChild(wrap);
+  }
+  // display val in 0-5 scale for label
+  const display=val?((val/2).toFixed(1)).replace('.0',''):' —';
+  document.getElementById(vid).textContent=val?`${(val/2).toFixed(1)}/5`:' —';
+}
+
+function getStarFill(val,i) {
+  // val is 0-10, i is 1-5 star position
+  const scaled=val/2; // convert to 0-5
+  if(scaled>=i) return 100;
+  if(scaled<=i-1) return 0;
+  return (scaled-(i-1))*100;
+}
+
+function highlightHalfStars(container,hoverVal) {
+  // hoverVal is 0-5
+  container.querySelectorAll('.hs-wrap').forEach((w,idx)=>{
+    const fill=getStarFill(hoverVal*2,idx+1);
+    w.querySelector('.hs-full').style.width=fill+'%';
+  });
+}
+
+function updateAvg(){
+  document.getElementById('avg-num').textContent=(rv&&rs&&rsc)?((rv+rs+rsc)/3).toFixed(1):'—';
+}
+function checkReady(){document.getElementById('r-btn').disabled=!(rv&&rs&&rsc);}
+
+async function submitRating() {
+  if(!user){hide('m-rate');show('m-login');return;}
+  const btn=document.getElementById('r-btn');
+  const review=document.getElementById('review-text').value.trim();
+  const name=user.user_metadata?.full_name||user.email||'';
+  btn.disabled=true;btn.textContent='Saving...';
+  const {error}=await sb.from('ratings').upsert({
+    content_id:activeContent.id,user_id:user.id,
+    visuals:rv,sound_design:rs,script:rsc,
+    review:review||null,user_name:name
+  },{onConflict:'content_id,user_id'});
+  if(error){toast('Error saving.');btn.disabled=false;btn.textContent='Save rating';return;}
+  toast('Rating saved!');hide('m-rate');
+  // instant update without full reload
+  const newAvg=((rv+rs+rsc)/3).toFixed(1);
+  avgMap[activeContent.id]=newAvg;
+  const prevCount=countMap[activeContent.id]||0;
+  countMap[activeContent.id]=prevCount||1;
+  document.getElementById('d-score').textContent=newAvg;
+  document.getElementById('d-score-ten').textContent='/ 10';
+  document.getElementById('d-votes').textContent=`${countMap[activeContent.id]} rating${countMap[activeContent.id]>1?'s':''}`;
+  await loadDetailStats(activeContent.id);
+  await loadReviews(activeContent.id);
+  await loadContents();
+}
+
+// ── PROFILE ───────────────────────────────────────────────
+async function loadProfile() {
+  if(!user) return;
+  const name=user.user_metadata?.full_name||user.email||'';
+  document.getElementById('p-avatar').textContent=name.slice(0,2).toUpperCase();
+  document.getElementById('p-name').textContent=name;
+  document.getElementById('p-email').textContent=user.email;
+  const {data:myRatings}=await sb.from('ratings').select('*').eq('user_id',user.id);
+  const {data:myWL}=await sb.from('watchlist').select('content_id').eq('user_id',user.id);
+  const wlCount=(myWL||[]).length;
+  const rCount=(myRatings||[]).length;
+  const reviews=(myRatings||[]).filter(r=>r.review&&r.review.trim()).length;
+  document.getElementById('p-stats').innerHTML=`
+    <div class="pstat"><span class="pstat-num">${rCount}</span><div class="pstat-lbl">Ratings</div></div>
+    <div class="pstat"><span class="pstat-num">${wlCount}</span><div class="pstat-lbl">Watchlist</div></div>
+    <div class="pstat"><span class="pstat-num">${reviews}</span><div class="pstat-lbl">Reviews</div></div>`;
+  renderProfileTab(currentProfileTab,myRatings||[],myWL||[]);
+}
+
+function setProfileTab(tab,el) {
+  currentProfileTab=tab;
+  document.querySelectorAll('.ptab').forEach(t=>t.classList.remove('on'));
+  el.classList.add('on');
+  loadProfile();
+}
+
+function renderProfileTab(tab,myRatings,myWL) {
+  const body=document.getElementById('profile-body');
+  if(tab==='ratings'){
+    if(!myRatings.length){body.innerHTML=`<div style="color:rgba(255,255,255,.22);font-size:14px;padding:40px 0">No ratings yet.</div>`;return;}
+    body.innerHTML=myRatings.map(r=>{
+      const c=allContents.find(x=>x.id===r.content_id);
+      if(!c) return '';
+      const avg=((r.visuals+r.sound_design+r.script)/3).toFixed(1);
+      return `<div class="rating-item" onclick="openDetail(allContents.find(x=>x.id==='${c.id}'))">
+        <div class="ri-poster">${c.poster_url?`<img src="${c.poster_url}" onerror="this.style.display='none'">`:''}</div>
+        <div><div class="ri-title">${c.title}</div><div class="ri-meta">${typeLabel(c.type)}${c.year?' · '+c.year:''}</div></div>
+        <div class="ri-score">${avg}</div>
+      </div>`;
+    }).join('');
+  } else if(tab==='watchlist'){
+    const wlContents=(myWL||[]).map(r=>allContents.find(x=>x.id===r.content_id)).filter(Boolean);
+    if(!wlContents.length){body.innerHTML=`<div style="color:rgba(255,255,255,.22);font-size:14px;padding:40px 0">Your watchlist is empty.</div>`;return;}
+    body.innerHTML=`<div class="watchlist-grid">${wlContents.map(c=>posterHTML(c)).join('')}</div>`;
+    document.querySelectorAll('.poster').forEach(el=>{
+      el.addEventListener('click',e=>{if(e.target.closest('.pwatchlist'))return;const c=allContents.find(x=>x.id===el.dataset.id);if(c)openDetail(c);});
+    });
+    document.querySelectorAll('.pwatchlist').forEach(el=>{
+      el.addEventListener('click',e=>{e.stopPropagation();toggleWatchlist(el.dataset.id);});
+    });
+  } else if(tab==='reviews'){
+    const withReviews=myRatings.filter(r=>r.review&&r.review.trim());
+    if(!withReviews.length){body.innerHTML=`<div style="color:rgba(255,255,255,.22);font-size:14px;padding:40px 0">No reviews written yet.</div>`;return;}
+    body.innerHTML=withReviews.map(r=>{
+      const c=allContents.find(x=>x.id===r.content_id);
+      if(!c) return '';
+      return `<div class="review-card" style="cursor:pointer" onclick="openDetail(allContents.find(x=>x.id==='${c.id}'))">
+        <div style="font-size:13px;font-weight:500;color:rgba(255,255,255,.7);margin-bottom:8px">${c.title}</div>
+        <div class="review-text">${r.review}</div>
+        <div class="review-date">${new Date(r.created_at).toLocaleDateString('en-US',{year:'numeric',month:'short',day:'numeric'})}</div>
+      </div>`;
+    }).join('');
+  }
+}
+
+// ── ADD CONTENT ───────────────────────────────────────────
+function handleAdd(){user?show('m-add'):show('m-login');}
+function updateSourceHint(){
+  const t=document.getElementById('f-source-type').value;
+  const lbl=document.getElementById('source-lbl');
+  const ta=document.getElementById('f-source');
+  if(t==='youtube'){lbl.textContent='YouTube embed code';ta.placeholder='<iframe src="https://www.youtube.com/embed/..." ...></iframe>';}
+  else if(t==='instagram'){lbl.textContent='Instagram link';ta.placeholder='https://www.instagram.com/reel/...';}
+  else{lbl.textContent='Content link';ta.placeholder='https://...';}
+}
+async function submitContent(){
+  const title=document.getElementById('f-title').value.trim();
+  const creator=document.getElementById('f-creator').value.trim().replace('@','');
+  if(!title||!creator){toast('Title and creator are required.');return;}
+  const btn=document.getElementById('add-btn');
+  btn.disabled=true;btn.textContent='Submitting...';
+  const {error}=await sb.from('contents').insert({
+    title,creator,
+    year:parseInt(document.getElementById('f-year').value)||new Date().getFullYear(),
+    type:document.getElementById('f-type').value,
+    duration:document.getElementById('f-duration').value.trim(),
+    description:document.getElementById('f-desc').value.trim()||null,
+    poster_url:document.getElementById('f-poster').value.trim()||null,
+    source_type:document.getElementById('f-source-type').value,
+    source_value:document.getElementById('f-source').value.trim()||null,
+    added_by:user.id,approved:false
+  });
+  btn.disabled=false;btn.textContent='Submit for review';
+  if(error){toast('Error: '+error.message);return;}
+  hide('m-add');toast('Submitted! Goes live after review.');
+  ['f-title','f-creator','f-year','f-duration','f-desc','f-poster','f-source'].forEach(id=>document.getElementById(id).value='');
+}
+
+function show(id){document.getElementById(id).classList.add('show');}
+function hide(id){document.getElementById(id).classList.remove('show');}
+['m-login','m-add','m-rate'].forEach(id=>{
+  document.getElementById(id).addEventListener('click',e=>{if(e.target.id===id)hide(id);});
+});
+function toast(msg){
+  const el=document.getElementById('toast');
+  el.textContent=msg;el.classList.add('show');
+  setTimeout(()=>el.classList.remove('show'),2800);
+}
+
+
+function toggleMobMenu() {
+  const drawer = document.getElementById('mob-drawer');
+  const btn = document.getElementById('mob-menu-btn');
+  drawer.classList.toggle('open');
+  btn.innerHTML = drawer.classList.contains('open') 
+    ? '<i class="ti ti-x"></i>' 
+    : '<i class="ti ti-menu-2"></i>';
+}
+
+init();
+</script>
+</body>
+</html>
