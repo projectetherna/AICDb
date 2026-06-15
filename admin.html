@@ -1,0 +1,255 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>AICDb — Admin</title>
+<script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
+<style>
+*{box-sizing:border-box;margin:0;padding:0}
+body{background:#0a0a0a;font-family:-apple-system,BlinkMacSystemFont,'Segoe UI',sans-serif;color:#fff;min-height:100vh}
+.nav{display:flex;align-items:center;justify-content:space-between;padding:0 36px;height:56px;background:#111;border-bottom:0.5px solid rgba(255,255,255,.08)}
+.logo{font-size:14px;letter-spacing:.1em;color:#fff}.logo em{font-style:normal;color:#D85A30}
+.nav-badge{font-size:10px;background:#D85A30;color:#fff;padding:2px 8px;border-radius:20px;letter-spacing:.06em;text-transform:uppercase}
+.page{max-width:900px;margin:0 auto;padding:40px 24px}
+.tabs{display:flex;gap:0;margin-bottom:32px;border-bottom:0.5px solid rgba(255,255,255,.08)}
+.tab{font-size:13px;padding:10px 20px;color:rgba(255,255,255,.35);cursor:pointer;border-bottom:2px solid transparent;transition:all .15s}
+.tab.on{color:#fff;border-bottom-color:#D85A30}
+.section-title{font-size:11px;letter-spacing:.15em;color:rgba(255,255,255,.3);text-transform:uppercase;margin-bottom:20px}
+.card{background:#111;border:0.5px solid rgba(255,255,255,.08);border-radius:12px;padding:20px;margin-bottom:12px;display:grid;grid-template-columns:60px 1fr auto;gap:16px;align-items:start}
+.card-poster{width:60px;height:90px;border-radius:6px;background:#1a1a1a;overflow:hidden;display:flex;align-items:center;justify-content:center;font-size:22px;color:rgba(255,255,255,.1);flex-shrink:0}
+.card-poster img{width:100%;height:100%;object-fit:cover}
+.card-title{font-size:15px;font-weight:400;color:#fff;margin-bottom:4px}
+.card-meta{font-size:12px;color:rgba(255,255,255,.3);line-height:1.6}
+.card-desc{font-size:12px;color:rgba(255,255,255,.4);margin-top:6px;line-height:1.5}
+.card-actions{display:flex;flex-direction:column;gap:8px;align-items:flex-end;flex-shrink:0}
+.btn{border:none;border-radius:20px;padding:7px 16px;font-size:12px;cursor:pointer;transition:opacity .15s;white-space:nowrap;font-family:inherit}
+.btn:hover{opacity:.8}
+.btn-approve{background:#0F6E56;color:#9FE1CB}
+.btn-edit{background:rgba(255,255,255,.08);color:rgba(255,255,255,.6)}
+.btn-reject{background:rgba(163,45,45,.2);color:#F09595}
+.btn-unapprove{background:rgba(186,117,23,.2);color:#EF9F27}
+.type-badge{display:inline-block;font-size:9px;padding:2px 7px;border-radius:20px;text-transform:uppercase;letter-spacing:.05em;margin-right:6px}
+.t-movie{background:rgba(216,90,48,.25);color:#F0997B}
+.t-series{background:rgba(93,202,165,.2);color:#5DCAA5}
+.t-short{background:rgba(239,159,39,.2);color:#EF9F27}
+.t-vertical{background:rgba(175,169,236,.2);color:#AFA9EC}
+.empty{padding:60px;text-align:center;color:rgba(255,255,255,.2);font-size:14px}
+.count-badge{font-size:11px;background:rgba(255,255,255,.08);color:rgba(255,255,255,.35);padding:2px 8px;border-radius:20px;margin-left:8px}
+
+/* EDIT MODAL */
+.modal-bg{position:fixed;inset:0;background:rgba(0,0,0,.85);z-index:200;display:flex;align-items:center;justify-content:center;opacity:0;pointer-events:none;transition:opacity .2s}
+.modal-bg.show{opacity:1;pointer-events:all}
+.mbox{background:#111;border:0.5px solid rgba(255,255,255,.1);border-radius:16px;padding:36px;width:500px;max-height:90vh;overflow-y:auto;position:relative;scrollbar-width:thin;scrollbar-color:rgba(255,255,255,.08) transparent}
+.mclose{position:absolute;top:14px;right:14px;background:none;border:none;color:rgba(255,255,255,.28);cursor:pointer;font-size:18px;line-height:1}
+.mclose:hover{color:#fff}
+.mtitle{font-size:20px;font-weight:300;margin-bottom:4px}
+.msub{font-size:12px;color:rgba(255,255,255,.28);margin-bottom:24px}
+.field{margin-bottom:14px}
+.field label{display:block;font-size:10px;letter-spacing:.12em;color:rgba(255,255,255,.32);text-transform:uppercase;margin-bottom:6px}
+.field input,.field select,.field textarea{width:100%;background:#1a1a1a;border:0.5px solid rgba(255,255,255,.1);border-radius:8px;padding:9px 12px;font-size:13px;color:#fff;outline:none;font-family:inherit;appearance:none;transition:border-color .15s}
+.field input:focus,.field textarea:focus{border-color:rgba(255,255,255,.28)}
+.field select option{background:#1a1a1a}
+.field textarea{resize:vertical;min-height:65px;line-height:1.5}
+.field-row{display:grid;grid-template-columns:1fr 1fr;gap:12px}
+.fbtn{width:100%;background:#D85A30;color:#fff;border:none;border-radius:28px;padding:12px;font-size:13px;cursor:pointer;letter-spacing:.04em;margin-top:8px;font-family:inherit;transition:opacity .15s}
+.fbtn:hover{opacity:.85}
+.fbtn:disabled{opacity:.35;cursor:not-allowed}
+
+.toast{position:fixed;bottom:28px;left:50%;transform:translateX(-50%) translateY(14px);background:#fff;color:#111;border-radius:28px;padding:10px 24px;font-size:13px;font-weight:500;z-index:999;opacity:0;transition:all .28s;pointer-events:none;white-space:nowrap}
+.toast.show{opacity:1;transform:translateX(-50%) translateY(0)}
+.login-wall{display:flex;flex-direction:column;align-items:center;justify-content:center;height:80vh;gap:16px;text-align:center}
+.login-wall h2{font-size:22px;font-weight:300;color:rgba(255,255,255,.5)}
+.login-wall p{font-size:13px;color:rgba(255,255,255,.22)}
+</style>
+</head>
+<body>
+<nav class="nav">
+  <span class="logo">AI<em>CDb</em></span>
+  <span class="nav-badge">Admin</span>
+</nav>
+
+<div class="page" id="page">
+  <div class="empty">Loading...</div>
+</div>
+
+<!-- EDIT MODAL -->
+<div class="modal-bg" id="m-edit">
+  <div class="mbox">
+    <button class="mclose" onclick="hide('m-edit')">✕</button>
+    <div class="mtitle">Edit content</div>
+    <div class="msub" id="edit-sub"></div>
+    <input type="hidden" id="edit-id">
+    <div class="field"><label>Title</label><input type="text" id="e-title"></div>
+    <div class="field-row">
+      <div class="field"><label>Creator</label><input type="text" id="e-creator"></div>
+      <div class="field"><label>Year</label><input type="number" id="e-year"></div>
+    </div>
+    <div class="field-row">
+      <div class="field">
+        <label>Type</label>
+        <select id="e-type">
+          <option value="movie">Movie</option>
+          <option value="series">Series</option>
+          <option value="short">Short Movie</option>
+          <option value="vertical">Vertical Series</option>
+        </select>
+      </div>
+      <div class="field"><label>Duration</label><input type="text" id="e-duration"></div>
+    </div>
+    <div class="field"><label>Description</label><textarea id="e-desc"></textarea></div>
+    <div class="field"><label>Poster URL</label><input type="text" id="e-poster"></div>
+    <div class="field">
+      <label>Source type</label>
+      <select id="e-source-type">
+        <option value="youtube">YouTube embed code</option>
+        <option value="instagram">Instagram link</option>
+        <option value="other">Other link</option>
+      </select>
+    </div>
+    <div class="field"><label>Source value</label><textarea id="e-source"></textarea></div>
+    <button class="fbtn" id="edit-btn" onclick="saveEdit()">Save changes</button>
+  </div>
+</div>
+
+<div class="toast" id="toast"></div>
+
+<script>
+const SB_URL = 'https://zvvkejehuludrsabsesd.supabase.co';
+const SB_KEY = 'sb_publishable_N5UqVBhIljj03kGsa3DP-w_m_w6hzPS';
+const sb = supabase.createClient(SB_URL, SB_KEY);
+const ADMIN_EMAIL = 'opvalaraukar@gmail.com';
+
+let user = null;
+let activeTab = 'pending';
+
+async function init() {
+  const { data: { session } } = await sb.auth.getSession();
+  user = session?.user || null;
+  if (!user || user.email !== ADMIN_EMAIL) {
+    document.getElementById('page').innerHTML = `
+      <div class="login-wall">
+        <h2>Admin access only</h2>
+        <p>Sign in with the admin Google account to continue.</p>
+      </div>`;
+    return;
+  }
+  render();
+}
+
+async function render() {
+  const { data: pending } = await sb.from('contents').select('*').eq('approved', false).order('created_at', { ascending: false });
+  const { data: approved } = await sb.from('contents').select('*').eq('approved', true).order('created_at', { ascending: false });
+  const p = pending || [], a = approved || [];
+  const items = activeTab === 'pending' ? p : a;
+
+  document.getElementById('page').innerHTML = `
+    <div class="tabs">
+      <span class="tab ${activeTab==='pending'?'on':''}" onclick="switchTab('pending')">
+        Pending <span class="count-badge">${p.length}</span>
+      </span>
+      <span class="tab ${activeTab==='approved'?'on':''}" onclick="switchTab('approved')">
+        Approved <span class="count-badge">${a.length}</span>
+      </span>
+    </div>
+    <div class="section-title">${activeTab==='pending'?'waiting for review':'live on site'}</div>
+    ${items.length===0
+      ? `<div class="empty">${activeTab==='pending'?'No pending submissions.':'No approved content yet.'}</div>`
+      : items.map(c => cardHTML(c)).join('')}`;
+}
+
+function switchTab(tab) { activeTab=tab; render(); }
+
+function typeClass(t) { return {movie:'t-movie',series:'t-series',short:'t-short',vertical:'t-vertical'}[t]||'t-movie'; }
+function typeLabel(t) { return {movie:'Movie',series:'Series',short:'Short Movie',vertical:'Vertical Series'}[t]||t; }
+
+function cardHTML(c) {
+  return `<div class="card">
+    <div class="card-poster">
+      ${c.poster_url ? `<img src="${c.poster_url}" alt="${c.title}" onerror="this.style.display='none'">` : '🎬'}
+    </div>
+    <div>
+      <div class="card-title">${c.title}</div>
+      <div class="card-meta">
+        <span class="type-badge ${typeClass(c.type)}">${typeLabel(c.type)}</span>
+        ${c.creator?'@'+c.creator:''}
+        ${c.year?' · '+c.year:''}
+        ${c.duration?' · '+c.duration:''}
+      </div>
+      ${c.description?`<div class="card-desc">${c.description}</div>`:''}
+      ${c.source_value?`<div class="card-meta" style="margin-top:6px;font-size:10px;opacity:.4;word-break:break-all">${c.source_type}: ${c.source_value.slice(0,60)}...</div>`:''}
+    </div>
+    <div class="card-actions">
+      ${c.approved
+        ? `<button class="btn btn-unapprove" onclick="setApproved('${c.id}',false)">Unpublish</button>`
+        : `<button class="btn btn-approve" onclick="setApproved('${c.id}',true)">Approve</button>`}
+      <button class="btn btn-edit" onclick="openEdit(${JSON.stringify(c).replace(/"/g,'&quot;')})">Edit</button>
+      <button class="btn btn-reject" onclick="deleteContent('${c.id}')">Delete</button>
+    </div>
+  </div>`;
+}
+
+async function setApproved(id, val) {
+  await sb.from('contents').update({ approved: val }).eq('id', id);
+  toast(val ? 'Approved — now live!' : 'Unpublished.');
+  render();
+}
+
+async function deleteContent(id) {
+  if (!confirm('Delete this content permanently?')) return;
+  await sb.from('contents').delete().eq('id', id);
+  toast('Deleted.');
+  render();
+}
+
+function openEdit(c) {
+  document.getElementById('edit-id').value = c.id;
+  document.getElementById('edit-sub').textContent = 'Editing: ' + c.title;
+  document.getElementById('e-title').value = c.title || '';
+  document.getElementById('e-creator').value = c.creator || '';
+  document.getElementById('e-year').value = c.year || '';
+  document.getElementById('e-type').value = c.type || 'movie';
+  document.getElementById('e-duration').value = c.duration || '';
+  document.getElementById('e-desc').value = c.description || '';
+  document.getElementById('e-poster').value = c.poster_url || '';
+  document.getElementById('e-source-type').value = c.source_type || 'youtube';
+  document.getElementById('e-source').value = c.source_value || '';
+  show('m-edit');
+}
+
+async function saveEdit() {
+  const id = document.getElementById('edit-id').value;
+  const btn = document.getElementById('edit-btn');
+  btn.disabled=true; btn.textContent='Saving...';
+  const { error } = await sb.from('contents').update({
+    title:     document.getElementById('e-title').value.trim(),
+    creator:   document.getElementById('e-creator').value.trim().replace('@',''),
+    year:      parseInt(document.getElementById('e-year').value)||null,
+    type:      document.getElementById('e-type').value,
+    duration:  document.getElementById('e-duration').value.trim(),
+    description: document.getElementById('e-desc').value.trim()||null,
+    poster_url:  document.getElementById('e-poster').value.trim()||null,
+    source_type: document.getElementById('e-source-type').value,
+    source_value: document.getElementById('e-source').value.trim()||null,
+  }).eq('id', id);
+  btn.disabled=false; btn.textContent='Save changes';
+  if (error) { toast('Error: '+error.message); return; }
+  hide('m-edit');
+  toast('Saved!');
+  render();
+}
+
+function show(id) { document.getElementById(id).classList.add('show'); }
+function hide(id) { document.getElementById(id).classList.remove('show'); }
+document.getElementById('m-edit').addEventListener('click', e => { if(e.target.id==='m-edit') hide('m-edit'); });
+
+function toast(msg) {
+  const el=document.getElementById('toast');
+  el.textContent=msg; el.classList.add('show');
+  setTimeout(()=>el.classList.remove('show'),2800);
+}
+
+init();
+</script>
+</body>
+</html>
