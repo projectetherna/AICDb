@@ -1,0 +1,34 @@
+<!DOCTYPE html>
+<!-- @dsCard group="Components" name="Content-type badges" subtitle="Ghost & solid pill variants" viewport="700x180" -->
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<link rel="stylesheet" href="../colors_and_type.css">
+<style>
+  html,body { margin:0; }
+  body { background: var(--bg-0); padding: 24px 26px; }
+  .row { display:flex; gap:12px; align-items:center; flex-wrap:wrap; }
+  .row+.row { margin-top:16px; }
+  .badge { display:inline-flex; align-items:center; gap:6px; padding:6px 12px; border-radius: var(--radius-pill); font:600 12px/1 var(--font-body); letter-spacing:0.04em; }
+  .dot { width:7px; height:7px; border-radius:50%; }
+  .solid { color:#fff; }
+  .cap { font: var(--text-data-sm); color: var(--fg-2); margin-top:16px; }
+  .cap b { color: var(--fg-1); font-weight:600; }
+</style>
+</head>
+<body>
+  <div class="row">
+    <span class="badge" style="background:var(--coral-ghost);color:#e8714a;"><span class="dot" style="background:#d85a30;"></span>MOVIE</span>
+    <span class="badge" style="background:var(--teal-ghost);color:#6fdbd3;"><span class="dot" style="background:#4ecdc4;"></span>SERIES</span>
+    <span class="badge" style="background:rgba(229,178,59,0.14);color:#e5b23b;"><span class="dot" style="background:#e5b23b;"></span>SHORT</span>
+    <span class="badge" style="background:rgba(157,141,241,0.15);color:#9d8df1;"><span class="dot" style="background:#9d8df1;"></span>VERTICAL</span>
+  </div>
+  <div class="row">
+    <span class="badge solid" style="background:#d85a30;color:#1a0d08;">MOVIE</span>
+    <span class="badge solid" style="background:#4ecdc4;color:#04201e;">SERIES</span>
+    <span class="badge solid" style="background:#e5b23b;color:#2a1f00;">SHORT</span>
+    <span class="badge solid" style="background:#9d8df1;color:#160a3a;">VERTICAL</span>
+  </div>
+  <div class="cap"><b>Content-type badges</b> — ghost (default, on cards) &amp; solid (overlays on posters). Pill shape, mono-adjacent caps.</div>
+</body>
+</html>

@@ -1,0 +1,62 @@
+<!DOCTYPE html>
+<!-- @dsCard group="UI Kit — Web App" name="Login modal — Dreamwall" subtitle="Auth gate popup over film detail (Watch / Watchlist)" viewport="1180x720" -->
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>Dreamwall — Login modal</title>
+<link rel="stylesheet" href="../../colors_and_type.css">
+<script src="theme-init.js"></script>
+<style>
+  html, body { margin:0; background: var(--bg-0); min-height:100vh; }
+  * { box-sizing: border-box; }
+  a { color: inherit; }
+  @keyframes aicdbFade { from { opacity:0.4; } to { opacity:1; } }
+  @keyframes aicdbPop { from { transform: translateY(10px) scale(0.97); } to { transform:none; } }
+</style>
+<script src="https://unpkg.com/react@18.3.1/umd/react.development.js" integrity="sha384-hD6/rw4ppMLGNu3tX5cjIb+uRZ7UkRJ6BPkLpg4hAu/6onKUg4lLsHAs9EBPT82L" crossorigin="anonymous"></script>
+<script src="https://unpkg.com/react-dom@18.3.1/umd/react-dom.development.js" integrity="sha384-u6aeetuaXnQ38mYT8rp6sbXaQe3NL9t+IBXmnYxwkUI2Hw4bsp2Wvmx4yRQF1uAm" crossorigin="anonymous"></script>
+<script src="https://unpkg.com/@babel/standalone@7.29.0/babel.min.js" integrity="sha384-m08KidiNqLdpJqLq95G/LEi8Qvjl/xUYll3QILypMoQ65QorJ9Lvtp2RXYGBFj1y" crossorigin="anonymous"></script>
+<link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/@phosphor-icons/web@2.1.1/src/bold/style.css">
+<link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/@phosphor-icons/web@2.1.1/src/fill/style.css">
+<meta name="ext-resource-dependency" content="../../assets/aicdb-mark.png" data-resource-id="aicdbMark" />
+<link rel="icon" type="image/png" href="../../assets/aicdb-favicon.png">
+</head>
+<body>
+  <div id="root"></div>
+  <script src="data.js"></script>
+  <script type="text/babel" src="Primitives.jsx"></script>
+  <script type="text/babel" src="BrandIcons.jsx"></script>
+  <script type="text/babel" src="NavBar.jsx"></script>
+  <script type="text/babel" src="FilmCard.jsx"></script>
+  <script type="text/babel" src="Login.jsx"></script>
+  <script type="text/babel" src="FilmDetail.jsx"></script>
+  <script type="text/babel" src="LoginModal.jsx"></script>
+  <script type="text/babel">
+    function Demo() {
+      const films = window.AICDB_FILMS;
+      const film = films.find(f => f.type === 'movie') || films[0];
+      const [modal, setModal] = React.useState({ open:false, trigger:'watch' });
+      const gate = (trigger) => setModal({ open:true, trigger });
+
+      // Render a real detail page behind the modal; intercept its Watch/Watchlist buttons.
+      return (
+        <div onClickCapture={(e)=>{
+          const btn = e.target.closest('button');
+          if (!btn) return;
+          const t = btn.textContent.toLowerCase();
+          if (t.includes('watchlist')) { e.preventDefault(); e.stopPropagation(); gate('watchlist'); }
+          else if (t.includes('watch') || t.includes('view title') || t.includes('play')) { e.preventDefault(); e.stopPropagation(); gate('watch'); }
+        }}>
+          <div style={{ pointerEvents: modal.open ? 'none' : 'auto' }}>
+            <NavBar active="" onNav={()=>{}} query="" onQuery={()=>{}} />
+            <FilmDetail film={film} onBack={()=>{}} />
+          </div>
+          <LoginModal open={modal.open} trigger={modal.trigger} onClose={()=>setModal(m=>({ ...m, open:false }))} />
+        </div>
+      );
+    }
+    ReactDOM.createRoot(document.getElementById('root')).render(<Demo />);
+  </script>
+</body>
+</html>

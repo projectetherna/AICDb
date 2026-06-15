@@ -1,0 +1,17 @@
+{
+  "name": "aicdb",
+  "private": true,
+  "type": "module",
+  "scripts": {
+    "dev": "wrangler dev",
+    "deploy": "wrangler deploy",
+    "types:gen": "supabase gen types typescript --project-id zvvkejehuludrsabsesd > src/types/database.ts"
+  },
+  "dependencies": {
+    "@supabase/supabase-js": "^2.49.0"
+  },
+  "devDependencies": {
+    "typescript": "^5.7.0",
+    "wrangler": "^4.100.0"
+  }
+}

@@ -1,0 +1,106 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>Dreamwall — Web App (Print)</title>
+<link rel="stylesheet" href="../../colors_and_type.css">
+<script src="theme-init.js"></script>
+<style>
+  html, body { margin:0; background: var(--bg-0); }
+  * { box-sizing: border-box; }
+  a { color: inherit; }
+
+  /* Each captured screen sits in its own framed page block */
+  .print-page {
+    position: relative;
+    background: var(--bg-0);
+    overflow: hidden;
+  }
+  .print-page + .print-page { margin-top: 40px; }
+
+  @media screen {
+    body { padding: 24px; }
+    .print-page {
+      max-width: 1180px;
+      margin: 0 auto 40px;
+      border: 1px solid var(--border-subtle);
+      border-radius: 12px;
+    }
+  }
+
+  @media print {
+    @page { size: landscape; margin: 0; }
+    html, body { background: #0a0a0a; }
+    body { padding: 0; }
+    *, *::before, *::after {
+      -webkit-print-color-adjust: exact !important;
+      print-color-adjust: exact !important;
+      animation-delay: -99s !important; animation-duration: .001s !important;
+      animation-iteration-count: 1 !important; animation-fill-mode: both !important;
+      animation-play-state: running !important; transition-duration: 0s !important;
+    }
+    .print-page {
+      margin: 0 !important;
+      border: none !important;
+      border-radius: 0 !important;
+      break-after: page;
+      break-inside: avoid;
+    }
+    .print-page:last-child { break-after: auto; }
+    /* keep film cards from splitting across pages */
+    .print-page [style*="aspect-ratio"] { break-inside: avoid; }
+  }
+</style>
+<script src="https://unpkg.com/react@18.3.1/umd/react.development.js" integrity="sha384-hD6/rw4ppMLGNu3tX5cjIb+uRZ7UkRJ6BPkLpg4hAu/6onKUg4lLsHAs9EBPT82L" crossorigin="anonymous"></script>
+<script src="https://unpkg.com/react-dom@18.3.1/umd/react-dom.development.js" integrity="sha384-u6aeetuaXnQ38mYT8rp6sbXaQe3NL9t+IBXmnYxwkUI2Hw4bsp2Wvmx4yRQF1uAm" crossorigin="anonymous"></script>
+<script src="https://unpkg.com/@babel/standalone@7.29.0/babel.min.js" integrity="sha384-m08KidiNqLdpJqLq95G/LEi8Qvjl/xUYll3QILypMoQ65QorJ9Lvtp2RXYGBFj1y" crossorigin="anonymous"></script>
+<link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/@phosphor-icons/web@2.1.1/src/bold/style.css">
+<link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/@phosphor-icons/web@2.1.1/src/fill/style.css">
+</head>
+<body>
+  <div id="root"></div>
+  <script src="data.js"></script>
+  <script type="text/babel" src="Primitives.jsx"></script>
+  <script type="text/babel" src="NavBar.jsx"></script>
+  <script type="text/babel" src="FilmCard.jsx"></script>
+  <script type="text/babel" src="Discover.jsx"></script>
+  <script type="text/babel" src="FilmDetail.jsx"></script>
+  <script type="text/babel">
+    const noop = () => {};
+
+    // Static, paged recreation of the key screens for PDF export.
+    function PrintDoc() {
+      const films = window.AICDB_FILMS;
+      const featured = films.find(f => f.type === 'movie') || films[0];
+      const series = films.find(f => f.type === 'series') || films[1];
+      return (
+        <div>
+          {/* Page 1 — Discover */}
+          <section className="print-page">
+            <NavBar active="Discover" onNav={noop} query="" onQuery={noop} />
+            <Discover onOpen={noop} />
+          </section>
+          {/* Page 2 — Film detail */}
+          <section className="print-page">
+            <FilmDetail film={featured} onBack={noop} />
+          </section>
+          {/* Page 3 — Series detail */}
+          <section className="print-page">
+            <FilmDetail film={series} onBack={noop} />
+          </section>
+        </div>
+      );
+    }
+
+    ReactDOM.createRoot(document.getElementById('root')).render(<PrintDoc />);
+
+    // Auto-print once fonts + render settle.
+    window.__printReady = (async () => {
+      try { await document.fonts.ready; } catch (e) {}
+      await new Promise(r => setTimeout(r, 600));
+      window.print();
+    })();
+  </script>
+</body>
+</html>

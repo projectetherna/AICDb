@@ -1,0 +1,26 @@
+<!DOCTYPE html>
+<!-- @dsCard group="Spacing" name="Elevation & shadows" subtitle="Shadows tuned for #0a0a0a + focus ring" viewport="700x160" -->
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<link rel="stylesheet" href="../colors_and_type.css">
+<style>
+  html,body { margin:0; }
+  body { background: var(--bg-0); padding: 26px; }
+  .row { display:flex; gap:24px; align-items:center; }
+  .item { display:flex; flex-direction:column; align-items:center; gap:10px; }
+  .box { width:90px; height:62px; background: var(--bg-1); border:1px solid var(--border-subtle); border-radius: var(--radius-md); display:flex; align-items:center; justify-content:center; }
+  .box .n { font: var(--text-label); color: var(--fg-1); }
+  .v { font: var(--text-data-sm); color: var(--fg-2); }
+</style>
+</head>
+<body>
+  <div class="row">
+    <div class="item"><div class="box" style="box-shadow:0 1px 2px rgba(0,0,0,0.5);"><span class="n">1</span></div><span class="v">resting</span></div>
+    <div class="item"><div class="box" style="box-shadow:0 4px 14px rgba(0,0,0,0.55);"><span class="n">2</span></div><span class="v">popover</span></div>
+    <div class="item"><div class="box" style="box-shadow:0 12px 32px rgba(0,0,0,0.6);"><span class="n">3</span></div><span class="v">modal</span></div>
+    <div class="item"><div class="box" style="box-shadow:0 8px 24px rgba(0,0,0,0.7);"><span class="n">poster</span></div><span class="v">media</span></div>
+    <div class="item"><div class="box" style="box-shadow:0 0 0 3px rgba(216,90,48,0.30);border-color:var(--border-accent);"><span class="n" style="color:var(--coral-bright);">focus</span></div><span class="v">coral ring</span></div>
+  </div>
+</body>
+</html>

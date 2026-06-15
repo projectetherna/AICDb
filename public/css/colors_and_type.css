@@ -1,0 +1,270 @@
+/* ============================================================
+   Dreamwall — Foundations: Color + Type
+   AI-generated film & series rating platform
+   Dark-first. Coral primary, teal secondary.
+   ============================================================ */
+
+/* ---- Fonts ----
+   Display:  Spectral         (SELF-HOSTED — uploaded .ttf files in fonts/)
+   Body/UI:  DM Sans          (Google Fonts CDN)
+   Data:     JetBrains Mono   (Google Fonts CDN)
+*/
+@import url('https://fonts.googleapis.com/css2?family=DM+Sans:opsz,wght@9..40,400;9..40,500;9..40,600;9..40,700&family=JetBrains+Mono:wght@400;500;600&family=Spectral:ital,wght@0,200..800;1,200..800&display=swap');
+
+:root {
+  /* ---------- Brand fonts ---------- */
+  --font-display: 'Spectral', Georgia, 'Times New Roman', serif;
+  --font-body: 'DM Sans', system-ui, -apple-system, sans-serif;
+  --font-mono: 'JetBrains Mono', ui-monospace, 'SF Mono', monospace;
+
+  /* ============================================================
+     COLOR — Base palette
+     ============================================================ */
+
+  /* ---------- Background / surface stack (warm-neutral dark) ---------- */
+  --bg-0: #0a0a0a;   /* app canvas — the deepest layer */
+  --bg-1: #151514;   /* raised surface: cards, panels */
+  --bg-2: #1d1d1b;   /* elevated: hover rows, popovers */
+  --bg-3: #262624;   /* inputs, pressed states, chips */
+  --bg-inset: #050505; /* recessed wells, poster letterbox */
+  --bg-glass: rgba(10,10,10,0.82); /* sticky/blur chrome */
+  --bg-vignette: #131312; /* top-glow for full-page gradients (PIN gate) */
+
+  /* ---------- Text (warm off-white, never pure #fff) ---------- */
+  --fg-0: #f5f3ef;   /* primary text, titles */
+  --fg-1: #a8a49b;   /* secondary text, metadata */
+  --fg-2: #6f6c64;   /* tertiary, muted captions */
+  --fg-3: #474440;   /* disabled, placeholder */
+  --fg-on-accent: #1a0d08; /* text on coral fills */
+
+  /* ---------- Coral — PRIMARY accent (actions, ratings, Movie) ---------- */
+  --coral: #d85a30;
+  --coral-bright: #e8714a; /* hover / lighten */
+  --coral-press: #bd4a24;  /* active / press */
+  --coral-dim: #6b3220;    /* muted fills, low-emphasis */
+  --coral-ghost: rgba(216, 90, 48, 0.14); /* tint backgrounds */
+
+  /* ---------- Teal — SECONDARY accent (links, Series, highlights) ---------- */
+  --teal: #4ecdc4;
+  --teal-bright: #6fdbd3;
+  --teal-press: #3aa9a1;
+  --teal-dim: #235754;
+  --teal-ghost: rgba(78, 205, 196, 0.13);
+
+  /* ---------- Borders / dividers (alpha over dark) ---------- */
+  --border-subtle: rgba(245, 243, 239, 0.07);
+  --border-default: rgba(245, 243, 239, 0.12);
+  --border-strong: rgba(245, 243, 239, 0.20);
+  --border-accent: rgba(216, 90, 48, 0.55);
+
+  /* ============================================================
+     COLOR — Semantic & content
+     ============================================================ */
+
+  /* ---------- Content-type colors ----------
+     Movie + Series come from the brand palette.
+     Short (gold) + Vertical (lavender) are ADDITIONS — swap freely. */
+  --type-movie: #d85a30;     /* coral */
+  --type-series: #4ecdc4;    /* teal  */
+  --type-short: #e5b23b;     /* gold (added) */
+  --type-vertical: #9d8df1;  /* lavender (added) */
+  /* per-type ghost tint + on-tint text (theme-aware) */
+  --type-movie-ghost: rgba(216,90,48,0.14);
+  --type-series-ghost: rgba(78,205,196,0.13);
+  --type-short-ghost: rgba(229,178,59,0.14);
+  --type-vertical-ghost: rgba(157,141,241,0.15);
+  --type-movie-text: #e8714a;
+  --type-series-text: #6fdbd3;
+  --type-short-text: #e5b23b;
+  --type-vertical-text: #9d8df1;
+
+  /* ---------- Status ---------- */
+  --success: #4ecdc4;
+  --warning: #e5b23b;
+  --danger: #e5484d;
+  --info: #6f9ceb;
+
+  /* ---------- Rating scale (user score / star fill) ---------- */
+  --rating-fill: #d85a30;
+  --rating-track: #2e2c29;
+  --score-high: #4ecdc4;   /* 80+ */
+  --score-mid: #e5b23b;    /* 50–79 */
+  --score-low: #e5484d;    /* <50 */
+
+  /* ============================================================
+     SPACING — 4px base scale
+     ============================================================ */
+  --space-1: 2px;
+  --space-2: 4px;
+  --space-3: 8px;
+  --space-4: 12px;
+  --space-5: 16px;
+  --space-6: 24px;
+  --space-7: 32px;
+  --space-8: 48px;
+  --space-9: 64px;
+  --space-10: 96px;
+
+  /* ============================================================
+     RADII
+     ============================================================ */
+  --radius-sm: 4px;    /* chips, tags, small inputs */
+  --radius-md: 8px;    /* buttons, fields */
+  --radius-lg: 12px;   /* cards, panels */
+  --radius-xl: 16px;   /* modals, large surfaces */
+  --radius-pill: 999px;
+
+  /* ============================================================
+     ELEVATION — shadows tuned for #0a0a0a
+     ============================================================ */
+  --shadow-1: 0 1px 2px rgba(0,0,0,0.5);
+  --shadow-2: 0 4px 14px rgba(0,0,0,0.55);
+  --shadow-3: 0 12px 32px rgba(0,0,0,0.6);
+  --shadow-poster: 0 8px 24px rgba(0,0,0,0.7);
+  --glow-coral: 0 0 0 3px rgba(216,90,48,0.30); /* focus ring */
+  --glow-teal: 0 0 0 3px rgba(78,205,196,0.28);
+
+  /* ============================================================
+     MOTION
+     ============================================================ */
+  --ease-out: cubic-bezier(0.22, 0.61, 0.36, 1); /* @kind other */
+  --ease-in-out: cubic-bezier(0.45, 0, 0.25, 1); /* @kind other */
+  --dur-fast: 120ms; /* @kind other */
+  --dur-base: 200ms; /* @kind other */
+  --dur-slow: 320ms; /* @kind other */
+
+  /* ============================================================
+     TYPE SCALE — semantic tokens
+     Display uses Spectral (serif); UI/body uses DM Sans.
+     ============================================================ */
+  --text-display: 700 58px/1.05 var(--font-display);
+  --text-h1: 700 42px/1.08 var(--font-display);
+  --text-h2: 600 30px/1.14 var(--font-display);
+  --text-h3: 600 22px/1.22 var(--font-display);
+  --text-title: 600 18px/1.3 var(--font-body);
+  --text-body-lg: 400 17px/1.55 var(--font-body);
+  --text-body: 400 15px/1.55 var(--font-body);
+  --text-body-sm: 400 13px/1.5 var(--font-body);
+  --text-label: 600 13px/1.2 var(--font-body);
+  --text-caption: 500 12px/1.35 var(--font-body);
+  --text-overline: 600 11px/1.2 var(--font-body); /* + letter-spacing .08em uppercase */
+  --text-data: 500 14px/1.2 var(--font-mono);
+  --text-data-sm: 500 12px/1.2 var(--font-mono);
+}
+
+/* ============================================================
+   BASE ELEMENT STYLES — drop-in defaults
+   ============================================================ */
+body {
+  background: var(--bg-0);
+  color: var(--fg-0);
+  font: var(--text-body);
+  font-optical-sizing: auto;
+  -webkit-font-smoothing: antialiased;
+  text-rendering: optimizeLegibility;
+}
+
+h1 { font: var(--text-h1); letter-spacing: -0.015em; margin: 0; color: var(--fg-0); }
+h2 { font: var(--text-h2); letter-spacing: -0.01em; margin: 0; color: var(--fg-0); }
+h3 { font: var(--text-h3); letter-spacing: -0.005em; margin: 0; color: var(--fg-0); }
+
+p  { font: var(--text-body); color: var(--fg-1); margin: 0 0 1em; text-wrap: pretty; }
+
+a  { color: var(--teal); text-decoration: none; transition: color var(--dur-fast) var(--ease-out); }
+a:hover { color: var(--teal-bright); }
+
+small { font: var(--text-caption); color: var(--fg-2); }
+code, .mono { font: var(--text-data); color: var(--fg-0); }
+
+.overline {
+  font: var(--text-overline);
+  letter-spacing: 0.08em;
+  text-transform: uppercase;
+  color: var(--fg-2);
+}
+
+/* ============================================================
+   SOLARPUNK — light theme  ·  "Sunlit Greenhouse"
+   A pale sage-parchment canvas under glasshouse daylight. Deep
+   forest-ink text, handcrafted terracotta/clay primary, and a
+   luminous viridian teal-green for the hopeful, faintly-futuristic
+   spark. Golden-marigold stars. Soft, green-tinted daylight shadows.
+   Same tokens + layout as Cyberpunk — only the values change.
+   Applied via <html data-theme="solarpunk">.
+   ============================================================ */
+:root[data-theme="solarpunk"] {
+  /* ---------- Surfaces — sunlit paper & glass ---------- */
+  --bg-0: #F0F1DE;   /* app canvas — pale sage parchment */
+  --bg-1: #F9F9ED;   /* raised surface: cards, panels (lighter = raised) */
+  --bg-2: #FFFFFF;   /* elevated: hover rows, popovers (highest) */
+  --bg-3: #E3E6D0;   /* inputs, pressed states, chips (recessed sage) */
+  --bg-inset: #D6DABE; /* recessed wells, poster letterbox — deep sage */
+  --bg-glass: rgba(240,241,222,0.82); /* sticky/blur chrome */
+  --bg-vignette: #F7F3D2; /* warm sun-glow from top for full-page gradients */
+
+  /* ---------- Text — deep forest ink (never pure black) ---------- */
+  --fg-0: #1E2A1E;   /* primary text, titles — deep forest */
+  --fg-1: #3E4C39;   /* secondary text, metadata */
+  --fg-2: #5F6B52;   /* tertiary, muted captions */
+  --fg-3: #899379;   /* disabled, placeholder */
+  --fg-on-accent: #FCF7EC; /* warm cream on terracotta/teal fills */
+
+  /* ---------- Coral slot → handcrafted TERRACOTTA primary (actions, ratings, Movie) ---------- */
+  --coral: #C9572A;
+  --coral-bright: #E37038;
+  --coral-press: #A8451F;
+  --coral-dim: #9C6A4A;
+  --coral-ghost: rgba(201,87,42,0.14);
+
+  /* ---------- Teal slot → luminous VIRIDIAN secondary (links, Series) ---------- */
+  --teal: #1F7A6B;
+  --teal-bright: #2A9D8A;
+  --teal-press: #155A4F;
+  --teal-dim: #5E8C80;
+  --teal-ghost: rgba(31,122,107,0.13);
+
+  /* ---------- Borders / dividers (alpha of forest ink over light) ---------- */
+  --border-subtle: rgba(30,42,30,0.09);
+  --border-default: rgba(30,42,30,0.15);
+  --border-strong: rgba(30,42,30,0.26);
+  --border-accent: rgba(201,87,42,0.52);
+
+  /* ---------- Content-type colors — earthy botanical quartet ---------- */
+  --type-movie: #C9572A;     /* terracotta */
+  --type-series: #1F7A6B;    /* viridian */
+  --type-short: #C99020;     /* marigold gold */
+  --type-vertical: #6E8A3C;  /* leaf olive */
+  --type-movie-ghost: rgba(201,87,42,0.16);
+  --type-series-ghost: rgba(31,122,107,0.15);
+  --type-short-ghost: rgba(201,144,32,0.18);
+  --type-vertical-ghost: rgba(110,138,60,0.18);
+  --type-movie-text: #A8451F;
+  --type-series-text: #166054;
+  --type-short-text: #8A6210;
+  --type-vertical-text: #4F662A;
+
+  /* ---------- Status ---------- */
+  --success: #4E8A3F;
+  --warning: #C99020;
+  --danger: #C0492C;   /* clay-red — warm, still reads clearly as alert */
+  --info: #1F7A6B;
+
+  /* ---------- Rating scale ---------- */
+  --rating-fill: #E0A11E;  /* golden marigold stars */
+  --rating-track: #DCE0C6;
+  --score-high: #1F7A6B;   /* 80+  viridian */
+  --score-mid: #C99020;    /* 50–79 marigold */
+  --score-low: #C0492C;    /* <50 clay-red */
+
+  /* ---------- Elevation — soft, green-tinted daylight shadows ---------- */
+  --shadow-1: 0 1px 2px rgba(46,58,38,0.11);
+  --shadow-2: 0 4px 16px rgba(46,58,38,0.13);
+  --shadow-3: 0 14px 34px rgba(46,58,38,0.17);
+  --shadow-poster: 0 10px 28px rgba(46,58,38,0.23);
+  --glow-coral: 0 0 0 3px rgba(201,87,42,0.30);
+  --glow-teal: 0 0 0 3px rgba(31,122,107,0.26);
+}
+
+/* Scrollbar adapts to the sage ground */
+:root[data-theme="solarpunk"] ::-webkit-scrollbar-thumb { background: var(--bg-inset); }
+:root[data-theme="solarpunk"] ::-webkit-scrollbar-track { background: var(--bg-0); }

@@ -1,0 +1,36 @@
+<!DOCTYPE html>
+<!-- @dsCard group="Components" name="Rating controls" subtitle="5-star + AI score ring" viewport="700x160" -->
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<link rel="stylesheet" href="../colors_and_type.css">
+<style>
+  html,body { margin:0; }
+  body { background: var(--bg-0); padding: 22px 26px; display:flex; gap:40px; align-items:center; }
+  .block { display:flex; flex-direction:column; gap:9px; }
+  .stars { display:flex; gap:4px; font-size:26px; line-height:1; }
+  .on { color: var(--coral); }
+  .off { color: var(--rating-track); }
+  .half { position:relative; color: var(--rating-track); }
+  .half::before { content:'★'; position:absolute; left:0; width:50%; overflow:hidden; color: var(--coral); }
+  .lbl { font: var(--text-overline); letter-spacing:0.06em; text-transform:uppercase; color: var(--fg-2); }
+  .ring { width:78px; height:78px; border-radius:50%; display:flex; align-items:center; justify-content:center; background:
+     conic-gradient(var(--coral) 0 87%, var(--rating-track) 87% 100%); }
+  .ring .inner { width:62px; height:62px; border-radius:50%; background: var(--bg-0); display:flex; flex-direction:column; align-items:center; justify-content:center; }
+  .ring .num { font:700 24px/1 var(--font-mono); color: var(--fg-0); }
+  .ring .of { font:500 9px/1 var(--font-mono); color: var(--fg-2); }
+</style>
+</head>
+<body>
+  <div class="block">
+    <div class="stars">
+      <span class="on">★</span><span class="on">★</span><span class="on">★</span><span class="on">★</span><span class="half">★</span>
+    </div>
+    <span class="lbl">Your rating · 4.5</span>
+  </div>
+  <div class="block" style="align-items:center;">
+    <div class="ring"><div class="inner"><span class="num">8.7</span><span class="of">SCORE</span></div></div>
+    <span class="lbl">aggregate</span>
+  </div>
+</body>
+</html>

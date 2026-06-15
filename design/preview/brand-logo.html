@@ -1,0 +1,32 @@
+<!DOCTYPE html>
+<!-- @dsCard group="Brand" name="Logo / mark" subtitle="Chrome flower medallion + app-icon favicon" viewport="700x200" -->
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<link rel="stylesheet" href="../colors_and_type.css">
+<style>
+  html,body { margin:0; }
+  body { background: var(--bg-0); padding: 24px 32px; display:flex; align-items:center; gap:44px; }
+  .hero { filter: drop-shadow(0 8px 24px rgba(0,0,0,0.65)); }
+  .sizes { display:flex; align-items:flex-end; gap:22px; }
+  .sizes img.medallion { filter: drop-shadow(0 4px 12px rgba(0,0,0,0.6)); }
+  .sizes img.app { border-radius:22%; box-shadow: 0 4px 12px rgba(0,0,0,0.6); }
+  .label { font: var(--text-overline); letter-spacing:0.08em; text-transform:uppercase; color: var(--fg-2); margin-top:12px; }
+  .col { display:flex; flex-direction:column; align-items:center; }
+</style>
+</head>
+<body>
+  <div class="col">
+    <img class="hero" src="../assets/aicdb-mark.png" width="128" height="128" alt="Dreamwall mark">
+    <span class="label">Primary mark</span>
+  </div>
+  <div class="col">
+    <div class="sizes">
+      <img class="app" src="../assets/aicdb-favicon.png" width="56" height="56">
+      <img class="app" src="../assets/aicdb-favicon.png" width="32" height="32">
+      <img class="app" src="../assets/aicdb-favicon.png" width="20" height="20">
+    </div>
+    <span class="label">App icon / favicon</span>
+  </div>
+</body>
+</html>

@@ -1,0 +1,39 @@
+<!DOCTYPE html>
+<html lang="en">
+  <head>
+    <meta charset="utf-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1" />
+    <title>Signing in — AICDb</title>
+    <link rel="stylesheet" href="/css/tokens.css" />
+    <link rel="stylesheet" href="/css/auth.css" />
+  </head>
+  <body class="auth-page">
+    <main class="auth-card" style="text-align: center">
+      <div class="auth-brand">
+        <img src="/assets/aicdb-mark.svg" width="56" height="56" alt="" />
+        <div>
+          <h1>Signing you in…</h1>
+          <p>Completing authentication</p>
+        </div>
+      </div>
+      <div id="alert" class="auth-alert" role="alert"></div>
+    </main>
+
+    <script src="/config.js"></script>
+    <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2/dist/umd/supabase.min.js"></script>
+    <script src="/js/auth.js"></script>
+    <script>
+      (async () => {
+        const alertEl = document.getElementById('alert');
+        try {
+          await AICDB_AUTH.handleOAuthCallback();
+        } catch (err) {
+          AICDB_AUTH.showAlert(alertEl, err.message || 'Authentication failed.', 'error');
+          setTimeout(() => {
+            window.location.href = '/login.html';
+          }, 3000);
+        }
+      })();
+    </script>
+  </body>
+</html>

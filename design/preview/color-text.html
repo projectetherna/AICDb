@@ -1,0 +1,34 @@
+<!DOCTYPE html>
+<!-- @dsCard group="Colors" name="Text colors" subtitle="Warm off-white scale, never pure white" viewport="700x180" -->
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<link rel="stylesheet" href="../colors_and_type.css">
+<style>
+  html,body { margin:0; }
+  body { background: var(--bg-0); padding: 22px 26px; display:flex; gap:30px; align-items:flex-start; }
+  .col { flex:1; }
+  .item { display:flex; align-items:center; gap:12px; margin-bottom:11px; }
+  .chip { width:30px; height:30px; border-radius:7px; flex:none; border:1px solid var(--border-subtle); }
+  .lbl { font: var(--text-label); color: var(--fg-0); }
+  .lbl span { font: var(--text-data-sm); color: var(--fg-2); display:block; font-weight:400; }
+  .demo { background: var(--bg-1); border:1px solid var(--border-subtle); border-radius: var(--radius-lg); padding:16px 18px; flex:none; width:240px; }
+  .demo .a { font:var(--text-title); color:var(--fg-0); }
+  .demo .b { font:var(--text-body-sm); color:var(--fg-1); margin-top:3px; }
+  .demo .c { font:var(--text-caption); color:var(--fg-2); margin-top:6px; }
+</style>
+</head>
+<body>
+  <div class="col">
+    <div class="item"><span class="chip" style="background:#f5f3ef;"></span><span class="lbl">fg-0 <span>#f5f3ef · primary</span></span></div>
+    <div class="item"><span class="chip" style="background:#a8a49b;"></span><span class="lbl">fg-1 <span>#a8a49b · secondary</span></span></div>
+    <div class="item"><span class="chip" style="background:#6f6c64;"></span><span class="lbl">fg-2 <span>#6f6c64 · muted</span></span></div>
+    <div class="item"><span class="chip" style="background:#474440;"></span><span class="lbl">fg-3 <span>#474440 · disabled</span></span></div>
+  </div>
+  <div class="demo">
+    <div class="a">Synthetic Dreams</div>
+    <div class="b">A neon-soaked thriller rendered frame by frame.</div>
+    <div class="c">GENERATED · 4K · 2025</div>
+  </div>
+</body>
+</html>

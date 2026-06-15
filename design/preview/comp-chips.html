@@ -1,0 +1,37 @@
+<!DOCTYPE html>
+<!-- @dsCard group="Components" name="Genre & technique chips" subtitle="Toggle pills" viewport="700x175" -->
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<link rel="stylesheet" href="../colors_and_type.css">
+<style>
+  html,body { margin:0; }
+  body { background: var(--bg-0); padding: 22px 26px; }
+  .row { display:flex; gap:9px; flex-wrap:wrap; align-items:center; }
+  .row+.row { margin-top:14px; }
+  .chip { padding:6px 13px; border-radius: var(--radius-pill); font:500 13px/1 var(--font-body); border:1px solid var(--border-default); color: var(--fg-1); background: var(--bg-2); }
+  .chip.on { background: var(--coral-ghost); border-color: var(--border-accent); color: var(--coral-bright); }
+  .chip.teal { background: var(--teal-ghost); border-color: rgba(78,205,196,0.5); color: var(--teal-bright); }
+  .cap { font: var(--text-data-sm); color: var(--fg-2); margin-top:14px; }
+  .cap b { color: var(--fg-1); font-weight:600; }
+</style>
+</head>
+<body>
+  <div class="row">
+    <span class="chip on">Sci-Fi</span>
+    <span class="chip">Thriller</span>
+    <span class="chip">Animation</span>
+    <span class="chip on">Neo-Noir</span>
+    <span class="chip">Documentary</span>
+    <span class="chip">Drama</span>
+    <span class="chip">Horror</span>
+  </div>
+  <div class="row">
+    <span class="chip teal">Diffusion</span>
+    <span class="chip">Text-to-Video</span>
+    <span class="chip">Hybrid Live-Action</span>
+    <span class="chip">Frame Interp.</span>
+  </div>
+  <div class="cap"><b>Genre &amp; technique chips</b> — pill, toggle-selectable. Coral tint = selected genre, teal tint = AI-technique facet.</div>
+</body>
+</html>

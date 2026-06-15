@@ -1,0 +1,85 @@
+<svg viewBox="0 0 240 240" xmlns="http://www.w3.org/2000/svg" role="img" aria-label="AICDb mark">
+  <defs>
+    <radialGradient id="sphere" cx="38%" cy="31%" r="78%">
+      <stop offset="0%" stop-color="#ffffff"></stop>
+      <stop offset="11%" stop-color="#f1f3f8"></stop>
+      <stop offset="31%" stop-color="#ccd1db"></stop>
+      <stop offset="53%" stop-color="#959bab"></stop>
+      <stop offset="73%" stop-color="#545a68"></stop>
+      <stop offset="90%" stop-color="#2a2d37"></stop>
+      <stop offset="100%" stop-color="#737888"></stop>
+    </radialGradient>
+    <radialGradient id="node" cx="34%" cy="29%" r="80%">
+      <stop offset="0%" stop-color="#ffffff"></stop>
+      <stop offset="28%" stop-color="#d8dce5"></stop>
+      <stop offset="64%" stop-color="#7b8294"></stop>
+      <stop offset="100%" stop-color="#2c2f3a"></stop>
+    </radialGradient>
+    <linearGradient id="tube" gradientUnits="userSpaceOnUse" x1="120" y1="8" x2="120" y2="232">
+      <stop offset="0%" stop-color="#f6f8fc"></stop>
+      <stop offset="18%" stop-color="#cdd2dc"></stop>
+      <stop offset="40%" stop-color="#868da0"></stop>
+      <stop offset="56%" stop-color="#565c6c"></stop>
+      <stop offset="76%" stop-color="#383d4b"></stop>
+      <stop offset="100%" stop-color="#8a90a1"></stop>
+    </linearGradient>
+    <linearGradient id="sheen" gradientUnits="userSpaceOnUse" x1="120" y1="12" x2="120" y2="128">
+      <stop offset="0%" stop-color="#ffffff" stop-opacity="0.92"></stop>
+      <stop offset="32%" stop-color="#ffffff" stop-opacity="0.16"></stop>
+      <stop offset="62%" stop-color="#ffffff" stop-opacity="0"></stop>
+    </linearGradient>
+    <linearGradient id="irid" gradientUnits="userSpaceOnUse" x1="22" y1="44" x2="214" y2="206">
+      <stop offset="0%" stop-color="#74e0ff"></stop>
+      <stop offset="28%" stop-color="#6f86ff"></stop>
+      <stop offset="54%" stop-color="#c77cff"></stop>
+      <stop offset="78%" stop-color="#ff7ec8"></stop>
+      <stop offset="100%" stop-color="#80f0e0"></stop>
+    </linearGradient>
+    <radialGradient id="amb" cx="48%" cy="42%" r="58%">
+      <stop offset="0%" stop-color="#8aa0ff" stop-opacity="0.16"></stop>
+      <stop offset="55%" stop-color="#b07cff" stop-opacity="0.05"></stop>
+      <stop offset="100%" stop-color="#b07cff" stop-opacity="0"></stop>
+    </radialGradient>
+    <clipPath id="nuc"><circle cx="120" cy="120" r="27"></circle></clipPath>
+  </defs>
+
+  <circle cx="120" cy="120" r="118" fill="url(#amb)"></circle>
+
+  
+  <circle cx="120" cy="120" r="110" fill="none" stroke="url(#tube)" stroke-width="2" stroke-dasharray="34 30" opacity="0.6"></circle>
+  <circle cx="120" cy="120" r="110" fill="none" stroke="url(#sheen)" stroke-width="2" stroke-dasharray="34 30"></circle>
+
+  
+  <g>
+    <g transform="rotate(0 120 120)">
+      <ellipse cx="120" cy="120" rx="96" ry="31" fill="none" stroke="url(#tube)" stroke-width="6.5"></ellipse>
+      <ellipse cx="120" cy="120" rx="96" ry="31" fill="none" stroke="url(#irid)" stroke-width="6.5" opacity="0.26"></ellipse>
+      <ellipse cx="120" cy="120" rx="96" ry="31" fill="none" stroke="url(#sheen)" stroke-width="6.5"></ellipse>
+    </g>
+    <g transform="rotate(60 120 120)">
+      <ellipse cx="120" cy="120" rx="96" ry="31" fill="none" stroke="url(#tube)" stroke-width="6.5"></ellipse>
+      <ellipse cx="120" cy="120" rx="96" ry="31" fill="none" stroke="url(#irid)" stroke-width="6.5" opacity="0.26"></ellipse>
+      <ellipse cx="120" cy="120" rx="96" ry="31" fill="none" stroke="url(#sheen)" stroke-width="6.5"></ellipse>
+    </g>
+    <g transform="rotate(120 120 120)">
+      <ellipse cx="120" cy="120" rx="96" ry="31" fill="none" stroke="url(#tube)" stroke-width="6.5"></ellipse>
+      <ellipse cx="120" cy="120" rx="96" ry="31" fill="none" stroke="url(#irid)" stroke-width="6.5" opacity="0.26"></ellipse>
+      <ellipse cx="120" cy="120" rx="96" ry="31" fill="none" stroke="url(#sheen)" stroke-width="6.5"></ellipse>
+    </g>
+  </g>
+
+  
+  <g transform="rotate(0 120 120)"><circle cx="120" cy="89" r="10" fill="url(#node)"></circle><circle cx="116.5" cy="85.5" r="2.6" fill="#ffffff" opacity="0.9"></circle></g>
+  <g transform="rotate(60 120 120)"><circle cx="120" cy="89" r="10" fill="url(#node)"></circle><circle cx="116.5" cy="85.5" r="2.6" fill="#ffffff" opacity="0.9"></circle></g>
+  <g transform="rotate(120 120 120)"><circle cx="120" cy="89" r="10" fill="url(#node)"></circle><circle cx="116.5" cy="85.5" r="2.6" fill="#ffffff" opacity="0.9"></circle></g>
+  <g transform="rotate(180 120 120)"><circle cx="120" cy="89" r="7" fill="url(#node)"></circle><circle cx="117.5" cy="86.5" r="1.8" fill="#ffffff" opacity="0.85"></circle></g>
+  <g transform="rotate(240 120 120)"><circle cx="120" cy="89" r="7" fill="url(#node)"></circle><circle cx="117.5" cy="86.5" r="1.8" fill="#ffffff" opacity="0.85"></circle></g>
+  <g transform="rotate(300 120 120)"><circle cx="120" cy="89" r="7" fill="url(#node)"></circle><circle cx="117.5" cy="86.5" r="1.8" fill="#ffffff" opacity="0.85"></circle></g>
+
+  
+  <circle cx="120" cy="120" r="27" fill="url(#sphere)"></circle>
+  <ellipse cx="133" cy="133" rx="21" ry="15" fill="url(#irid)" opacity="0.3" clip-path="url(#nuc)"></ellipse>
+  <ellipse cx="109" cy="108" rx="8.5" ry="5.5" fill="#ffffff" opacity="0.92" clip-path="url(#nuc)"></ellipse>
+  <circle cx="105" cy="104" r="2.2" fill="#ffffff" clip-path="url(#nuc)"></circle>
+  <path d="M99,138 A27 27 0 0 0 141,138" fill="none" stroke="#ffffff" stroke-opacity="0.18" stroke-width="2"></path>
+</svg>

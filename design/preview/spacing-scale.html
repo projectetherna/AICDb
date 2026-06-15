@@ -1,0 +1,32 @@
+<!DOCTYPE html>
+<!-- @dsCard group="Spacing" name="Spacing scale" subtitle="4px base, tokens 1–10" viewport="700x175" -->
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<link rel="stylesheet" href="../colors_and_type.css">
+<style>
+  html,body { margin:0; }
+  body { background: var(--bg-0); padding: 22px 26px; }
+  .scale { display:flex; align-items:flex-end; gap:14px; }
+  .item { display:flex; flex-direction:column; align-items:center; gap:7px; }
+  .bar { background: var(--coral); border-radius:2px; width:18px; }
+  .v { font: var(--text-data-sm); color: var(--fg-1); }
+  .n { font: var(--text-overline); letter-spacing:0.06em; color: var(--fg-2); }
+  .cap { font: var(--text-data-sm); color: var(--fg-2); margin-top:16px; }
+  .cap b { color: var(--fg-1); font-weight:600; }
+</style>
+</head>
+<body>
+  <div class="scale">
+    <div class="item"><div class="bar" style="height:4px;"></div><span class="v">4</span><span class="n">2</span></div>
+    <div class="item"><div class="bar" style="height:8px;"></div><span class="v">8</span><span class="n">3</span></div>
+    <div class="item"><div class="bar" style="height:12px;"></div><span class="v">12</span><span class="n">4</span></div>
+    <div class="item"><div class="bar" style="height:16px;"></div><span class="v">16</span><span class="n">5</span></div>
+    <div class="item"><div class="bar" style="height:24px;"></div><span class="v">24</span><span class="n">6</span></div>
+    <div class="item"><div class="bar" style="height:32px;"></div><span class="v">32</span><span class="n">7</span></div>
+    <div class="item"><div class="bar" style="height:48px;"></div><span class="v">48</span><span class="n">8</span></div>
+    <div class="item"><div class="bar" style="height:64px;"></div><span class="v">64</span><span class="n">9</span></div>
+  </div>
+  <div class="cap"><b>Spacing scale</b> — 4px base. Tokens <code style="color:var(--fg-1)">--space-1…10</code> (2 → 96px).</div>
+</body>
+</html>

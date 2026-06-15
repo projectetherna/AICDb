@@ -1,0 +1,39 @@
+<!DOCTYPE html>
+<!-- @dsCard group="Components" name="Buttons" subtitle="Primary / teal / secondary / ghost / danger" viewport="700x150" -->
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<link rel="stylesheet" href="../colors_and_type.css">
+<style>
+  html,body { margin:0; }
+  body { background: var(--bg-0); padding: 24px 26px; }
+  .btn { font:600 14px/1 var(--font-body); border-radius: var(--radius-md); padding:11px 18px; border:1px solid transparent; cursor:pointer; display:inline-flex; align-items:center; gap:8px; }
+  .primary { background: var(--coral); color: var(--fg-on-accent); }
+  .secondary { background: transparent; color: var(--fg-0); border-color: var(--border-strong); }
+  .ghost { background: transparent; color: var(--fg-1); }
+  .teal { background: var(--teal); color:#04201e; }
+  .danger { background: transparent; color: var(--danger); border-color: rgba(229,72,77,0.5); }
+  .row { display:flex; gap:12px; align-items:center; flex-wrap:wrap; }
+  .row+.row { margin-top:14px; }
+  .sm { padding:7px 13px; font-size:13px; }
+  .lbl { font: var(--text-data-sm); color: var(--fg-2); width:46px; }
+</style>
+</head>
+<body>
+  <div class="row">
+    <span class="lbl">md</span>
+    <button class="btn primary">★ Rate this</button>
+    <button class="btn teal">+ Watchlist</button>
+    <button class="btn secondary">Share</button>
+    <button class="btn ghost">Skip</button>
+    <button class="btn danger">Remove</button>
+  </div>
+  <div class="row">
+    <span class="lbl">sm</span>
+    <button class="btn primary sm">★ Rate</button>
+    <button class="btn teal sm">+ Watchlist</button>
+    <button class="btn secondary sm">Share</button>
+    <button class="btn ghost sm">Skip</button>
+  </div>
+</body>
+</html>

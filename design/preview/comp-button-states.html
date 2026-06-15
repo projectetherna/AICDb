@@ -1,0 +1,25 @@
+<!DOCTYPE html>
+<!-- @dsCard group="Components" name="Button states" subtitle="Default / hover / press / focus / disabled" viewport="700x140" -->
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<link rel="stylesheet" href="../colors_and_type.css">
+<style>
+  html,body { margin:0; }
+  body { background: var(--bg-0); padding: 24px 26px; }
+  .btn { font:600 14px/1 var(--font-body); border-radius: var(--radius-md); padding:11px 18px; border:1px solid transparent; display:inline-flex; align-items:center; gap:8px; }
+  .row { display:flex; gap:16px; align-items:flex-start; flex-wrap:wrap; }
+  .item { display:flex; flex-direction:column; gap:8px; align-items:center; }
+  .v { font: var(--text-overline); letter-spacing:0.06em; text-transform:uppercase; color: var(--fg-2); }
+</style>
+</head>
+<body>
+  <div class="row">
+    <div class="item"><button class="btn" style="background:#d85a30;color:#1a0d08;">★ Rate this</button><span class="v">default</span></div>
+    <div class="item"><button class="btn" style="background:#e8714a;color:#1a0d08;">★ Rate this</button><span class="v">hover</span></div>
+    <div class="item"><button class="btn" style="background:#bd4a24;color:#1a0d08;transform:scale(0.97);">★ Rate this</button><span class="v">press</span></div>
+    <div class="item"><button class="btn" style="background:#d85a30;color:#1a0d08;box-shadow:0 0 0 3px rgba(216,90,48,0.30);">★ Rate this</button><span class="v">focus</span></div>
+    <div class="item"><button class="btn" style="background:#2a1610;color:#7a5a4d;">★ Rate this</button><span class="v">disabled</span></div>
+  </div>
+</body>
+</html>

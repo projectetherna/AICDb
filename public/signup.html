@@ -1,0 +1,63 @@
+<!DOCTYPE html>
+<html lang="en">
+  <head>
+    <meta charset="utf-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1" />
+    <title>Create account — AICDb</title>
+    <link rel="stylesheet" href="/css/tokens.css" />
+    <link rel="stylesheet" href="/css/auth.css" />
+  </head>
+  <body class="auth-page">
+    <main class="auth-card">
+      <div class="auth-brand">
+        <img src="/assets/aicdb-mark.svg" width="56" height="56" alt="" />
+        <div>
+          <h1>Join AICDb</h1>
+          <p>Free, open, community-driven AI film discovery</p>
+        </div>
+      </div>
+
+      <div id="alert" class="auth-alert" role="alert"></div>
+
+      <button type="button" id="btn-google" class="btn btn-google"></button>
+
+      <div class="auth-divider">or</div>
+
+      <form id="signup-form" novalidate>
+        <div class="field">
+          <label for="email">Email</label>
+          <input class="input" id="email" name="email" type="email" autocomplete="email" required placeholder="you@example.com" />
+        </div>
+        <div class="field">
+          <label for="password">Password</label>
+          <input class="input" id="password" name="password" type="password" autocomplete="new-password" required minlength="8" placeholder="At least 8 characters" />
+        </div>
+        <div class="field">
+          <label for="confirm">Confirm password</label>
+          <input class="input" id="confirm" name="confirm" type="password" autocomplete="new-password" required placeholder="Repeat password" />
+        </div>
+        <button type="submit" class="btn btn-primary">Create account</button>
+      </form>
+
+      <p class="auth-footer">
+        Already have an account? <a href="/login.html">Sign in</a>
+      </p>
+    </main>
+
+    <script src="/config.js"></script>
+    <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2/dist/umd/supabase.min.js"></script>
+    <script src="/js/auth.js"></script>
+    <script>
+      (async () => {
+        const alertEl = document.getElementById('alert');
+        try {
+          await AICDB_AUTH.requireGuest();
+          AICDB_AUTH.wireGoogleButton(document.getElementById('btn-google'), alertEl);
+          AICDB_AUTH.wireSignupForm(document.getElementById('signup-form'), alertEl);
+        } catch (err) {
+          AICDB_AUTH.showAlert(alertEl, err.message, 'error');
+        }
+      })();
+    </script>
+  </body>
+</html>

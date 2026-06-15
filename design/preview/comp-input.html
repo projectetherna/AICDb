@@ -1,0 +1,34 @@
+<!DOCTYPE html>
+<!-- @dsCard group="Components" name="Form inputs" subtitle="Default & focused fields" viewport="700x190" -->
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<link rel="stylesheet" href="../colors_and_type.css">
+<style>
+  html,body { margin:0; }
+  body { background: var(--bg-0); padding: 22px 26px; display:flex; flex-direction:column; gap:14px; }
+  .field { display:flex; flex-direction:column; gap:6px; max-width:340px; }
+  .field label { font: var(--text-overline); letter-spacing:0.06em; text-transform:uppercase; color: var(--fg-2); }
+  .input { background: var(--bg-2); border:1px solid var(--border-default); border-radius: var(--radius-md); padding:11px 14px; color: var(--fg-0); font: var(--text-body); outline:none; }
+  .input::placeholder { color: var(--fg-3); }
+  .input.focus { border-color: var(--border-accent); box-shadow: 0 0 0 3px rgba(216,90,48,0.30); }
+  .row { display:flex; gap:18px; align-items:flex-end; }
+</style>
+</head>
+<body>
+  <div class="row">
+    <div class="field">
+      <label>Title</label>
+      <input class="input" value="Synthetic Dreams">
+    </div>
+    <div class="field">
+      <label>Search — focused</label>
+      <input class="input focus" placeholder="Search titles…">
+    </div>
+  </div>
+  <div class="field" style="max-width:700px;">
+    <label>Review</label>
+    <input class="input" placeholder="Write your take…">
+  </div>
+</body>
+</html>

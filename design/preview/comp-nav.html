@@ -1,0 +1,38 @@
+<!DOCTYPE html>
+<!-- @dsCard group="Components" name="Navigation bar" subtitle="Logo, links, search, avatar" viewport="700x80" -->
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<link rel="stylesheet" href="../colors_and_type.css">
+<style>
+  html,body { margin:0; }
+  body { background: var(--bg-0); padding: 0; }
+  .nav { display:flex; align-items:center; gap:26px; padding:14px 26px; background: rgba(10,10,10,0.8); backdrop-filter: blur(12px); border-bottom:1px solid var(--border-subtle); }
+  .logo { font:900 19px/1 var(--font-display); letter-spacing:-0.03em; color: var(--fg-0); }
+  .logo b { color: var(--coral); }
+  .links { display:flex; gap:20px; }
+  .links a { font:500 14px/1 var(--font-body); color: var(--fg-1); }
+  .links a.active { color: var(--fg-0); }
+  .links a.active::after { content:''; display:block; height:2px; background: var(--coral); margin-top:5px; border-radius:2px; }
+  .spacer { flex:1; }
+  .search { display:flex; align-items:center; gap:8px; background: var(--bg-2); border:1px solid var(--border-subtle); border-radius: var(--radius-pill); padding:7px 14px; width:180px; }
+  .search span { color: var(--fg-2); font-size:13px; }
+  .search input { background:none; border:none; outline:none; color: var(--fg-1); font:var(--text-body-sm); width:100%; }
+  .avatar { width:30px; height:30px; border-radius:50%; background: linear-gradient(135deg,#d85a30,#4ecdc4); }
+</style>
+</head>
+<body>
+  <nav class="nav">
+    <span class="logo">AICD<b>b</b></span>
+    <div class="links">
+      <a class="active">Discover</a>
+      <a>Films</a>
+      <a>Series</a>
+      <a>Lists</a>
+    </div>
+    <span class="spacer"></span>
+    <div class="search"><span>⌕</span><input placeholder="Search titles, creators…"></div>
+    <div class="avatar"></div>
+  </nav>
+</body>
+</html>

@@ -1,0 +1,274 @@
+// Dreamwall UI kit — Creator Page (separate from the regular user Profile).
+// Only users who have switched to a creator account get this page.
+// Assembles: NavBar + centered cinematic hero + stat strip + Works grid +
+// About section + (creator-only) Creator Studio management panel.
+// Reuses CreatorParts.jsx, CreatorManage.jsx, Primitives, FilmCard, NavBar.
+
+// ---- the creator + their catalog (fictional, mockup data) ----
+const CREATOR = {
+  name: 'Maya Okonkwo',
+  initials: 'M',
+  location: 'Lagos · Berlin',
+  joined: 'Creating since 2023',
+  avatar: ['#d85a30', '#9d8df1'],   // gradient fallback if no avatarImg
+  avatarImg: null,
+  banner: null,                      // gradient placeholder if null
+  followers: 48200,
+  manifesto: "I don't generate films — I haunt them into existence. Every frame is a memory I haven't had yet. Diffusion is just the séance.",
+  social: { youtube:'#', instagram:'#', x:'#', tiktok:'#', website:'#' },
+  tools: ['Runway Gen-3', 'Sora', 'Midjourney v6', 'ElevenLabs', 'Kling 1.5', 'Topaz', 'DaVinci Resolve'],
+  influences: ['Wong Kar-wai', 'Tarkovsky', 'Hideaki Anno', 'Neo-noir', 'Liminal spaces', 'Saul Bass'],
+  notes: "Currently deep in a feature-length piece about a city that dreams its own residents.\n\nOpen to scoring collaborations and prompt-architecture residencies. If you've trained a grain model you're proud of, my inbox is always open — I'm hunting for the texture of 16mm rendered in latent space.\n\nNo NFTs. Don't ask.",
+  // works the creator has published (ids into AICDB_FILMS)
+  works: ['echoes-of-tomorrow', 'glass-orchard', 'synthetic-dreams', 'the-long-render', 'redshift', 'paper-suns'],
+};
+
+// drafts in progress (creator-only studio)
+const DRAFTS = [
+  { title: 'The City That Dreams (feature)', edited: '2 hours ago', pct: 72 },
+  { title: 'Untitled — Lagos 2099', edited: '4 days ago', pct: 41 },
+  { title: 'Grain Study #7 (short)', edited: '3 weeks ago', pct: 18 },
+];
+
+// ---- build a creator object from a stored (user-created) creator account ----
+function creatorFromAccount(acct) {
+  return {
+    accountId: acct.id,
+    name: acct.name || 'Untitled Creator',
+    initials: (acct.name || 'C').replace(/[@]/g, '').trim().charAt(0).toUpperCase() || 'C',
+    location: acct.location || 'Online',
+    joined: 'Joined just now',
+    avatar: acct.avatar || ['#d85a30', '#9d8df1'],
+    avatarImg: acct.avatarImg || null,
+    banner: acct.banner || null,
+    followers: acct.followers || 0,
+    verified: false,
+    manifesto: acct.bio || 'A brand-new creator. The first frame is still rendering.',
+    social: acct.social || { youtube:'#', instagram:'#', x:'#', tiktok:'#', website:'#' },
+    tools: (acct.tools && acct.tools.length) ? acct.tools : ['Add your tools in Edit This Page'],
+    influences: (acct.influences && acct.influences.length) ? acct.influences : ['Add your influences'],
+    notes: acct.notes || 'You haven’t written any notes yet. Hit “Edit This Page” to introduce yourself.',
+    works: [],
+    isOwn: true,
+  };
+}
+
+// ---- resolve which creator to show: ?account= (created), ?name= (registry), else default ----
+function resolveCreator() {
+  let params = {};
+  try { params = new URLSearchParams(window.location.search); } catch (e) {}
+  const accountId = params.get && params.get('account');
+  const name = params.get && params.get('name');
+
+  if (accountId && window.AICDB_CREATOR_ACCOUNTS) {
+    const acct = window.AICDB_CREATOR_ACCOUNTS.byId(accountId);
+    if (acct) return creatorFromAccount(acct);
+  }
+  if (!name) return CREATOR;
+  const reg = window.AICDB_CREATOR_BY_NAME ? window.AICDB_CREATOR_BY_NAME[name] : null;
+  if (!reg) return CREATOR;
+  if (reg.name === CREATOR.name) return CREATOR; // rich hand-authored default (Maya)
+  const works = window.AICDB_FILMS.filter(f => f.creator === reg.name).map(f => f.id);
+  const handleClean = reg.handle ? reg.handle.replace('@', '') : reg.name;
+  return {
+    name: reg.name,
+    initials: reg.name.replace(/[@]/g, '').trim().charAt(0).toUpperCase() || 'A',
+    location: reg.location || 'Online',
+    joined: 'Creating since 2023',
+    avatar: reg.av || ['#d85a30', '#9d8df1'],
+    avatarImg: null,
+    banner: null,
+    followers: reg.followers || 0,
+    verified: reg.verified,
+    manifesto: reg.tagline,
+    social: { youtube:'#', instagram:'#', x:'#', tiktok:'#', website:'#' },
+    tools: ['Runway Gen-3', 'Sora', 'Midjourney v6', 'ElevenLabs', 'DaVinci Resolve'],
+    influences: ['Cinema', 'Liminal spaces', 'Sound design', 'Neo-noir'],
+    notes: `${reg.tagline}\n\nOpen to scoring collaborations and prompt-architecture residencies. Reach out via @${handleClean}.`,
+    works,
+  };
+}
+
+function filmsById() {
+  const m = {};
+  window.AICDB_FILMS.forEach(f => { m[f.id] = f; });
+  return m;
+}
+
+// ---- a Works poster: title, year, score + type badge always visible ----
+function WorkCard({ film, onOpen }) {
+  const [hover, setHover] = React.useState(false);
+  const aspect = film.type === 'vertical' ? '9/16' : '2/3';
+  return (
+    <div style={{ cursor:'pointer' }} onClick={() => onOpen && onOpen(film)}
+      onMouseEnter={() => setHover(true)} onMouseLeave={() => setHover(false)}>
+      <div style={{ aspectRatio:aspect, borderRadius:'var(--radius-lg)', overflow:'hidden', position:'relative',
+        boxShadow:'var(--shadow-poster)', background:`linear-gradient(150deg, ${film.g[0]}, ${film.g[1]} 150%)`,
+        transition:'transform var(--dur-base) var(--ease-out), filter var(--dur-base) var(--ease-out)',
+        transform: hover ? 'translateY(-3px) scale(1.015)' : 'none', filter: hover ? 'brightness(1.08)' : 'brightness(1)' }}>
+        {/* ribbon + type badge — always visible, top-left */}
+        <div style={{ position:'absolute', top:10, left:10, display:'flex', flexDirection:'column', gap:6, alignItems:'flex-start' }}>
+          <ContentRibbon film={film} size="sm" />
+          <ContentBadge type={film.type} solid size="sm" />
+        </div>
+        {/* protection scrim + score — always visible, bottom */}
+        <div style={{ position:'absolute', left:0, right:0, bottom:0, padding:'28px 12px 11px',
+          background:'linear-gradient(to top, rgba(5,5,5,0.85) 0%, rgba(5,5,5,0.35) 55%, transparent 100%)',
+          display:'flex', alignItems:'baseline', gap:5 }}>
+          <ScoreLine film={film} size={22} countColor="rgba(255,255,255,0.7)" />
+        </div>
+      </div>
+      <div style={{ font:'600 14px/1.25 var(--font-body)', color:'var(--fg-0)', marginTop:10,
+        whiteSpace:'nowrap', overflow:'hidden', textOverflow:'ellipsis' }}>{film.title}</div>
+      <div style={{ font:'var(--text-data-sm)', color:'var(--fg-2)', marginTop:3 }}>
+        {film.year} · {window.AICDB_TYPES[film.type].label}
+      </div>
+    </div>
+  );
+}
+
+// ---- Works section: tab filter (All / Films / Series / Shorts) + grid ----
+function WorksSection({ films, onOpen }) {
+  const [tab, setTab] = React.useState('All');
+  const tabs = [
+    ['All', () => true],
+    ['Films', f => f.type === 'movie'],
+    ['Series', f => f.type === 'series'],
+    ['Shorts', f => f.type === 'short'],
+  ];
+  const counts = {};
+  tabs.forEach(([label, pred]) => { counts[label] = films.filter(pred).length; });
+  const pred = tabs.find(t => t[0] === tab)[1];
+  const shown = films.filter(pred).slice().sort((a, b) => b.score - a.score); // highest rated first
+
+  return (
+    <section style={{ marginBottom:64 }}>
+      <div style={{ display:'flex', alignItems:'flex-end', justifyContent:'space-between', gap:20, flexWrap:'wrap', marginBottom:22 }}>
+        <h2 style={{ font:'var(--text-h2)', color:'var(--fg-0)', letterSpacing:'-0.01em' }}>Works</h2>
+        <div style={{ display:'flex', gap:8 }}>
+          {tabs.map(([label]) => {
+            const on = tab === label;
+            return (
+              <button key={label} onClick={() => setTab(label)}
+                style={{ display:'inline-flex', alignItems:'center', gap:7, padding:'8px 15px', borderRadius:'var(--radius-pill)', cursor:'pointer',
+                  font:'600 13px/1 var(--font-body)', transition:'all var(--dur-fast)',
+                  borderWidth:1, borderStyle:'solid',
+                  background: on ? 'var(--fg-0)' : 'transparent',
+                  borderColor: on ? 'transparent' : 'var(--border-default)',
+                  color: on ? 'var(--bg-0)' : 'var(--fg-1)' }}>
+                {label}
+                <span style={{ font:'600 11px/1 var(--font-mono)', color: on ? 'rgba(10,10,10,0.5)' : 'var(--fg-3)' }}>{counts[label]}</span>
+              </button>
+            );
+          })}
+        </div>
+      </div>
+      {shown.length ? (
+        <div style={{ display:'grid', gridTemplateColumns:'repeat(auto-fill, minmax(168px, 1fr))', gap:24 }}>
+          {shown.map(f => <WorkCard key={f.id} film={f} onOpen={onOpen} />)}
+        </div>
+      ) : (
+        <div style={{ padding:'60px 0', textAlign:'center', font:'var(--text-body)', color:'var(--fg-2)' }}>
+          Nothing here yet — this creator hasn't released a {tab.toLowerCase().replace(/s$/, '')}.
+        </div>
+      )}
+    </section>
+  );
+}
+
+// ---- humorous empty state: no creator account yet ----
+function NoCreatorContent({ onApp }) {
+  return (
+    <div style={{ minHeight:'100vh' }}>
+      <NavBar active="" onNav={onApp} query="" onQuery={() => {}} onOpenResult={() => {}} />
+      <div style={{ maxWidth:620, margin:'0 auto', padding:'80px 28px 90px', textAlign:'center' }}>
+        <div style={{ width:104, height:104, margin:'0 auto 28px', borderRadius:'50%', position:'relative',
+          display:'flex', alignItems:'center', justifyContent:'center',
+          background:'var(--bg-1)', border:'1px solid var(--border-subtle)' }}>
+          <div style={{ position:'absolute', inset:0, borderRadius:'50%',
+            background:'radial-gradient(circle at 50% 35%, rgba(216,90,48,0.22), transparent 70%)' }} />
+          <Icon name="ghost" size={46} color="var(--coral-bright)" weight="fill" />
+        </div>
+        <h1 style={{ font:'700 clamp(30px,5vw,42px)/1.08 var(--font-display)', letterSpacing:'-0.015em', color:'var(--fg-0)', margin:'0 0 16px' }}>
+          A stunning body of work.<br />Truly. Nothing.
+        </h1>
+        <p style={{ font:'var(--text-body-lg)', color:'var(--fg-1)', margin:'0 auto 10px', maxWidth:460 }}>
+          We searched everywhere — under the render queue, behind the GPU, in the latent space.
+          You haven’t published a single frame.
+        </p>
+        <p style={{ font:'var(--text-body)', color:'var(--fg-2)', margin:'0 auto 32px', maxWidth:460 }}>
+          That’s because <b style={{ color:'var(--fg-1)' }}>My Contents</b> lives on a <b style={{ color:'var(--fg-1)' }}>creator account</b> —
+          a separate identity you publish and get rated under. You don’t have one yet. Want to fix that?
+        </p>
+        <a href="Dreamwall%20Add%20Creator%20Account.html" style={{ display:'inline-flex', alignItems:'center', gap:9, padding:'14px 26px', borderRadius:'var(--radius-md)',
+          background:'var(--coral)', color:'var(--fg-on-accent)', font:'600 15px/1 var(--font-body)', textDecoration:'none', boxShadow:'var(--shadow-1)' }}
+          onMouseEnter={e=>e.currentTarget.style.background='var(--coral-bright)'} onMouseLeave={e=>e.currentTarget.style.background='var(--coral)'}>
+          <Icon name="plus" size={16} color="var(--fg-on-accent)" weight="bold" /> Create a creator account
+        </a>
+        <div style={{ marginTop:18 }}>
+          <a onClick={() => onApp && onApp('')} style={{ cursor:'pointer', font:'500 13px/1 var(--font-body)', color:'var(--fg-3)' }}>
+            ← Maybe later, back to browsing
+          </a>
+        </div>
+      </div>
+    </div>
+  );
+}
+
+// ---- the page ----
+function CreatorPage() {
+  const accounts = useCreatorAccounts();
+  const wantsManage = typeof window !== 'undefined' && /[?&]manage=1/.test(window.location.search);
+  const [manage, setManage] = React.useState(wantsManage);
+
+  let params = {};
+  try { params = new URLSearchParams(window.location.search); } catch (e) {}
+  const accountId = params.get && params.get('account');
+  const name = params.get && params.get('name');
+  const isMyContents = wantsManage && !name && !accountId;
+
+  const open = (f) => { window.location.href = 'index.html'; };
+  const goApp = (label) => { window.location.href = 'index.html' + (label ? '#' + encodeURIComponent(label) : ''); };
+
+  // My Contents with no creator account → humorous empty state
+  if (isMyContents && accounts.length === 0) {
+    return <NoCreatorContent onApp={goApp} />;
+  }
+
+  const creator = isMyContents ? creatorFromAccount(accounts[0]) : resolveCreator();
+  const drafts = creator === CREATOR ? DRAFTS : [];
+  const byId = filmsById();
+  const works = creator.works.map(id => byId[id]).filter(Boolean);
+
+  // derived stat strip
+  const parseRatings = (s) => parseFloat(String(s)) * (String(s).includes('k') ? 1000 : String(s).includes('M') ? 1e6 : 1);
+  const totalRatings = works.reduce((sum, f) => sum + parseRatings(f.ratings), 0);
+  const totalViews = works.reduce((sum, f) => sum + window.AICDB_STAT(f).watched, 0);
+  const avgScore = works.length ? works.reduce((sum, f) => sum + f.score, 0) / works.length : 0;
+
+  const stats = [
+    { label:'Works',        value: works.length, icon:'film-slate',      color:'var(--coral-bright)' },
+    { label:'Total Views',  value: fmtCount(totalViews),  icon:'eye',     color:'var(--fg-1)' },
+    { label:'Avg Score', value: works.length ? avgScore.toFixed(1) : '—', unit: works.length ? '/10' : '', icon:'sparkle', color:'var(--teal-bright)', scoreColor: works.length ? scoreColor(avgScore) : 'var(--fg-3)' },
+    { label:'Ratings',      value: fmtCount(totalRatings), icon:'star',   color:'var(--coral-bright)' },
+    { label:'Followers',    value: fmtCount(creator.followers), icon:'users-three', color:'var(--fg-1)' },
+  ];
+
+  // published rows for the studio panel
+  const published = works.map(f => ({ film:f, stat: window.AICDB_STAT(f) }));
+
+  return (
+    <div style={{ minHeight:'100vh' }}>
+      <NavBar active="" onNav={goApp} query="" onQuery={() => {}} onOpenResult={() => {}} />
+      <div style={{ maxWidth:1180, margin:'0 auto', padding:'28px 28px 96px' }}>
+        <CreatorHero creator={creator} manage={manage} onToggleManage={setManage} />
+        <CreatorStatStrip items={stats} />
+        {manage && <ManagePanel published={published} drafts={drafts} />}
+        <WorksSection films={works} onOpen={open} />
+        <AboutSection creator={creator} />
+      </div>
+    </div>
+  );
+}
+
+Object.assign(window, { CreatorPage, NoCreatorContent, WorksSection, WorkCard, CREATOR, DRAFTS });

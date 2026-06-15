@@ -1,0 +1,47 @@
+<!DOCTYPE html>
+<!-- @dsCard group="Brand" name="Iconography — Phosphor" subtitle="Phosphor Fill, colored by meaning" viewport="700x200" -->
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<link rel="stylesheet" href="../colors_and_type.css">
+<link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/@phosphor-icons/web@2.1.1/src/fill/style.css">
+<link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/@phosphor-icons/web@2.1.1/src/duotone/style.css">
+<style>
+  html,body { margin:0; }
+  body { background: var(--bg-0); padding: 18px 22px; }
+  .grid { display:grid; grid-template-columns: repeat(8, 1fr); gap:11px; }
+  .tile { display:flex; flex-direction:column; align-items:center; gap:7px; }
+  .badge { width:100%; aspect-ratio:1/1; border-radius:14px; display:flex; align-items:center; justify-content:center; }
+  .badge i { font-size:28px; line-height:1; }
+  .l { font: var(--text-overline); letter-spacing:0.04em; text-transform:uppercase; color: var(--fg-2); }
+  .coral  { background: rgba(216,90,48,0.15); } .coral i  { color:#e8714a; }
+  .teal   { background: rgba(78,205,196,0.14); } .teal i  { color:#6fdbd3; }
+  .gold   { background: rgba(229,178,59,0.15); } .gold i  { color:#e5b23b; }
+  .lav    { background: rgba(157,141,241,0.16); } .lav i  { color:#a99bf4; }
+  .silver { background: var(--bg-2); border:1px solid var(--border-subtle); } .silver i { color:#c9ccd4; }
+  .cap { font: var(--text-data-sm); color: var(--fg-2); margin-top:15px; }
+  .cap b { color: var(--fg-1); font-weight:600; }
+</style>
+</head>
+<body>
+  <div class="grid">
+    <div class="tile"><div class="badge coral"><i class="ph-fill ph-star"></i></div><span class="l">rate</span></div>
+    <div class="tile"><div class="badge silver"><i class="ph-fill ph-film-slate"></i></div><span class="l">movie</span></div>
+    <div class="tile"><div class="badge silver"><i class="ph-fill ph-television-simple"></i></div><span class="l">series</span></div>
+    <div class="tile"><div class="badge silver"><i class="ph-fill ph-scissors"></i></div><span class="l">short</span></div>
+    <div class="tile"><div class="badge silver"><i class="ph-fill ph-device-mobile"></i></div><span class="l">vertical</span></div>
+    <div class="tile"><div class="badge lav"><i class="ph-fill ph-sparkle"></i></div><span class="l">ai</span></div>
+    <div class="tile"><div class="badge silver"><i class="ph-fill ph-bookmark-simple"></i></div><span class="l">save</span></div>
+    <div class="tile"><div class="badge silver"><i class="ph-fill ph-play"></i></div><span class="l">play</span></div>
+    <div class="tile"><div class="badge silver"><i class="ph-fill ph-magnifying-glass"></i></div><span class="l">search</span></div>
+    <div class="tile"><div class="badge silver"><i class="ph-fill ph-chat-centered-text"></i></div><span class="l">review</span></div>
+    <div class="tile"><div class="badge silver"><i class="ph-fill ph-heart"></i></div><span class="l">like</span></div>
+    <div class="tile"><div class="badge silver"><i class="ph-fill ph-share-network"></i></div><span class="l">share</span></div>
+    <div class="tile"><div class="badge silver"><i class="ph-fill ph-list-bullets"></i></div><span class="l">lists</span></div>
+    <div class="tile"><div class="badge silver"><i class="ph-fill ph-trophy"></i></div><span class="l">top</span></div>
+    <div class="tile"><div class="badge silver"><i class="ph-fill ph-fire"></i></div><span class="l">trending</span></div>
+    <div class="tile"><div class="badge silver"><i class="ph-fill ph-clock"></i></div><span class="l">runtime</span></div>
+  </div>
+  <div class="cap"><b>Phosphor · Fill</b> — silver tiles by default; accent reserved for the primary action (coral · rate) and AI (lavender).</div>
+</body>
+</html>

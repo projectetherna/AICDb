@@ -1,0 +1,35 @@
+<!DOCTYPE html>
+<!-- @dsCard group="Colors" name="Status & score bands" subtitle="Success / warning / danger + AI-score bands" viewport="700x200" -->
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<link rel="stylesheet" href="../colors_and_type.css">
+<style>
+  html,body { margin:0; }
+  body { background: var(--bg-0); padding: 22px 26px; }
+  .row { display:flex; gap:14px; align-items:flex-start; flex-wrap:wrap; }
+  .item { display:flex; align-items:center; gap:9px; }
+  .chip { width:26px; height:26px; border-radius:6px; flex:none; }
+  .lbl { font: var(--text-label); color: var(--fg-0); }
+  .lbl span { font: var(--text-data-sm); color: var(--fg-2); display:block; font-weight:400; }
+  .scores { display:flex; gap:10px; margin-top:18px; }
+  .score { font:600 22px/1 var(--font-mono); padding:8px 12px; border-radius: var(--radius-md); border:1px solid var(--border-subtle); }
+  .cap { font: var(--text-data-sm); color: var(--fg-2); margin-top:14px; }
+  .cap b { color: var(--fg-1); font-weight:600; }
+</style>
+</head>
+<body>
+  <div class="row">
+    <div class="item"><span class="chip" style="background:#4ecdc4;"></span><span class="lbl">success <span>#4ecdc4</span></span></div>
+    <div class="item"><span class="chip" style="background:#e5b23b;"></span><span class="lbl">warning <span>#e5b23b</span></span></div>
+    <div class="item"><span class="chip" style="background:#e5484d;"></span><span class="lbl">danger <span>#e5484d</span></span></div>
+    <div class="item"><span class="chip" style="background:#6f9ceb;"></span><span class="lbl">info <span>#6f9ceb</span></span></div>
+  </div>
+  <div class="scores">
+    <span class="score" style="color:#4ecdc4;">87</span>
+    <span class="score" style="color:#e5b23b;">64</span>
+    <span class="score" style="color:#e5484d;">38</span>
+  </div>
+  <div class="cap"><b>Status &amp; score bands</b> — high (80+) teal · mid (50–79) gold · low (&lt;50) red.</div>
+</body>
+</html>
