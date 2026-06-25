@@ -6,39 +6,16 @@ window.AICDB_TYPES = {
   vertical: { label: 'Vertical', color: 'var(--type-vertical)', ghost: 'var(--type-vertical-ghost)', text: 'var(--type-vertical-text)', icon: 'smartphone' },
 };
 
-window.AICDB_FILMS = [
-  { id:'synthetic-dreams', title:'Synthetic Dreams', type:'movie', year:2025, runtime:'142 min', score:8.7, stars:4.5, ratings:'24.1k',
-    g:['#3a2118','#d85a30'], genres:['Sci-Fi','Neo-Noir'], technique:'Diffusion',
-    creator:'Maya Okonkwo', synopsis:'A memory-broker in a rain-slicked megacity discovers the dreams she sells are bleeding into a shared reality no one can switch off.' },
-  { id:'echoes-of-tomorrow', title:'Echoes of Tomorrow', type:'series', year:2024, runtime:'3 seasons', score:9.1, stars:5, ratings:'58.3k',
-    g:['#10302d','#4ecdc4'], genres:['Sci-Fi','Drama'], technique:'Hybrid Live-Action',
-    creator:'The Vale Collective', synopsis:'Across three timelines, a family keeps almost meeting itself. An aching, generation-spanning epic rendered entirely in latent space.' },
-  { id:'paper-suns', title:'Paper Suns', type:'short', year:2025, runtime:'11 min', score:7.9, stars:4, ratings:'6.2k',
-    g:['#332a12','#e5b23b'], genres:['Animation'], technique:'Frame Interp.',
-    creator:'Ito Render Lab', synopsis:'A folded-paper world unfurls at dawn. A wordless miniature about the things light touches first.' },
-  { id:'sixty-seconds-down', title:'Sixty Seconds Down', type:'vertical', year:2025, runtime:'1 min', score:7.2, stars:3.5, ratings:'12.8k',
-    g:['#241a3a','#9d8df1'], genres:['Thriller'], technique:'Text-to-Video',
-    creator:'@nullframe', synopsis:'An elevator. A stranger. Sixty floors. Shot for the phone, built for the scroll.' },
-  { id:'the-long-render', title:'The Long Render', type:'movie', year:2024, runtime:'128 min', score:8.3, stars:4, ratings:'19.4k',
-    g:['#2a1410','#c44a2a'], genres:['Drama'], technique:'Diffusion',
-    creator:'Bashir Halabi', synopsis:'A reclusive director spends a decade generating a single perfect frame — and loses everyone who waited for it.' },
-  { id:'glass-orchard', title:'Glass Orchard', type:'series', year:2025, runtime:'1 season', score:8.8, stars:4.5, ratings:'31.0k',
-    g:['#0f2e2b','#3aa9a1'], genres:['Mystery','Drama'], technique:'Hybrid Live-Action',
-    creator:'Noor Farah', synopsis:'In a town where the trees grow glass fruit, a botanist investigates why the harvest has started showing faces.' },
-  { id:'redshift', title:'Redshift', type:'movie', year:2025, runtime:'117 min', score:6.4, stars:3, ratings:'9.7k',
-    g:['#341512','#e5484d'], genres:['Sci-Fi','Action'], technique:'Diffusion',
-    creator:'Cosmic Pixel Co.', synopsis:'A salvage crew chases a derelict generation-ship toward a star that is moving away faster than light should allow.' },
-  { id:'minute-of-static', title:'Minute of Static', type:'vertical', year:2024, runtime:'1 min', score:7.6, stars:4, ratings:'15.2k',
-    g:['#1e1a36','#7c6fe0'], genres:['Horror'], technique:'Text-to-Video',
-    creator:'@deadair', synopsis:'Every night at 3:33 the channel cuts to static — and something on the other side is learning to look back.' },
-];
+// Catalog is intentionally empty — the platform starts with no published
+// titles, so every surface renders its empty state.
+window.AICDB_FILMS = [];
 
 // Watchlist store — shared across pages, persisted to localStorage.
 window.AICDB_WATCHLIST = (function () {
   const KEY = 'aicdb_watchlist';
   let ids;
-  try { ids = JSON.parse(localStorage.getItem(KEY) || '["glass-orchard","redshift"]'); }
-  catch (e) { ids = ['glass-orchard', 'redshift']; }
+  try { ids = JSON.parse(localStorage.getItem(KEY) || '[]'); }
+  catch (e) { ids = []; }
   const subs = new Set();
   function emit() {
     try { localStorage.setItem(KEY, JSON.stringify(ids)); } catch (e) {}
@@ -82,16 +59,19 @@ window.AICDB_CREATOR_ACCOUNTS = (function () {
   };
 })();
 
-// the signed-in user's main (viewer) account — shown atop the creator-setup page
-window.AICDB_MAIN_ACCOUNT = { name: 'Ada Vance', handle: '@adavance', avatar: ['#d85a30', '#9d8df1'], joined: 'Joined March 2024' };
+// the signed-in user's main (viewer) account. No demo account exists by
+// default — surfaces that show it guard for null.
+window.AICDB_MAIN_ACCOUNT = null;
 
 // Signed-in viewer stats. `loggedTitles` gates power-user features (e.g. the
 // uniqueness/Sıradışılık rating, which needs 1000+ logged titles to access).
-window.AICDB_VIEWER = { loggedTitles: 1240 };
+window.AICDB_VIEWER = { loggedTitles: 0 };
 window.AICDB_UNIQUENESS_MIN_LOGGED = 1000;
 
 // Per-title detail metadata — quotes, series counts, crew, production, "extraordinary" meter.
-window.AICDB_DETAILS = {
+window.AICDB_DETAILS = {};
+/* removed sample per-title detail metadata
+const _AICDB_DETAILS_SAMPLE = {
   'synthetic-dreams': {
     quote: 'Every dream I sell is a door someone forgets to close.',
     extraordinary: 78, budget: '$2.4M', duration: '14 months', contributors: 38,
@@ -136,13 +116,13 @@ window.AICDB_DETAILS = {
     models: ['Diffusion v6', 'MotionField Pro'],
     crew: [['Direction','Cosmic Pixel Co.'],['Prompt Architect','V. Sokolov'],['Model Supervisor','R. Okonjo'],['Sound Design','Pixel Audio'],['Voice Synthesis','Atlas Voices']],
   },
-  'minute-of-static': {
-    quote: 'At 3:33 the static learns your face.',
-    extraordinary: 69, budget: '$30k', duration: '4 weeks', contributors: 4,
+  'minute-of-static-removed': {
+    quote: '', extraordinary: 0, budget: '', duration: '', contributors: 0,
     models: ['Text-to-Video 3', 'GrainEngine'],
     crew: [['Direction','@deadair'],['Prompt Architect','K. Mraz'],['Sound Design','Dead Air Foley']],
   },
 };
+*/
 
 // Derived community stats for a title (from its rating count).
 window.AICDB_STAT = function (film) {
@@ -150,8 +130,60 @@ window.AICDB_STAT = function (film) {
   return { watched: n * 6.2, favorited: n * 0.42, watchlisted: n * 0.85, rated: n, completion: 0.78 + (film.score - 7) * 0.03 };
 };
 
-window.AICDB_REVIEWS = [
-  { user:'Lena R.', av:['#d85a30','#e5b23b'], stars:5, when:'2 days ago', likes:142, body:"The diffusion grain isn't a limitation here — it's the whole point. Every frame looks like a half-remembered dream. Stunning." },
-  { user:'theframekeeper', av:['#4ecdc4','#6f9ceb'], stars:4, when:'1 week ago', likes:88, body:"Ambitious to a fault. The middle act loses the plot in its own latent space, but that final render is worth the price of admission." },
-  { user:'Marco V.', av:['#9d8df1','#d85a30'], stars:4.5, when:'2 weeks ago', likes:54, body:"Proof that 'AI-generated' and 'has a soul' aren't mutually exclusive. I've rewatched the rooftop sequence five times." },
-];
+window.AICDB_REVIEWS = [];
+
+// ============================================================
+// Auth — logged-out by default. Persisted to localStorage so the
+// signed-in state survives navigation between pages.
+// ============================================================
+window.AICDB_AUTH = (function () {
+  const KEY = 'aicdb_logged_in';
+  let on;
+  try { on = JSON.parse(localStorage.getItem(KEY) || 'false'); } catch (e) { on = false; }
+  const subs = new Set();
+  function emit() {
+    try { localStorage.setItem(KEY, JSON.stringify(on)); } catch (e) {}
+    subs.forEach(fn => fn(on));
+  }
+  return {
+    isLoggedIn: () => !!on,
+    login: () => { on = true; emit(); },
+    logout: () => { on = false; emit(); },
+    subscribe: (fn) => { subs.add(fn); return () => subs.delete(fn); },
+  };
+})();
+
+// Resolve a logical page key to a URL that works in BOTH the dev UI-kit
+// (lowercase siblings) and the bundled root snapshots ("Dreamwall X.html").
+window.AICDB_PAGE = (function () {
+  const file = decodeURIComponent((location.pathname.split('/').pop() || ''));
+  const isBundle = /^Dreamwall /.test(file);
+  const kit = {
+    home: 'index.html', login: 'login.html', signup: 'signup.html',
+    profile: 'profile.html', watchlist: 'index.html#Watchlist', feed: 'index.html#Feed',
+    mycontents: 'my-contents.html',
+  };
+  const root = {
+    home: 'Dreamwall Web App.html', login: 'Dreamwall Login.html', signup: 'Dreamwall Sign Up.html',
+    profile: 'Dreamwall Profile.html', watchlist: 'Dreamwall Web App.html#Watchlist', feed: 'Dreamwall Web App.html#Feed',
+    mycontents: 'Dreamwall My Contents.html',
+  };
+  const map = isBundle ? root : kit;
+  return (key) => map[key] || key;
+})();
+
+// Gate an interactive action behind auth. Returns true if signed in; otherwise
+// fires 'aicdb:require-auth' (the AuthPromptHost shows the "Sign in to continue"
+// popup) and returns false so callers can bail.
+window.AICDB_REQUIRE_AUTH = function (message) {
+  if (window.AICDB_AUTH.isLoggedIn()) return true;
+  window.dispatchEvent(new CustomEvent('aicdb:require-auth', { detail: { message } }));
+  return false;
+};
+
+// Hard guard for login-only standalone pages — redirects to login when signed out.
+window.AICDB_GUARD = function () {
+  if (window.AICDB_AUTH.isLoggedIn()) return true;
+  try { location.replace(window.AICDB_PAGE('login')); } catch (e) { location.href = window.AICDB_PAGE('login'); }
+  return false;
+};

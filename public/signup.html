@@ -1,63 +1,101 @@
 <!DOCTYPE html>
 <html lang="en">
-  <head>
-    <meta charset="utf-8" />
-    <meta name="viewport" content="width=device-width, initial-scale=1" />
-    <title>Create account — AICDb</title>
-    <link rel="stylesheet" href="/css/tokens.css" />
-    <link rel="stylesheet" href="/css/auth.css" />
-  </head>
-  <body class="auth-page">
-    <main class="auth-card">
-      <div class="auth-brand">
-        <img src="/assets/aicdb-mark.svg" width="56" height="56" alt="" />
-        <div>
-          <h1>Join AICDb</h1>
-          <p>Free, open, community-driven AI film discovery</p>
-        </div>
-      </div>
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <title>Create account — Dreamwall</title>
+  <link rel="icon" href="/assets/aicdb-favicon-32.png" type="image/png">
+  <link rel="stylesheet" href="/css/colors_and_type.css">
+  <script src="theme-init.js"></script>
+  <link rel="stylesheet" href="/css/responsive.css">
+  <style>
+    html, body { margin: 0; background: var(--bg-0); }
+    * { box-sizing: border-box; }
+    a { color: inherit; }
+  </style>
+  <script src="https://unpkg.com/react@18.3.1/umd/react.development.js" integrity="sha384-hD6/rw4ppMLGNu3tX5cjIb+uRZ7UkRJ6BPkLpg4hAu/6onKUg4lLsHAs9EBPT82L" crossorigin="anonymous"></script>
+  <script src="https://unpkg.com/react-dom@18.3.1/umd/react-dom.development.js" integrity="sha384-u6aeetuaXnQ38mYT8rp6sbXaQe3NL9t+IBXmnYxwkUI2Hw4bsp2Wvmx4yRQF1uAm" crossorigin="anonymous"></script>
+  <script src="https://unpkg.com/@babel/standalone@7.29.0/babel.min.js" integrity="sha384-m08KidiNqLdpJqLq95G/LEi8Qvjl/xUYll3QILypMoQ65QorJ9Lvtp2RXYGBFj1y" crossorigin="anonymous"></script>
+  <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/@phosphor-icons/web@2.1.1/src/bold/style.css">
+  <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/@phosphor-icons/web@2.1.1/src/fill/style.css">
+</head>
+<body>
+  <div id="root"></div>
 
-      <div id="alert" class="auth-alert" role="alert"></div>
+  <script src="/config.js"></script>
+  <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2/dist/umd/supabase.min.js"></script>
+  <script src="/js/auth.js"></script>
+  <script src="data.js"></script>
 
-      <button type="button" id="btn-google" class="btn btn-google"></button>
+  <!-- Primitives (Icon, Logo, Button, Avatar …) -->
+  <script type="text/babel" src="Primitives.jsx"></script>
+  <!-- Brand icons (GoogleIcon, FacebookIcon, InstagramIcon, XIcon, TikTokIcon) -->
+  <script type="text/babel" src="BrandIcons.jsx"></script>
+  <!-- Login.jsx provides SocialButton, Field, PrimaryWideButton -->
+  <script type="text/babel" src="Login.jsx"></script>
+  <!-- Signup.jsx provides the 3-step flow -->
+  <script type="text/babel" src="Signup.jsx"></script>
 
-      <div class="auth-divider">or</div>
+  <script type="text/babel">
+    // Redirect away if already logged in
+    AICDB_AUTH.requireGuest().catch(() => {});
 
-      <form id="signup-form" novalidate>
-        <div class="field">
-          <label for="email">Email</label>
-          <input class="input" id="email" name="email" type="email" autocomplete="email" required placeholder="you@example.com" />
-        </div>
-        <div class="field">
-          <label for="password">Password</label>
-          <input class="input" id="password" name="password" type="password" autocomplete="new-password" required minlength="8" placeholder="At least 8 characters" />
-        </div>
-        <div class="field">
-          <label for="confirm">Confirm password</label>
-          <input class="input" id="confirm" name="confirm" type="password" autocomplete="new-password" required placeholder="Repeat password" />
-        </div>
-        <button type="submit" class="btn btn-primary">Create account</button>
-      </form>
+    // Wire the Google button in StepChoice — patch SocialButton's onClick for the
+    // Google entry by overriding it at the module level via a global hook that
+    // Signup.jsx calls when the user picks Google.
+    window.AICDB_SIGNUP_GOOGLE = async function(setError) {
+      try {
+        await AICDB_AUTH.getClient().then(sb =>
+          sb.auth.signInWithOAuth({
+            provider: 'google',
+            options: { redirectTo: window.location.origin + '/auth/callback.html' },
+          })
+        );
+      } catch (err) {
+        if (setError) setError(err.message || 'Google sign-up failed.');
+      }
+    };
 
-      <p class="auth-footer">
-        Already have an account? <a href="/login.html">Sign in</a>
-      </p>
-    </main>
+    // Wire generic OAuth sign-up (Facebook, X/twitter) — errors shown inline
+    window.AICDB_SIGNUP_OAUTH = async function(provider, setError) {
+      try {
+        const sb = await AICDB_AUTH.getClient();
+        const { error } = await sb.auth.signInWithOAuth({
+          provider,
+          options: { redirectTo: window.location.origin + '/auth/callback.html' },
+        });
+        if (error) throw error;
+      } catch (err) {
+        if (setError) setError(err.message || provider + ' sign-up failed.');
+      }
+    };
 
-    <script src="/config.js"></script>
-    <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2/dist/umd/supabase.min.js"></script>
-    <script src="/js/auth.js"></script>
-    <script>
-      (async () => {
-        const alertEl = document.getElementById('alert');
-        try {
-          await AICDB_AUTH.requireGuest();
-          AICDB_AUTH.wireGoogleButton(document.getElementById('btn-google'), alertEl);
-          AICDB_AUTH.wireSignupForm(document.getElementById('signup-form'), alertEl);
-        } catch (err) {
-          AICDB_AUTH.showAlert(alertEl, err.message, 'error');
-        }
-      })();
-    </script>
-  </body>
+    // Wire email sign-up — called by StepForm's submit(email, password, firstName, lastName)
+    window.AICDB_SIGNUP_EMAIL = async function(email, password, firstName, lastName) {
+      const client = await AICDB_AUTH.getClient();
+      const fullName = [firstName, lastName].filter(Boolean).join(' ');
+      const { data, error } = await client.auth.signUp({
+        email,
+        password,
+        options: {
+          // Names land in raw_user_meta_data so handle_new_user trigger can read them.
+          data: {
+            full_name:    fullName || undefined,
+            first_name:   firstName || undefined,
+            last_name:    lastName  || undefined,
+          },
+          // Confirmation email will be sent as a magic-link; user can click it later.
+          emailRedirectTo: window.location.origin + '/auth/callback.html',
+        },
+      });
+      if (error) throw error;
+      // With "Confirm email" disabled in Supabase Dashboard, data.session is returned
+      // immediately — redirect straight to the app.
+      window.location.replace('/');
+      return 'session';
+    };
+
+    ReactDOM.createRoot(document.getElementById('root')).render(<Signup />);
+  </script>
+</body>
 </html>

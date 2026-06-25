@@ -6,7 +6,7 @@ const PH = {
   sparkles:'sparkle', film:'film-slate', tv:'television-simple', smartphone:'device-mobile',
   clapperboard:'film-slate', 'message-square':'chat-centered-text', 'share-2':'share-network',
   list:'list-bullets', plus:'plus', 'chevron-left':'caret-left', check:'check', clock:'clock',
-  heart:'heart', eye:'eye', fire:'fire', trophy:'trophy', mail:'envelope-simple', x:'x',
+  heart:'heart', eye:'eye', 'eye-slash':'eye-slash', fire:'fire', trophy:'trophy', mail:'envelope-simple', x:'x',
 };
 
 function Icon({ name, size = 20, color = 'currentColor', weight = 'bold', fill, style }) {
@@ -154,6 +154,13 @@ function useCreatorAccounts() {
   return list;
 }
 
+// Subscribe to the shared auth (logged-in) state.
+function useAuth() {
+  const [on, setOn] = React.useState(window.AICDB_AUTH.isLoggedIn());
+  React.useEffect(() => window.AICDB_AUTH.subscribe(setOn), []);
+  return on;
+}
+
 function ScoreRing({ score = 0, size = 78 }) {
   const pct = (score/10)*100;
   const col = score >= 8 ? '#4ecdc4' : score >= 5 ? '#e5b23b' : '#e5484d';
@@ -175,4 +182,4 @@ function Avatar({ colors = ['#d85a30','#4ecdc4'], size = 30 }) {
     background:`linear-gradient(135deg, ${colors[0]}, ${colors[1]})` }} />;
 }
 
-Object.assign(window, { Icon, Logo, Button, ContentBadge, StarRating, ScoreRing, Avatar, scoreColor, ScoreLine, ContentRibbon, formatDuration, useWatchlist, useCreatorAccounts, fmtCount });
+Object.assign(window, { Icon, Logo, Button, ContentBadge, StarRating, ScoreRing, Avatar, scoreColor, ScoreLine, ContentRibbon, formatDuration, useWatchlist, useCreatorAccounts, useAuth, fmtCount });

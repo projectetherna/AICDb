@@ -23,6 +23,42 @@ function EmptyState({ icon, title, sub, actionLabel, onAction, accent = 'var(--c
 }
 
 // ============================================================
+// Loading screen — centered Dreamwall logo on a dark field, shown
+// briefly while the app boots. Transform/opacity only so it degrades
+// gracefully under reduced-motion (logo + wordmark always visible).
+// ============================================================
+function LoadingScreen() {
+  const mark = (window.__resources && window.__resources.aicdbMark) || '/assets/aicdb-mark.png';
+  return (
+    <div style={{ position:'fixed', inset:0, zIndex:9999, display:'flex', flexDirection:'column',
+      alignItems:'center', justifyContent:'center', gap:28, background:'var(--bg-0)' }}>
+      <style>{`
+        @keyframes aicdbLogoPulse { 0%,100% { transform: scale(1); opacity:0.82 } 50% { transform: scale(1.07); opacity:1 } }
+        @keyframes aicdbLoadBar { 0% { transform: translateX(-120%) } 100% { transform: translateX(320%) } }
+        @media (prefers-reduced-motion: reduce) { .aicdb-load-mark, .aicdb-load-bar { animation: none !important; } }
+      `}</style>
+      {/* soft warm glow behind the mark */}
+      <div style={{ position:'absolute', inset:0,
+        background:'radial-gradient(56% 46% at 50% 42%, rgba(216,90,48,0.10), transparent 60%)' }} />
+      <div style={{ position:'relative', display:'flex', alignItems:'center', gap:16 }}>
+        <img className="aicdb-load-mark" src={mark} width="56" height="56" alt=""
+          style={{ display:'block', filter:'drop-shadow(0 4px 16px rgba(0,0,0,0.6))',
+            animation:'aicdbLogoPulse 1.5s var(--ease-in-out) infinite' }} />
+        <span style={{ font:'800 34px/0.9 var(--font-display)', letterSpacing:'-0.02em', color:'var(--fg-0)' }}>
+          Dream<span style={{ color:'var(--coral)' }}>wall</span>
+        </span>
+      </div>
+      {/* sweeping shimmer bar */}
+      <div style={{ position:'relative', width:148, height:3, borderRadius:3, overflow:'hidden', background:'var(--bg-2)' }}>
+        <div className="aicdb-load-bar" style={{ position:'absolute', top:0, bottom:0, width:'38%', borderRadius:3,
+          background:'linear-gradient(90deg, transparent, var(--coral), transparent)',
+          animation:'aicdbLoadBar 1.1s var(--ease-out) infinite' }} />
+      </div>
+    </div>
+  );
+}
+
+// ============================================================
 // Loading skeletons — poster-shaped grey placeholders, gentle shimmer
 // ============================================================
 const SKELETON_STYLE = `
@@ -295,5 +331,63 @@ function EmailConfirm({ email = 'you@example.com', onHome }) {
   );
 }
 
-Object.assign(window, { EmptyState, SkeletonCard, SkeletonGrid, SKELETON_STYLE, MoreLikeThis,
+// ============================================================
+// Auth prompt — small “Sign in to continue” popup shown when a signed-out
+// visitor attempts a gated action (rate / comment / watchlist / post).
+// Mount <AuthPromptHost/> once; fire window 'aicdb:require-auth' to open it
+// (window.AICDB_REQUIRE_AUTH() does this for you).
+// ============================================================
+function AuthPrompt({ onClose, message }) {
+  React.useEffect(() => {
+    const h = e => { if (e.key === 'Escape') onClose(); };
+    window.addEventListener('keydown', h);
+    return () => window.removeEventListener('keydown', h);
+  }, [onClose]);
+  const go = (key) => { window.location.href = window.AICDB_PAGE(key); };
+  return (
+    <div onClick={onClose}
+      style={{ position:'fixed', inset:0, zIndex:2000, display:'flex', alignItems:'center', justifyContent:'center', padding:24,
+        background:'rgba(5,5,5,0.72)', backdropFilter:'blur(6px)', WebkitBackdropFilter:'blur(6px)' }}>
+      <style>{`@keyframes aicdbAuthIn{from{opacity:0;transform:translateY(12px) scale(0.98)}to{opacity:1;transform:none}}`}</style>
+      <div onClick={e => e.stopPropagation()}
+        style={{ position:'relative', width:'100%', maxWidth:392, textAlign:'center',
+          background:'var(--bg-1)', border:'1px solid var(--border-default)', borderRadius:'var(--radius-xl)',
+          boxShadow:'var(--shadow-3)', padding:'34px 30px 30px', animation:'aicdbAuthIn 0.28s var(--ease-out) both' }}>
+        <button onClick={onClose} aria-label="Close"
+          style={{ position:'absolute', top:14, right:14, display:'flex', padding:7, borderRadius:'50%', cursor:'pointer',
+            background:'var(--bg-2)', border:'1px solid var(--border-default)' }}>
+          <Icon name="x" size={14} color="var(--fg-1)" />
+        </button>
+        <div style={{ width:64, height:64, margin:'0 auto 18px', borderRadius:'50%', position:'relative',
+          display:'flex', alignItems:'center', justifyContent:'center',
+          background:'var(--bg-2)', border:'1px solid var(--border-subtle)' }}>
+          <div style={{ position:'absolute', inset:0, borderRadius:'50%',
+            background:'radial-gradient(circle at 50% 35%, rgba(216,90,48,0.22), transparent 70%)' }} />
+          <Icon name="lock-simple" size={28} color="var(--coral-bright)" weight="fill" />
+        </div>
+        <h2 style={{ font:'600 22px/1.2 var(--font-display)', color:'var(--fg-0)', margin:'0 0 9px' }}>Sign in to continue</h2>
+        <p style={{ font:'var(--text-body)', color:'var(--fg-2)', margin:'0 0 24px', maxWidth:300, marginInline:'auto' }}>
+          {message || 'Create a free account or sign in to rate, follow creators, and build your watchlist.'}
+        </p>
+        <div style={{ display:'flex', gap:10, justifyContent:'center' }}>
+          <Button variant="primary" icon="sign-in" onClick={() => go('login')}>Sign in</Button>
+          <Button variant="secondary" onClick={() => go('signup')}>Sign up</Button>
+        </div>
+      </div>
+    </div>
+  );
+}
+
+function AuthPromptHost() {
+  const [state, setState] = React.useState(null); // null | { message }
+  React.useEffect(() => {
+    const h = (e) => setState({ message: e.detail && e.detail.message });
+    window.addEventListener('aicdb:require-auth', h);
+    return () => window.removeEventListener('aicdb:require-auth', h);
+  }, []);
+  if (!state) return null;
+  return <AuthPrompt message={state.message} onClose={() => setState(null)} />;
+}
+
+Object.assign(window, { EmptyState, LoadingScreen, AuthPrompt, AuthPromptHost, SkeletonCard, SkeletonGrid, SKELETON_STYLE, MoreLikeThis,
   SearchEmpty, NotFound, LanguageSelector, Footer, EmailConfirm, aicdbSuggest, aicdbEditDistance });

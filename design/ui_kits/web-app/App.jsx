@@ -1,13 +1,13 @@
 // Dreamwall UI kit — app shell + simple client routing
 function BrowseGrid({ title, films, onOpen, sub }) {
   return (
-    <div style={{ maxWidth:1180, margin:'0 auto', padding:'32px 28px 80px' }}>
+    <div className="aicdb-page" style={{ maxWidth:1180, margin:'0 auto', padding:'32px 28px 80px' }}>
       <div style={{ textAlign:'center', marginBottom:28 }}>
         <h1 style={{ font:'var(--text-h1)', color:'var(--fg-0)', letterSpacing:'-0.015em', marginBottom:8 }}>{title}</h1>
         <p style={{ font:'var(--text-body)', color:'var(--fg-2)' }}>{sub || `${films.length} ${films.length===1?'title':'titles'}`}</p>
       </div>
       {films.length ? (
-        <div style={{ display:'grid', gridTemplateColumns:'repeat(auto-fill, minmax(150px, 1fr))', gap:22 }}>
+        <div className="aicdb-film-grid" style={{ display:'grid', gridTemplateColumns:'repeat(auto-fill, minmax(150px, 1fr))', gap:22 }}>
           {films.map(f => <FilmCard key={f.id} film={f} onOpen={onOpen} width="auto" />)}
         </div>
       ) : (
@@ -105,12 +105,7 @@ function WatchlistView({ films, onOpen, onNav, onWatch }) {
 }
 
 // the signed-in user's own reviews (text only — score shown separately if they rated it)
-const MY_REVIEWS = [
-  { id:'echoes-of-tomorrow', when:'2 days ago', score:5.0, body:"Still the bar. The third act rewires how you think about memory on a second watch — I keep finding new seams in the edit." },
-  { id:'saltwater-gods', when:'1 week ago', score:4.5, body:"The drowned-pantheon sequence is the most beautiful thing I've seen come out of a diffusion pipeline. Loses a little momentum mid-film, but the ending earns it." },
-  { id:'glass-orchard', when:'3 weeks ago', score:4.0, body:"Quiet, patient, and gorgeously lit. Not for everyone, but if you let it breathe it gets under your skin." },
-  { id:'redshift', when:'1 month ago', body:"Technically dazzling. I wanted a little more heart underneath the spectacle — still very much worth your time." },
-];
+const MY_REVIEWS = [];
 
 function MyReviewRow({ r, onOpen }) {
   const [hover, setHover] = React.useState(false);
@@ -176,8 +171,20 @@ function App() {
   const [detail, setDetail] = React.useState(null);
   const [watching, setWatching] = React.useState(null);
   const [query, setQuery] = React.useState('');
+  const [loading, setLoading] = React.useState(true);
+  React.useEffect(() => { const t = setTimeout(() => setLoading(false), 900); return () => clearTimeout(t); }, []);
+  const loggedIn = useAuth();
   const films = window.AICDB_FILMS;
   const watchlist = useWatchlist();
+
+  // login-only in-app views — signed-out visitors get bounced to the login page
+  const GATED = ['Profile', 'Watchlist', 'Feed', 'My Reviews', 'Preferences'];
+  const blocked = !loggedIn && GATED.includes(nav);
+  React.useEffect(() => {
+    if (!loading && blocked) {
+      try { window.location.replace(window.AICDB_PAGE('login')); } catch (e) { window.location.href = window.AICDB_PAGE('login'); }
+    }
+  }, [loading, blocked]);
 
   const open = (f) => { if (!f) { goNav('Films'); return; } setDetail(f); setWatching(null); window.scrollTo(0,0); };
   const goNav = (n) => { setNav(n); setDetail(null); setWatching(null); setQuery(''); window.scrollTo(0,0); try { history.replaceState(null, '', '#' + encodeURIComponent(n)); } catch(e){} };
@@ -185,7 +192,12 @@ function App() {
   const goCreator = (creator) => { window.location.href = 'creator.html?name=' + encodeURIComponent(creator); };
 
   let view, showFooter = true;
-  if (watching) {
+  if (loading) {
+    return <LoadingScreen />;
+  } else if (blocked) {
+    // redirecting to login — keep the dark logo splash up so gated content never flashes
+    return <LoadingScreen />;
+  } else if (watching) {
     return <Watching film={watching} onBack={()=>{ setWatching(null); window.scrollTo(0,0); }} />;
   } else if (detail) {
     view = <FilmDetail film={detail} onBack={()=>setDetail(null)} onWatch={(f)=>{ setWatching(f); window.scrollTo(0,0); }} onCreator={goCreator} onOpen={open} />;
@@ -217,6 +229,7 @@ function App() {
       <NavBar active={detail?'':nav} onNav={goNav} query={query} onQuery={setQuery} onOpenResult={openResult} />
       <div style={{ flex:1 }}>{view}</div>
       {showFooter && <Footer onNav={goNav} />}
+      <AuthPromptHost />
     </div>
   );
 }

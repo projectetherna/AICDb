@@ -1,29 +1,90 @@
 // Dreamwall UI kit — film/series detail page
-function ReviewItem({ r }) {
+function ReviewItem({ r, currentUserId, onReload }) {
   const [liked, setLiked] = React.useState(false);
+  const [editing, setEditing] = React.useState(false);
+  const [draft, setDraft] = React.useState(r.body);
+  React.useEffect(() => { if (!editing) setDraft(r.body); }, [r.body, editing]);
+
+  const isOwn = currentUserId && r.userId === currentUserId;
+
+  const save = async () => {
+    const trimmed = draft.trim();
+    if (!trimmed) return;
+    await window.AICDB_REVIEWS.update(r.id, trimmed);
+    setEditing(false);
+    onReload && onReload();
+  };
+
+  const remove = async () => {
+    await window.AICDB_REVIEWS.remove(r.id);
+    onReload && onReload();
+  };
+
+  const togglePublic = async () => {
+    await window.AICDB_REVIEWS.togglePublic(r.id, !r.is_public);
+    onReload && onReload();
+  };
+
+  const visPill = (
+    <button type="button" onClick={togglePublic}
+      style={{ display:'inline-flex', alignItems:'center', gap:6, padding:'6px 12px', borderRadius:999,
+        border:'1px solid var(--border-subtle)', background:'transparent', cursor:'pointer',
+        font:'600 12px/1 var(--font-body)', color:'var(--fg-2)' }}>
+      <Icon name={r.is_public ? 'eye' : 'lock-simple'} size={12} color="currentColor" weight={r.is_public ? 'regular' : 'fill'} />
+      {r.is_public ? 'Public' : 'Private'}
+    </button>
+  );
+
   return (
     <div style={{ display:'flex', gap:14, padding:'18px 0', borderBottom:'1px solid var(--border-subtle)' }}>
       <Avatar colors={r.av} size={38} />
       <div style={{ flex:1 }}>
         <div style={{ display:'flex', alignItems:'center', gap:10, marginBottom:6 }}>
-          <span style={{ font:'600 14px/1 var(--font-body)', color:'var(--fg-0)' }}>{r.user}</span>
+          <span
+            onClick={() => { if (r.userId && window.AICDB_OPEN_USER_PROFILE) window.AICDB_OPEN_USER_PROFILE(r.userId); }}
+            onMouseEnter={e => { if (r.userId) e.currentTarget.style.color = 'var(--teal-bright)'; }}
+            onMouseLeave={e => { if (r.userId) e.currentTarget.style.color = 'var(--fg-0)'; }}
+            style={{ font:'600 14px/1 var(--font-body)', color:'var(--fg-0)', cursor: r.userId ? 'pointer' : 'default' }}>{r.user}</span>
           {r.stars != null && <StarRating value={r.stars} size={14} />}
           <span style={{ font:'var(--text-data-sm)', color:'var(--fg-2)' }}>{r.when}</span>
         </div>
-        <p style={{ font:'var(--text-body)', color:'var(--fg-1)', margin:'0 0 10px' }}>{r.body}</p>
+        {editing ? (
+          <textarea value={draft} onChange={e => setDraft(e.target.value)}
+            style={{ width:'100%', minHeight:72, resize:'vertical', background:'var(--bg-0)', color:'var(--fg-0)',
+              border:'1px solid var(--border-subtle)', borderRadius:'var(--radius-md)', padding:'12px 14px',
+              font:'var(--text-body)', outline:'none', marginBottom:10 }} />
+        ) : (
+          <p style={{ font:'var(--text-body)', color:'var(--fg-1)', margin:'0 0 10px' }}>{r.body}</p>
+        )}
         <button onClick={()=>setLiked(!liked)} style={{ display:'inline-flex', alignItems:'center', gap:6,
           background:'none', border:'none', cursor:'pointer', padding:0,
           font:'500 12px/1 var(--font-body)', color: liked?'var(--coral)':'var(--fg-2)' }}>
           <Icon name="heart" size={15} fill={liked?'var(--coral)':'none'} color={liked?'var(--coral)':'currentColor'} />
           {r.likes + (liked?1:0)}
         </button>
+        {isOwn && (
+          <div style={{ display:'flex', alignItems:'center', gap:8, marginTop:10, flexWrap:'wrap' }}>
+            {visPill}
+            {editing ? (
+              <>
+                <Button variant="ghost" size="sm" icon="check" onClick={save}>Save</Button>
+                <Button variant="ghost" size="sm" onClick={() => { setDraft(r.body); setEditing(false); }}>Cancel</Button>
+              </>
+            ) : (
+              <>
+                <Button variant="ghost" size="sm" icon="pencil-simple" onClick={() => { setDraft(r.body); setEditing(true); }}>Edit</Button>
+                <Button variant="ghost" size="sm" icon="trash" onClick={remove}>Delete</Button>
+              </>
+            )}
+          </div>
+        )}
       </div>
     </div>
   );
 }
 
 // Left-column action button (consistent secondary style)
-function SideButton({ icon, children, onClick, primary }) {
+function SideButton({ icon, iconFill, children, onClick, primary }) {
   const [hover, setHover] = React.useState(false);
   const base = { width:'100%', display:'inline-flex', alignItems:'center', justifyContent:'center', gap:8,
     padding:'12px 16px', borderRadius:'var(--radius-md)', cursor:'pointer', font:'600 14px/1 var(--font-body)',
@@ -33,7 +94,7 @@ function SideButton({ icon, children, onClick, primary }) {
     : { ...base, border:'1px solid var(--border-strong)', background: hover ? 'var(--bg-2)' : 'transparent', color:'var(--fg-0)' };
   return (
     <button onClick={onClick} onMouseEnter={()=>setHover(true)} onMouseLeave={()=>setHover(false)} style={style}>
-      <Icon name={icon} size={16} fill={primary && icon==='play' ? 'currentColor' : 'none'} color="currentColor" />
+      <Icon name={icon} size={16} fill={iconFill !== undefined ? iconFill : (primary && icon==='play' ? 'currentColor' : 'none')} color="currentColor" />
       {children}
     </button>
   );
@@ -44,18 +105,115 @@ function FilmDetail({ film, onBack, onWatch, onCreator, onOpen }) {
   const t = window.AICDB_TYPES[film.type];
   const isSeries = film.type === 'series';
 
-  const [userScore, setUserScore] = React.useState(0);
+  // Community stats fetched live from content_stats
+  const [communityAvg, setCommunityAvg] = React.useState(film.score || 0);
+  const [ratingCount, setRatingCount] = React.useState(film.ratings || 0);
+
+  // Current user's own rating dimensions
+  const [userRating, setUserRating] = React.useState(null); // { visuals, sound, script, consistency, main }
+
   const [rateOpen, setRateOpen] = React.useState(false);
   const [reviewOpen, setReviewOpen] = React.useState(false);
-  const [reviews, setReviews] = React.useState(window.AICDB_REVIEWS);
-  const [feedback, setFeedback] = React.useState(null); // { score, first }
+  const [reviews, setReviews] = React.useState([]);
+  const [reviewSort, setReviewSort] = React.useState('newest');
+  const [feedback, setFeedback] = React.useState(null);
+  const [currentUserId, setCurrentUserId] = React.useState(null);
+  const [showFullDesc, setShowFullDesc] = React.useState(false);
+
+  const formatReviewWhen = (iso) => {
+    const d = new Date(iso);
+    return d.toLocaleDateString('en-US', { month: 'short', year: 'numeric' });
+  };
+
+  const mapReviewRow = (row) => ({
+    id: row.id,
+    body: row.body,
+    when: formatReviewWhen(row.created_at),
+    createdAt: row.created_at,
+    user: (row.profiles && row.profiles.display_name) || 'Anonymous',
+    userId: row.user_id,
+    is_public: row.is_public,
+    av: ['#d85a30', '#9d8df1'],
+    likes: 0,
+  });
+
+  const loadReviews = React.useCallback(async () => {
+    const rows = await window.AICDB_REVIEWS.load(film.id);
+    console.log('REVIEW_LOAD:', { data: rows, error: null });
+    setReviews(rows.map(mapReviewRow));
+  }, [film.id]);
+
+  React.useEffect(() => { loadReviews(); }, [loadReviews]);
+
+  React.useEffect(() => {
+    window.AICDB_AUTH.getSession()
+      .then(session => { setCurrentUserId(session ? session.user.id : null); })
+      .catch(() => { setCurrentUserId(null); });
+  }, []);
+
+  // Fetch community stats + user's own rating on mount (and after each rating submit)
+  const fetchData = React.useCallback(async () => {
+    try {
+      const sb = await window.AICDB_AUTH.getClient();
+
+      // Community stats (no auth required — content_stats is public)
+      const { data: stats } = await sb
+        .from('content_stats')
+        .select('rating_avg, rating_count')
+        .eq('content_id', film.id)
+        .maybeSingle();
+      if (stats) {
+        if (stats.rating_avg != null) setCommunityAvg(parseFloat(stats.rating_avg));
+        if (stats.rating_count != null) setRatingCount(stats.rating_count);
+      }
+
+      // User's own rating (only if signed in)
+      const session = await window.AICDB_AUTH.getSession();
+      if (!session) return;
+      const { data: myRating } = await sb
+        .from('ratings')
+        .select('visuals, sound_design, script, consistency, main_score')
+        .eq('user_id', session.user.id)
+        .eq('content_id', film.id)
+        .is('episode_id', null)
+        .maybeSingle();
+      if (myRating) {
+        setUserRating({
+          visuals: myRating.visuals,
+          sound: myRating.sound_design,
+          script: myRating.script,
+          consistency: myRating.consistency,
+          main: myRating.main_score != null ? parseFloat(myRating.main_score) : null,
+        });
+      }
+    } catch (e) {
+      console.warn('[FilmDetail] fetchData error:', e.message);
+    }
+  }, [film.id]);
+
+  React.useEffect(() => { fetchData(); }, [fetchData]);
 
   const handleRated = (avg) => {
-    setUserScore(avg);
     setRateOpen(false);
     const first = window.aicdbRecordRating ? window.aicdbRecordRating() : false;
     setFeedback({ score: avg, first });
+    // Re-fetch to get updated community avg + user's own rating
+    fetchData();
+    if (window.AICDB_REVIEWS) {
+      window.dispatchEvent(new CustomEvent('dreamwall:rated', { detail: avg }));
+    }
   };
+
+  const sortedReviews = reviewSort === 'liked'
+    ? [...reviews].sort((a, b) => b.likes - a.likes)
+    : [...reviews].sort((a, b) => new Date(b.createdAt) - new Date(a.createdAt));
+
+  const reviewSortBtn = (active) => ({
+    padding:'6px 14px', borderRadius:999, border:'1px solid', font:'600 12px/1 var(--font-body)',
+    cursor:'pointer', background:'transparent',
+    borderColor: active ? 'var(--teal-bright)' : 'var(--border-subtle)',
+    color: active ? 'var(--teal-bright)' : 'var(--fg-2)',
+  });
 
   return (
     <div>
@@ -91,7 +249,7 @@ function FilmDetail({ film, onBack, onWatch, onCreator, onOpen }) {
           <div style={{ display:'flex', flexDirection:'column', gap:10, marginTop:16 }}>
             <SideButton icon="play" primary onClick={() => onWatch && onWatch(film)}>Watch</SideButton>
             <WatchlistSplit film={film} />
-            <SideButton icon="star" onClick={() => setRateOpen(true)}>{userScore ? `Rated ${userScore.toFixed(1)}` : 'Rate'}</SideButton>
+            <SideButton icon="star" iconFill={userRating ? 'currentColor' : 'none'} onClick={() => { if (!window.AICDB_REQUIRE_AUTH('Sign in to rate this title.')) return; setRateOpen(true); }}>{userRating ? `Rated ${userRating.main.toFixed(1)}` : 'Rate'}</SideButton>
             <ShareButton />
           </div>
         </div>
@@ -132,15 +290,27 @@ function FilmDetail({ film, onBack, onWatch, onCreator, onOpen }) {
 
               {/* aggregate score + your score side by side */}
               <div style={{ maxWidth:420, marginBottom:20 }}>
-                <DualScore film={film} userScore={userScore} />
+                <DualScore communityAvg={communityAvg} ratingCount={ratingCount} userRating={userRating} />
               </div>
 
-              <p style={{ font:'var(--text-body-lg)', color:'var(--fg-1)', maxWidth:620, margin:0 }}>{film.synopsis}</p>
+              <div style={{ maxWidth:620 }}>
+                <div style={{ font:'var(--text-body-lg)', color:'var(--fg-1)', margin:0,
+                  maxHeight: showFullDesc ? 'none' : 72, overflow: showFullDesc ? 'visible' : 'hidden',
+                  transition:'maxHeight 0.3s ease' }}>
+                  {film.synopsis}
+                </div>
+                {(film.synopsis || '').length > 200 && (
+                  <button type="button" onClick={() => setShowFullDesc(v => !v)}
+                    style={{ background:'none', border:'none', color:'var(--teal-bright)', font:'600 13px/1 var(--font-body)',
+                      cursor:'pointer', padding:'4px 0', marginTop:4 }}>
+                    {showFullDesc ? 'Show less ↑' : 'Show more ↓'}
+                  </button>
+                )}
+              </div>
             </div>
 
-            {/* right-side speedometer gauge */}
             <div className="aicdb-detail-gauge" style={{ flex:'none', width:258, maxWidth:'100%' }}>
-              <ExtraordinaryMeter film={film} />
+              <ConsistencyMeter film={film} />
             </div>
           </div>
         </div>
@@ -153,15 +323,19 @@ function FilmDetail({ film, onBack, onWatch, onCreator, onOpen }) {
 
         {/* Reviews */}
         <section style={{ marginTop:48 }}>
-          <div style={{ display:'flex', alignItems:'center', justifyContent:'space-between', marginBottom:18 }}>
+          <div style={{ display:'flex', alignItems:'center', justifyContent:'space-between', marginBottom:18, gap:12, flexWrap:'wrap' }}>
             <h2 style={{ font:'var(--text-h2)', color:'var(--fg-0)' }}>Reviews</h2>
-            <Button variant="secondary" icon="pencil" size="sm" onClick={() => setReviewOpen(true)}>Add review</Button>
+            <div style={{ display:'flex', gap:6 }}>
+              <button type="button" style={reviewSortBtn(reviewSort === 'newest')} onClick={() => setReviewSort('newest')}>Newest</button>
+              <button type="button" style={reviewSortBtn(reviewSort === 'liked')} onClick={() => setReviewSort('liked')}>Most liked</button>
+            </div>
+            <Button variant="secondary" icon="pencil" size="sm" onClick={() => { if (!window.AICDB_REQUIRE_AUTH('Sign in to write a review.')) return; setReviewOpen(true); }}>Add review</Button>
           </div>
           {reviewOpen && (
-            <AddReviewBox onCancel={() => setReviewOpen(false)}
-              onPost={(rev) => { setReviews(rs => [rev, ...rs]); setReviewOpen(false); }} />
+            <AddReviewBox contentId={film.id} onCancel={() => setReviewOpen(false)}
+              onSuccess={() => { setReviewOpen(false); loadReviews(); }} />
           )}
-          <div>{reviews.map((r,i)=> <ReviewItem key={i} r={r} />)}</div>
+          <div>{sortedReviews.map(r => <ReviewItem key={r.id} r={r} currentUserId={currentUserId} onReload={loadReviews} />)}</div>
         </section>
 
         <ProductionSection film={film} />
@@ -170,7 +344,7 @@ function FilmDetail({ film, onBack, onWatch, onCreator, onOpen }) {
       </div>
 
       {rateOpen && (
-        <RatingPanel film={film} onClose={() => setRateOpen(false)}
+        <RatingPanel film={{ ...film, score: communityAvg }} onClose={() => setRateOpen(false)}
           onSubmit={handleRated} />
       )}
       {feedback && (

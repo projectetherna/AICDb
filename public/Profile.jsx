@@ -1,59 +1,150 @@
-// Dreamwall UI kit — User profile page
+﻿// Dreamwall UI kit — User profile page
 // Dark cinematic. Reuses Primitives (Icon, Button, Avatar, StarRating, ScoreRing,
 // ContentBadge, scoreColor), NavBar, FilmCard, and AICDB_FILMS / AICDB_TYPES.
-
+const DEFAULT_PROFILE_BANNER = 'https://zvvkejehuludrsabsesd.supabase.co/storage/v1/object/public/images/default/defaultprofile_banner.jpg.png';
 const PROFILE = {
-  name: 'Ada Vance',
-  initials: 'A',
-  joined: 'Joined March 2024',
-  quote: 'Chasing the one frame that remembers me.',
-  avatar: ['#d85a30', '#9d8df1'],
-  watched: 852,
-  lists: 10,
-  avgRating: 4.2,
-  hours: 1284,
-  reviews: 96,
-  thisYear: 218,
-  favGenre: 'Sci-Fi',
-  favGenreShare: '38% of everything you watch',
+  name: 'Guest',
+  initials: 'G',
+  joined: 'Not signed in',
+  bio: '',
+  quote: '',
+  quotFrom: '',
+  avatar: ['#5a5e66', '#3a3d44'],
+  avatarUrl: null,
+  bannerUrl: null,
+  watched: 0,
+  lists: 0,
+  avgRating: 0,
+  hours: 0,
+  reviews: 0,
+  thisYear: 0,
+  favGenre: '—',
+  favGenreShare: 'No ratings yet',
 };
+// Populate PROFILE from the active Supabase session + the profiles table row.
+// The profiles row is authoritative for display_name, username, created_at, and avatar_url.
+async function loadProfileFromSession(session) {
+  if (!session || !session.user) return;
+  const u     = session.user;
+  const email = u.email || '';
+  const meta  = u.user_metadata || {};
 
-// films keyed by id for convenience
+  // Optimistic fill from JWT while we wait for the DB row.
+  const rawJwt  = meta.full_name || meta.name || meta.display_name || email.split('@')[0] || 'Member';
+  const nameJwt = rawJwt.charAt(0).toUpperCase() + rawJwt.slice(1);
+  PROFILE.name     = nameJwt;
+  PROFILE.initials = nameJwt.charAt(0).toUpperCase();
+  PROFILE.avatar   = window.AICDB_MAIN_ACCOUNT ? window.AICDB_MAIN_ACCOUNT.avatar : ['#d85a30', '#9d8df1'];
+
+  // Use auth.users.created_at as a first-pass join date.
+  const authCreated = u.created_at ? new Date(u.created_at) : null;
+  PROFILE.joined = authCreated
+    ? 'Joined ' + authCreated.toLocaleDateString('en-US', { month:'long', year:'numeric' })
+    : 'Member';
+
+  // Fetch the profiles row for the authoritative display_name and created_at.
+  try {
+    const sb = await window.AICDB_AUTH.getClient();
+    const { data } = await sb
+      .from('profiles')
+      .select('display_name, created_at, bio, avatar_url, banner_url, quote, quote_from')
+      .eq('id', u.id)
+      .maybeSingle();
+
+    if (data) {
+      const profileName = data.display_name || nameJwt;
+      PROFILE.name      = profileName.charAt(0).toUpperCase() + profileName.slice(1);
+      PROFILE.initials  = PROFILE.name.charAt(0).toUpperCase();
+      PROFILE.bio       = data.bio || '';
+      PROFILE.avatarUrl = data.avatar_url || null;
+      PROFILE.bannerUrl = data.banner_url || null;
+      PROFILE.quote     = data.quote || '';
+      PROFILE.quoteFrom = data.quote_from || '';
+
+      // profiles.created_at is when the trigger ran — i.e. first ever sign-in.
+      // Use it if it's a valid date; fall back to auth.users.created_at.
+      const profileCreated = data.created_at ? new Date(data.created_at) : null;
+      const joinDate = profileCreated || authCreated;
+      PROFILE.joined = joinDate
+        ? 'Joined ' + joinDate.toLocaleDateString('en-US', { month:'long', year:'numeric' })
+        : 'Member';
+    }
+  } catch (_) {}
+}
+
+async function loadProfileFromUserId(userId) {
+  PROFILE.avatar = window.AICDB_MAIN_ACCOUNT ? window.AICDB_MAIN_ACCOUNT.avatar : ['#d85a30', '#9d8df1'];
+  try {
+    const sb = await window.AICDB_AUTH.getClient();
+    const { data } = await sb
+      .from('profiles')
+      .select('display_name, created_at, bio, avatar_url, banner_url, quote, quote_from')
+      .eq('id', userId)
+      .maybeSingle();
+
+    if (data) {
+      const profileName = data.display_name || 'Member';
+      PROFILE.name      = profileName.charAt(0).toUpperCase() + profileName.slice(1);
+      PROFILE.initials  = PROFILE.name.charAt(0).toUpperCase();
+      PROFILE.bio       = data.bio || '';
+      PROFILE.avatarUrl = data.avatar_url || null;
+      PROFILE.bannerUrl = data.banner_url || null;
+      PROFILE.quote     = data.quote || '';
+      PROFILE.quoteFrom = data.quote_from || '';
+
+      const profileCreated = data.created_at ? new Date(data.created_at) : null;
+      PROFILE.joined = profileCreated
+        ? 'Joined ' + profileCreated.toLocaleDateString('en-US', { month:'long', year:'numeric' })
+        : 'Member';
+    } else {
+      PROFILE.name     = 'Unknown User';
+      PROFILE.initials = 'U';
+      PROFILE.bio      = '';
+      PROFILE.avatarUrl = null;
+      PROFILE.bannerUrl = null;
+      PROFILE.quote    = '';
+      PROFILE.quoteFrom = '';
+      PROFILE.joined   = 'Member';
+    }
+  } catch (_) {
+    PROFILE.name     = 'Unknown User';
+    PROFILE.initials = 'U';
+  }
+}
+
+async function loadLastRated(userId) {
+  LAST_RATED.length = 0;
+  if (!userId) return;
+  try {
+    const sb = await window.AICDB_AUTH.getClient();
+    const { data: rows, error } = await sb
+      .from('ratings')
+      .select('content_id, main_score, created_at')
+      .eq('user_id', userId)
+      .is('episode_id', null)
+      .order('created_at', { ascending: false })
+      .limit(5);
+    if (error || !rows) return;
+    const byId = filmsById();
+    rows.forEach(row => {
+      if (!row.content_id || !byId[row.content_id]) return;
+      LAST_RATED.push({
+        id: row.content_id,
+        score: row.main_score,
+        you: parseFloat(row.main_score),
+        date: row.created_at,
+      });
+    });
+  } catch (_) {}
+}
+
 function filmsById() {
   const m = {};
   window.AICDB_FILMS.forEach(f => { m[f.id] = f; });
   return m;
 }
 
-const LAST_RATED = [
-  { id:'echoes-of-tomorrow', you:5,   date:'2026-05-31' },
-  { id:'synthetic-dreams',   you:4.5, date:'2026-05-28' },
-  { id:'glass-orchard',      you:4,   date:'2026-05-22' },
-  { id:'the-long-render',    you:3.5, date:'2026-05-14' },
-  { id:'minute-of-static',   you:4,   date:'2026-05-09' },
-  { id:'paper-suns',         you:4.5, date:'2026-04-30' },
-];
-
-// the full rating history (built from the catalog) for the "See all" page.
-// Deterministic pseudo user-scores + dates so the same titles always read the same.
-function allRatedEntries() {
-  const seeded = {};
-  LAST_RATED.forEach(r => { seeded[r.id] = r; });
-  const films = window.AICDB_FILMS || [];
-  const out = [];
-  let day = 0;
-  films.forEach((f, i) => {
-    if (seeded[f.id]) { out.push({ ...seeded[f.id], film: f }); return; }
-    // derive a stable half-star score near the title's own AI score
-    const base = Math.round((f.score / 2) * 2) / 2;
-    const you = Math.max(1, Math.min(5, base + ((i % 3) - 1) * 0.5));
-    day += 9 + (i % 4) * 5;
-    const d = new Date(2026, 3, 28); d.setDate(d.getDate() - day);
-    out.push({ id:f.id, you, date: d.toISOString().slice(0, 10), film: f });
-  });
-  // newest first
-  return out.sort((a, b) => (a.date < b.date ? 1 : -1));
-}
+const LAST_RATED = [];
 
 function fmtRatedDate(iso) {
   try {
@@ -61,36 +152,10 @@ function fmtRatedDate(iso) {
     return d.toLocaleDateString('en-US', { month:'short', day:'numeric', year:'numeric' });
   } catch (e) { return iso; }
 }
-
-const FAVORITES = ['synthetic-dreams', 'echoes-of-tomorrow', 'glass-orchard', 'the-long-render', 'paper-suns'];
-
-// user-created lists (title + how many titles each holds)
-const CREATED_LISTS = [
-  { id:'l1', title:'Best of Diffusion', count:24, note:'The generative films that still hold up' },
-  { id:'l2', title:'3AM Static',        count:12, note:'Vertical horror for the doomscroll' },
-  { id:'l3', title:'Latent Epics',      count:9,  note:'Generation-spanning, world-sized stories' },
-  { id:'l4', title:'Wordless',          count:15, note:'No dialogue, all light' },
-  { id:'l5', title:'Hybrid Live-Action',count:18, note:'Where cameras meet the model' },
-  { id:'l6', title:'Comfort Renders',   count:7,  note:'Rewatchable, low-stakes, warm' },
-  { id:'l7', title:'Coastlines',        count:6,  note:'Films that drown you beautifully' },
-  { id:'l8', title:'Festival Circuit',  count:11, note:'What the juries are arguing about' },
-  { id:'l9', title:'Shorts Under 10',   count:21, note:'Quick hits worth your lunch break' },
-  { id:'l10',title:'The Uncanny Shelf', count:8,  note:'Titles that learned to look back' },
-];
-
-const BADGES = [
-  { icon:'trophy',     label:'1,000 Rated',  sub:'Titles rated',       color:'var(--coral-bright)', ghost:'rgba(216,90,48,0.18)' },
-  { icon:'fire',       label:'47-Day Streak', sub:'Daily ratings',     color:'var(--type-short)',   ghost:'rgba(229,178,59,0.16)' },
-  { icon:'medal',      label:'Top Reviewer',  sub:'Top 1% this month',  color:'var(--teal-bright)',  ghost:'rgba(78,205,196,0.16)' },
-  { icon:'film-slate', label:'Cinephile',     sub:'500 films watched',  color:'var(--type-vertical)',ghost:'rgba(157,141,241,0.18)' },
-  { icon:'star',       label:'Tastemaker',    sub:'200 helpful votes',  color:'var(--coral-bright)', ghost:'rgba(216,90,48,0.18)' },
-  { icon:'sparkles',   label:'Early Adopter', sub:'Joined in 2024',     color:'var(--teal-bright)',  ghost:'rgba(78,205,196,0.16)' },
-];
-
 // ---- Section heading (centered or left) ----
-function SectionHeading({ children, align = 'left', sub }) {
+function SectionHeading({ children, align = 'left', sub, marginBottom = 22 }) {
   return (
-    <div style={{ textAlign: align, marginBottom: 22 }}>
+    <div style={{ textAlign: align, marginBottom }}>
       <h2 style={{ font:'var(--text-h2)', color:'var(--fg-0)', letterSpacing:'-0.01em' }}>{children}</h2>
       {sub && <p style={{ font:'var(--text-body-sm)', color:'var(--fg-2)', margin:'6px 0 0' }}>{sub}</p>}
     </div>
@@ -98,394 +163,191 @@ function SectionHeading({ children, align = 'left', sub }) {
 }
 
 // ---- TOP: profile / watched / lists ----
-function TopSection() {
+function TopSection({ onEdit, onOpenList, isOwnProfile = true, creatorAccounts = [], viewedUserId }) {
+  const [creatorMenuOpen, setCreatorMenuOpen] = React.useState(false);
+  const creatorMenuRef = React.useRef(null);
+  const [following, setFollowing] = React.useState(() => window.AICDB_FOLLOWS?.isFollowing('user', viewedUserId) || false);
+  const [followHover, setFollowHover] = React.useState(false);
+
+  React.useEffect(() => window.AICDB_FOLLOWS?.subscribe(() => setFollowing(window.AICDB_FOLLOWS.isFollowing('user', viewedUserId))), [viewedUserId]);
+
+  React.useEffect(() => {
+    if (!creatorMenuOpen) return;
+    const h = (e) => {
+      if (creatorMenuRef.current && !creatorMenuRef.current.contains(e.target)) {
+        setCreatorMenuOpen(false);
+      }
+    };
+    window.addEventListener('mousedown', h);
+    return () => window.removeEventListener('mousedown', h);
+  }, [creatorMenuOpen]);
+
   return (
-    <div style={{ position:'relative', marginBottom:60 }}>
-      {/* cinematic banner */}
-      <div style={{ position:'relative', height:200, borderRadius:'var(--radius-xl)', overflow:'hidden',
-        background:'linear-gradient(120deg, #2a1410 0%, #241a3a 50%, #10302d 120%)' }}>
-        <div style={{ position:'absolute', inset:0,
-          background:'radial-gradient(70% 120% at 18% 0%, rgba(216,90,48,0.28), transparent 55%),'
-            +'radial-gradient(60% 120% at 82% 10%, rgba(78,205,196,0.20), transparent 55%)' }} />
-        <div style={{ position:'absolute', inset:0, opacity:0.5,
-          backgroundImage:'radial-gradient(rgba(245,243,239,0.05) 1px, transparent 1px)', backgroundSize:'5px 5px' }} />
+    <div style={{ position:'relative', minHeight:400, marginBottom:60 }}>
+      {/* cinematic banner — absolutely positioned so it takes no flow height.
+          Height 400px extends it as a background layer behind the content card;
+          the content card sits on top via z-index without any vertical shift. */}
+      <div style={{ position:'absolute', top:0, left:0, right:0, height:400,
+        borderRadius:'var(--radius-xl)', overflow:'hidden', zIndex:0,
+        background: (PROFILE.bannerUrl || DEFAULT_PROFILE_BANNER)
+          ? `url(${PROFILE.bannerUrl || DEFAULT_PROFILE_BANNER}) center/cover no-repeat`
+          : 'linear-gradient(120deg, #2a1410 0%, #241a3a 50%, #10302d 120%)' }}>
+        {PROFILE.bannerUrl ? (
+          <img src={PROFILE.bannerUrl} alt=""
+            style={{ position:'absolute', inset:0, width:'100%', height:'100%', objectFit:'cover' }} />
+        ) : null}
+        {/* YouTube-style fade to background at the bottom — always present */}
         <div style={{ position:'absolute', inset:0, background:'linear-gradient(to bottom, rgba(10,10,10,0.05), var(--bg-0) 96%)' }} />
       </div>
 
-      {/* overlapping content card */}
+      {/* overlapping content card — sits on top of the banner via z-index.
+          The 200px spacer gives the card its original top offset (matching the
+          old in-flow banner height) so nothing shifts vertically. */}
+      <div style={{ height:200 }} />
       <div className="aicdb-profile-top" style={{ position:'relative', margin:'-72px 20px 0', padding:'0 8px',
-        display:'grid', gridTemplateColumns:'1.15fr 1fr 1fr', alignItems:'center' }}>
+        zIndex:1, display:'grid', gridTemplateColumns:'1fr 1fr 1fr', alignItems:'center' }}>
 
         {/* LEFT — photo + identity */}
         <div style={{ display:'flex', flexDirection:'column', alignItems:'flex-start', padding:'0 28px' }}>
+          {/* Avatar: real photo or gradient + initials fallback */}
           <div style={{ width:128, height:128, borderRadius:'50%', flex:'none', position:'relative',
-            background:`linear-gradient(135deg, ${PROFILE.avatar[0]}, ${PROFILE.avatar[1]})`,
+            background: PROFILE.avatarUrl ? 'transparent' : `linear-gradient(135deg, ${PROFILE.avatar[0]}, ${PROFILE.avatar[1]})`,
             border:'4px solid var(--bg-0)', boxShadow:'var(--shadow-3)',
-            display:'flex', alignItems:'center', justifyContent:'center' }}>
-            <span style={{ font:'600 56px/1 var(--font-display)', color:'rgba(255,255,255,0.92)' }}>{PROFILE.initials}</span>
-            <div style={{ position:'absolute', inset:0, borderRadius:'50%',
-              boxShadow:'inset 0 2px 18px rgba(255,255,255,0.25), inset 0 -10px 24px rgba(0,0,0,0.35)' }} />
+            display:'flex', alignItems:'center', justifyContent:'center', overflow:'hidden' }}>
+            {PROFILE.avatarUrl ? (
+              <img src={PROFILE.avatarUrl} alt={PROFILE.name}
+                style={{ position:'absolute', inset:0, width:'100%', height:'100%', objectFit:'cover', borderRadius:'50%' }} />
+            ) : (
+              <>
+                <span style={{ font:'600 56px/1 var(--font-display)', color:'rgba(255,255,255,0.92)' }}>{PROFILE.initials}</span>
+                <div style={{ position:'absolute', inset:0, borderRadius:'50%',
+                  boxShadow:'inset 0 2px 18px rgba(255,255,255,0.25), inset 0 -10px 24px rgba(0,0,0,0.35)' }} />
+              </>
+            )}
           </div>
-          <h1 style={{ font:'700 30px/1.1 var(--font-display)', letterSpacing:'-0.015em', color:'var(--fg-0)', margin:'18px 0 0' }}>{PROFILE.name}</h1>
+          <div style={{ display:'flex', alignItems:'flex-start', gap:12, marginTop:18 }}>
+            <h1 style={{ font:'700 30px/1.1 var(--font-display)', letterSpacing:'-0.015em', color:'var(--fg-0)', margin:0, flex:1, minWidth:0 }}>{PROFILE.name}</h1>
+            {isOwnProfile && window.AICDB_AUTH && window.AICDB_AUTH.isLoggedIn() && onEdit && (
+              <button onClick={onEdit} title="Edit profile"
+                style={{ display:'inline-flex', alignItems:'center', gap:6, padding:'7px 12px', flex:'none',
+                  borderRadius:'var(--radius-md)', background:'var(--bg-2)', border:'1px solid var(--border-default)',
+                  color:'var(--fg-1)', font:'600 12.5px/1 var(--font-body)', cursor:'pointer',
+                  transition:'all var(--dur-fast)', marginTop:4 }}
+                onMouseEnter={e => { e.currentTarget.style.borderColor = 'var(--border-accent)'; e.currentTarget.style.color = 'var(--fg-0)'; }}
+                onMouseLeave={e => { e.currentTarget.style.borderColor = 'var(--border-default)'; e.currentTarget.style.color = 'var(--fg-1)'; }}>
+                <Icon name="pencil-simple" size={13} color="currentColor" /> Edit
+              </button>
+            )}
+          </div>
+          {!isOwnProfile && viewedUserId && window.AICDB_AUTH && window.AICDB_AUTH.isLoggedIn() && (
+            <button
+              onClick={() => {
+                if (!window.AICDB_REQUIRE_AUTH('Sign in to follow users.')) return;
+                window.AICDB_FOLLOWS.toggle('user', viewedUserId);
+              }}
+              onMouseEnter={() => setFollowHover(true)}
+              onMouseLeave={() => setFollowHover(false)}
+              style={{
+                marginTop:12, padding:'8px 16px', borderRadius:'var(--radius-pill)', cursor:'pointer',
+                font:'600 13px/1 var(--font-body)', transition:'all var(--dur-fast)',
+                background: following ? 'transparent' : 'var(--teal-ghost)',
+                color: following ? (followHover ? 'var(--score-low)' : 'var(--fg-2)') : 'var(--teal-bright)',
+                border:'1px solid ' + (following ? (followHover ? 'var(--score-low)' : 'var(--border-default)') : 'var(--teal-bright)'),
+              }}>
+              {following ? (followHover ? 'Unfollow' : 'Following') : 'Follow'}
+            </button>
+          )}
           <div style={{ font:'var(--text-data-sm)', color:'var(--fg-2)', marginTop:8, display:'flex', alignItems:'center', gap:6 }}>
             <Icon name="clock" size={13} color="var(--fg-3)" />{PROFILE.joined}
           </div>
-          <p style={{ font:'400 italic 15px/1.45 var(--font-display)', color:'var(--fg-1)', fontStyle:'italic',
-            margin:'14px 0 0', maxWidth:260, borderLeft:'2px solid var(--coral-dim)', paddingLeft:12 }}>
-            “{PROFILE.quote}”
-          </p>
+          {PROFILE.bio ? (
+            <p style={{ font:'var(--text-body-sm)', color:'var(--fg-1)', margin:'10px 0 0', maxWidth:260, lineHeight:1.55 }}>
+              {PROFILE.bio}
+            </p>
+          ) : null}
+          {PROFILE.quote ? (
+            <div style={{ margin:'14px 0 0', maxWidth:260, borderLeft:'2px solid var(--coral-dim)', paddingLeft:12 }}>
+              <p style={{ font:'400 italic 15px/1.45 var(--font-display)', color:'var(--fg-1)', fontStyle:'italic', margin:0 }}>
+                "{PROFILE.quote}"
+              </p>
+              {PROFILE.quoteFrom ? (
+                <p style={{ font:'500 13px/1 var(--font-body)', color:'var(--fg-2)', margin:'7px 0 0' }}>
+                  — {PROFILE.quoteFrom}
+                </p>
+              ) : null}
+            </div>
+          ) : null}
         </div>
 
         {/* CENTER — watched stat */}
         <div style={{ display:'flex', flexDirection:'column', alignItems:'center', textAlign:'center', paddingTop:72,
-          borderLeft:'1px solid var(--border-subtle)', borderRight:'1px solid var(--border-subtle)' }}>
+          borderLeft:'1px solid transparent', borderRight:'1px solid transparent' }}>
           <div style={{ font:'700 72px/0.95 var(--font-mono)', color:'var(--fg-0)', letterSpacing:'-0.02em' }}>
             {PROFILE.watched.toLocaleString()}
           </div>
-          <div className="overline" style={{ marginTop:12, color:'var(--fg-1)' }}>Titles watched</div>
+          <div className="overline" style={{ marginTop:12, color:'var(--fg-1)' }}>Watched</div>
         </div>
 
-        {/* RIGHT — Following (top) + Created lists (below), stacked vertically */}
-        <div style={{ display:'flex', flexDirection:'column', gap:14, paddingTop:36,
-          width:'100%', maxWidth:240, marginLeft:'auto', marginRight:'auto' }}>
-          <FollowingBox />
-          <CreatedListsBox />
-        </div>
-      </div>
-    </div>
-  );
-}
-
-// ---- MIDDLE: last rated posters ----
-function RatedPoster({ film, you }) {
-  const [hover, setHover] = React.useState(false);
-  const aspect = film.type === 'vertical' ? '9/16' : '2/3';
-  return (
-    <div style={{ width:164, flex:'none' }} onMouseEnter={()=>setHover(true)} onMouseLeave={()=>setHover(false)}>
-      <div style={{ aspectRatio:aspect, borderRadius:'var(--radius-lg)', overflow:'hidden', position:'relative',
-        background:`linear-gradient(150deg, ${film.g[0]}, ${film.g[1]} 150%)`, boxShadow:'var(--shadow-poster)',
-        transition:'transform var(--dur-base) var(--ease-out), filter var(--dur-base) var(--ease-out)',
-        transform: hover?'translateY(-3px) scale(1.015)':'none', filter: hover?'brightness(1.08)':'brightness(1)' }}>
-        {/* always-visible content ribbon */}
-        <div style={{ position:'absolute', top:9, left:9 }}><ContentRibbon film={film} size="sm" /></div>
-        {/* always-visible stats overlay */}
-        <div style={{ position:'absolute', left:0, right:0, bottom:0, padding:'26px 11px 11px',
-          background:'linear-gradient(to top, rgba(0,0,0,0.9) 8%, rgba(0,0,0,0) 100%)',
-          display:'flex', alignItems:'flex-end', justifyContent:'space-between' }}>
-          <ScoreLine film={film} size={19} countColor="rgba(255,255,255,0.7)" gap={4} />
-          <div style={{ display:'flex', alignItems:'center', gap:4, background:'var(--coral)', padding:'5px 8px', borderRadius:'var(--radius-pill)', boxShadow:'var(--shadow-1)' }}>
-            <Icon name="star" size={11} fill="#1a0d08" color="#1a0d08" />
-            <span style={{ font:'700 12px/1 var(--font-mono)', color:'#1a0d08' }}>{you.toFixed(1)}</span>
-          </div>
-        </div>
-      </div>
-      <div style={{ font:'600 13.5px/1.25 var(--font-body)', color:'var(--fg-0)', marginTop:9 }}>{film.title}</div>
-      <div style={{ display:'flex', alignItems:'center', gap:6, marginTop:3 }}>
-        <span style={{ font:'var(--text-data-sm)', color:'var(--fg-2)' }}>{film.year}</span>
-        <span style={{ color:'var(--fg-3)' }}>·</span>
-        <span style={{ font:'var(--text-data-sm)', color:'var(--fg-2)' }}>You rated {you.toFixed(1)}</span>
-      </div>
-    </div>
-  );
-}
-
-// ---- a single row in the Last Rated vertical list ----
-function LastRatedRow({ entry, onOpen }) {
-  const [hover, setHover] = React.useState(false);
-  const film = entry.film;
-  const t = window.AICDB_TYPES[film.type];
-  const aspect = film.type === 'vertical' ? '9/16' : '2/3';
-  return (
-    <div onClick={() => onOpen && onOpen(film)} onMouseEnter={() => setHover(true)} onMouseLeave={() => setHover(false)}
-      style={{ display:'flex', alignItems:'center', gap:14, padding:'10px 12px', borderRadius:'var(--radius-md)', cursor:'pointer',
-        background: hover ? 'var(--bg-2)' : 'transparent', border:'1px solid ' + (hover ? 'var(--border-subtle)' : 'transparent'),
-        transition:'background var(--dur-fast), border-color var(--dur-fast)' }}>
-      <div style={{ width:42, flex:'none', aspectRatio:aspect, borderRadius:'var(--radius-sm)', overflow:'hidden',
-        background:`linear-gradient(150deg, ${film.g[0]}, ${film.g[1]} 150%)`, boxShadow:'var(--shadow-1)' }} />
-      <div style={{ minWidth:0, flex:1 }}>
-        <div style={{ font:'600 15px/1.25 var(--font-body)', color:'var(--fg-0)',
-          whiteSpace:'nowrap', overflow:'hidden', textOverflow:'ellipsis' }}>{film.title}</div>
-        <div style={{ display:'flex', alignItems:'center', gap:7, marginTop:4, font:'var(--text-data-sm)', color:'var(--fg-2)' }}>
-          <span>{film.year}</span><span style={{ color:'var(--fg-3)' }}>·</span>
-          <span style={{ color:t.text }}>{t.label}</span>
-        </div>
-      </div>
-      <div style={{ display:'flex', alignItems:'center', gap:5, flex:'none', background:'var(--coral)', padding:'5px 9px',
-        borderRadius:'var(--radius-pill)' }}>
-        <Icon name="star" size={11} fill="#1a0d08" color="#1a0d08" />
-        <span style={{ font:'700 12px/1 var(--font-mono)', color:'#1a0d08' }}>{entry.you.toFixed(1)}</span>
-      </div>
-    </div>
-  );
-}
-
-function LastRated({ onOpen, onSeeAll }) {
-  const byId = filmsById();
-  const rated = LAST_RATED.map(r => ({ ...r, film: byId[r.id] })).filter(r => r.film).slice(0, 5);
-  const favFilms = FAVORITES.map(id => byId[id]).filter(Boolean);
-
-  return (
-    <section className="aicdb-profile-rated" style={{ marginBottom:64, display:'grid', gridTemplateColumns:'1fr 1.15fr', gap:48 }}>
-      {/* LEFT — Last Rated as a vertical list (5) + See all */}
-      <div style={{ borderRight:'1px solid var(--border-subtle)', paddingRight:48 }}>
-        <h3 style={{ font:'var(--text-h3)', color:'var(--fg-0)', marginBottom:6 }}>Last Rated</h3>
-        <p style={{ font:'var(--text-body-sm)', color:'var(--fg-2)', margin:'0 0 16px' }}>The titles you most recently scored</p>
-        {rated.length ? (
-          <>
-            <div style={{ display:'flex', flexDirection:'column', gap:4 }}>
-              {rated.map(r => <LastRatedRow key={r.id} entry={r} onOpen={onOpen} />)}
-            </div>
-            <button onClick={() => onSeeAll && onSeeAll()}
-              style={{ display:'inline-flex', alignItems:'center', gap:6, marginTop:14, padding:'8px 14px', cursor:'pointer',
-                borderRadius:'var(--radius-pill)', background:'var(--bg-2)', border:'1px solid var(--border-default)',
-                color:'var(--fg-1)', font:'600 12.5px/1 var(--font-body)', transition:'all var(--dur-fast)' }}
-              onMouseEnter={e => { e.currentTarget.style.borderColor = 'var(--border-accent)'; e.currentTarget.style.color = 'var(--coral)'; }}
-              onMouseLeave={e => { e.currentTarget.style.borderColor = 'var(--border-default)'; e.currentTarget.style.color = 'var(--fg-1)'; }}>
-              See all ratings <Icon name="arrow-right" size={13} color="currentColor" />
-            </button>
-          </>
-        ) : (
-          <EmptyState icon="star" accent="var(--coral)" compact
-            title="You haven’t rated anything yet"
-            sub="Score a few titles and they’ll show up here — your taste, on the record."
-            actionLabel="Browse the catalog" onAction={() => onOpen && onOpen(null)} />
-        )}
-      </div>
-
-      {/* RIGHT — Favorites, the 5-poster layout displayed horizontally */}
-      <div>
-        <h3 style={{ font:'var(--text-h3)', color:'var(--fg-0)', marginBottom:6 }}>Favorites</h3>
-        <p style={{ font:'var(--text-body-sm)', color:'var(--fg-2)', margin:'0 0 16px' }}>The five you’d save from the fire</p>
-        <div style={{ display:'flex', gap:16, overflowX:'auto', paddingBottom:8, scrollbarWidth:'thin' }}>
-          {favFilms.map(f => (
-            <div key={f.id} style={{ width:128, flex:'none' }}>
-              <FilmCard film={f} width="auto" onOpen={onOpen || (()=>{})} />
-            </div>
-          ))}
-        </div>
-      </div>
-    </section>
-  );
-}
-
-// ---- full page: every rating, with type + sort filters ----
-function AllRatingsPage({ onBack, onOpen }) {
-  const all = React.useMemo(() => allRatedEntries(), []);
-  const [type, setType] = React.useState('all');
-  const [sort, setSort] = React.useState('recent');
-
-  const types = [
-    { id:'all', label:'All' },
-    { id:'movie', label:'Movies' },
-    { id:'series', label:'Series' },
-    { id:'short', label:'Shorts' },
-    { id:'vertical', label:'Vertical' },
-  ];
-  const sorts = [
-    { id:'recent',  label:'Most recent' },
-    { id:'oldest',  label:'Oldest' },
-    { id:'highest', label:'Highest rated' },
-    { id:'lowest',  label:'Lowest rated' },
-    { id:'title',   label:'Title A–Z' },
-  ];
-
-  let rows = all.filter(r => type === 'all' || r.film.type === type);
-  rows = rows.slice().sort((a, b) => {
-    if (sort === 'recent')  return a.date < b.date ? 1 : -1;
-    if (sort === 'oldest')  return a.date > b.date ? 1 : -1;
-    if (sort === 'highest') return b.you - a.you || (a.date < b.date ? 1 : -1);
-    if (sort === 'lowest')  return a.you - b.you || (a.date < b.date ? 1 : -1);
-    if (sort === 'title')   return a.film.title.localeCompare(b.film.title);
-    return 0;
-  });
-
-  return (
-    <div style={{ maxWidth:860, margin:'0 auto', padding:'28px 28px 90px' }}>
-      {/* back + heading */}
-      <button onClick={onBack}
-        style={{ display:'inline-flex', alignItems:'center', gap:7, marginBottom:18, padding:'8px 14px', cursor:'pointer',
-          borderRadius:'var(--radius-pill)', background:'var(--bg-1)', border:'1px solid var(--border-default)',
-          color:'var(--fg-1)', font:'600 13px/1 var(--font-body)', transition:'all var(--dur-fast)' }}
-        onMouseEnter={e => { e.currentTarget.style.color = 'var(--fg-0)'; e.currentTarget.style.borderColor = 'var(--border-strong)'; }}
-        onMouseLeave={e => { e.currentTarget.style.color = 'var(--fg-1)'; e.currentTarget.style.borderColor = 'var(--border-default)'; }}>
-        <Icon name="caret-left" size={14} color="currentColor" /> Back to profile
-      </button>
-      <div style={{ marginBottom:24 }}>
-        <h1 style={{ font:'var(--text-h1)', color:'var(--fg-0)', letterSpacing:'-0.015em', marginBottom:8 }}>All ratings</h1>
-        <p style={{ font:'var(--text-body)', color:'var(--fg-2)' }}>{rows.length} {rows.length === 1 ? 'title' : 'titles'} you’ve scored</p>
-      </div>
-
-      {/* filters */}
-      <div style={{ display:'flex', alignItems:'center', justifyContent:'space-between', gap:16, flexWrap:'wrap', marginBottom:20 }}>
-        <div style={{ display:'flex', gap:8, flexWrap:'wrap' }}>
-          {types.map(o => {
-            const on = type === o.id;
-            return (
-              <button key={o.id} onClick={() => setType(o.id)}
-                style={{ padding:'8px 14px', cursor:'pointer', borderRadius:'var(--radius-pill)', font:'600 12.5px/1 var(--font-body)',
-                  border:'1px solid ' + (on ? 'transparent' : 'var(--border-default)'),
-                  background: on ? 'var(--coral)' : 'var(--bg-1)', color: on ? 'var(--fg-on-accent)' : 'var(--fg-1)',
-                  transition:'all var(--dur-fast)' }}>{o.label}</button>
-            );
-          })}
-        </div>
-        <label style={{ display:'inline-flex', alignItems:'center', gap:9, font:'var(--text-body-sm)', color:'var(--fg-2)' }}>
-          <Icon name="funnel" size={14} color="var(--fg-2)" weight="fill" />
-          <select value={sort} onChange={e => setSort(e.target.value)}
-            style={{ font:'600 13px/1 var(--font-body)', color:'var(--fg-0)', background:'var(--bg-1)',
-              border:'1px solid var(--border-default)', borderRadius:'var(--radius-md)', padding:'9px 12px', cursor:'pointer', outline:'none' }}>
-            {sorts.map(s => <option key={s.id} value={s.id} style={{ background:'var(--bg-1)' }}>{s.label}</option>)}
-          </select>
-        </label>
-      </div>
-
-      {/* rows */}
-      <div style={{ display:'flex', flexDirection:'column', gap:10 }}>
-        {rows.map(r => {
-          const film = r.film; const t = window.AICDB_TYPES[film.type];
-          const aspect = film.type === 'vertical' ? '9/16' : '2/3';
-          return (
-            <div key={r.id} onClick={() => onOpen && onOpen(film)}
-              style={{ display:'flex', alignItems:'center', gap:16, padding:'12px 16px', cursor:'pointer',
-                background:'var(--bg-1)', border:'1px solid var(--border-subtle)', borderRadius:'var(--radius-lg)',
-                transition:'border-color var(--dur-fast)' }}
-              onMouseEnter={e => { e.currentTarget.style.borderColor = 'var(--border-default)'; }}
-              onMouseLeave={e => { e.currentTarget.style.borderColor = 'var(--border-subtle)'; }}>
-              <div style={{ width:46, flex:'none', aspectRatio:aspect, borderRadius:'var(--radius-md)', overflow:'hidden',
-                background:`linear-gradient(150deg, ${film.g[0]}, ${film.g[1]} 150%)`, boxShadow:'var(--shadow-1)' }} />
-              <div style={{ minWidth:0, flex:1 }}>
-                <div style={{ display:'flex', alignItems:'center', gap:10, flexWrap:'wrap' }}>
-                  <span style={{ font:'600 16px/1.2 var(--font-display)', color:'var(--fg-0)' }}>{film.title}</span>
-                  <span style={{ font:'600 9px/1 var(--font-body)', letterSpacing:'0.05em', textTransform:'uppercase',
-                    color:t.text, background:t.ghost, padding:'4px 8px', borderRadius:'var(--radius-pill)' }}>{t.label}</span>
+        {/* RIGHT — Also creating as + Following / Created lists */}
+        <div style={{ display:'flex', flexDirection:'column', gap:12, paddingTop:72, width:'100%' }}>
+          {creatorAccounts.length > 0 && (
+            <div ref={creatorMenuRef} style={{ position:'relative', width:'100%' }}>
+              <button type="button" onClick={() => setCreatorMenuOpen(o => !o)}
+                style={{ display:'flex', alignItems:'center', justifyContent:'space-between', padding:'10px 14px',
+                  borderRadius:'var(--radius-md)', border:'1px solid var(--border-subtle)', background:'var(--bg-1)',
+                  cursor:'pointer', width:'100%', font:'600 12px/1 var(--font-body)', color:'var(--fg-2)' }}>
+                <span style={{ display:'inline-flex', alignItems:'center', gap:6, minWidth:0 }}>
+                  <Icon name="mask-happy" size={13} color="var(--fg-3)" />
+                  Also creating as
+                  {creatorAccounts.slice(0, 3).map(a => (
+                    <span key={a.id} style={{ width:18, height:18, borderRadius:'50%', flex:'none',
+                      background: a.avatar ? 'linear-gradient(135deg, ' + a.avatar[0] + ', ' + a.avatar[1] + ')' : 'var(--bg-3)',
+                      display:'inline-flex', alignItems:'center', justifyContent:'center',
+                      font:'600 9px/1 var(--font-display)', color:'rgba(255,255,255,0.92)' }}>
+                      {(a.name || 'C').charAt(0).toUpperCase()}
+                    </span>
+                  ))}
+                </span>
+                <Icon name={creatorMenuOpen ? 'chevron-down' : 'chevron-right'} size={13} color="var(--fg-3)" />
+              </button>
+              {creatorMenuOpen && (
+                <div style={{ position:'absolute', top:'100%', left:0, right:0, marginTop:6, zIndex:50,
+                  background:'var(--bg-1)', border:'1px solid var(--border-default)', borderRadius:'var(--radius-lg)',
+                  padding:8, minWidth:200, boxShadow:'var(--shadow-2)' }}>
+                  {creatorAccounts.map(a => (
+                    <div key={a.id}
+                      onClick={() => { window.location.href = 'creator.html?account=' + encodeURIComponent(a.id); }}
+                      style={{ display:'flex', alignItems:'center', gap:10, padding:'8px 10px', borderRadius:'var(--radius-md)', cursor:'pointer' }}
+                      onMouseEnter={e => { e.currentTarget.style.background = 'var(--bg-2)'; }}
+                      onMouseLeave={e => { e.currentTarget.style.background = 'transparent'; }}>
+                      <div style={{ width:28, height:28, borderRadius:'50%', flex:'none',
+                        background: a.avatar ? `linear-gradient(135deg, ${a.avatar[0]}, ${a.avatar[1]})` : 'var(--bg-3)',
+                        display:'flex', alignItems:'center', justifyContent:'center',
+                        font:'600 11px/1 var(--font-display)', color:'rgba(255,255,255,0.92)' }}>
+                        {(a.name || 'C').charAt(0).toUpperCase()}
+                      </div>
+                      <div style={{ minWidth:0 }}>
+                        <div style={{ font:'600 13px/1.2 var(--font-body)', color:'var(--fg-0)' }}>{a.name}</div>
+                        {a.handle ? (
+                          <div style={{ font:'var(--text-data-sm)', fontSize:11, color:'var(--fg-2)', marginTop:3 }}>{a.handle}</div>
+                        ) : null}
+                      </div>
+                    </div>
+                  ))}
                 </div>
-                <div style={{ display:'flex', alignItems:'center', gap:8, marginTop:5, font:'var(--text-data-sm)', color:'var(--fg-2)' }}>
-                  <span>{film.year}</span><span style={{ color:'var(--fg-3)' }}>·</span>
-                  <span>Rated {fmtRatedDate(r.date)}</span>
-                </div>
-              </div>
-              <StarRating value={r.you} size={15} />
-              <div style={{ flex:'none', display:'flex', alignItems:'center', gap:5, background:'var(--coral)', padding:'5px 9px',
-                borderRadius:'var(--radius-pill)' }}>
-                <Icon name="star" size={11} fill="#1a0d08" color="#1a0d08" />
-                <span style={{ font:'700 12px/1 var(--font-mono)', color:'#1a0d08' }}>{r.you.toFixed(1)}</span>
-              </div>
-              <div style={{ flex:'none', width:42, textAlign:'right' }}>
-                <div style={{ font:'700 18px/1 var(--font-mono)', color:scoreColor(film.score) }}>{film.score.toFixed(1)}</div>
-                <div className="overline" style={{ color:'var(--fg-3)', marginTop:4 }}>AI</div>
-              </div>
+              )}
             </div>
-          );
-        })}
-      </div>
-    </div>
-  );
-}
-
-// ---- LOWER: badges | favorites ----
-function BadgeItem({ b }) {
-  return (
-    <div style={{ display:'flex', alignItems:'center', gap:14 }}>
-      <div style={{ width:54, height:54, borderRadius:'50%', flex:'none', background:b.ghost,
-        border:`1px solid ${b.color}`, display:'flex', alignItems:'center', justifyContent:'center' }}>
-        <Icon name={b.icon} size={24} color={b.color} weight="fill" />
-      </div>
-      <div>
-        <div style={{ font:'600 15px/1.2 var(--font-body)', color:'var(--fg-0)' }}>{b.label}</div>
-        <div style={{ font:'var(--text-body-sm)', color:'var(--fg-2)', marginTop:3 }}>{b.sub}</div>
-      </div>
-    </div>
-  );
-}
-
-function LowerSection() {
-  return (
-    <section style={{ marginBottom:64 }}>
-      <h3 style={{ font:'var(--text-h3)', color:'var(--fg-0)', marginBottom:24, textAlign:'center' }}>Achievements</h3>
-      <div style={{ maxWidth:680, margin:'0 auto', display:'grid', gridTemplateColumns:'1fr 1fr', rowGap:24, columnGap:40 }}>
-        {BADGES.map(b => <BadgeItem key={b.label} b={b} />)}
-      </div>
-    </section>
-  );
-}
-
-// ---- BOTTOM: statistics ----
-function StatCard({ icon, color, value, unit, label }) {
-  return (
-    <div style={{ padding:'20px 22px', background:'var(--bg-1)', border:'1px solid var(--border-subtle)',
-      borderRadius:'var(--radius-lg)', display:'flex', flexDirection:'column', justifyContent:'space-between', minHeight:128 }}>
-      <Icon name={icon} size={20} color={color} weight="fill" />
-      <div>
-        <div style={{ display:'flex', alignItems:'baseline', gap:5 }}>
-          <span style={{ font:'700 34px/1 var(--font-mono)', color:'var(--fg-0)', letterSpacing:'-0.02em' }}>{value}</span>
-          {unit && <span style={{ font:'500 13px/1 var(--font-mono)', color:'var(--fg-2)' }}>{unit}</span>}
-        </div>
-        <div className="overline" style={{ marginTop:9, color:'var(--fg-1)' }}>{label}</div>
-      </div>
-    </div>
-  );
-}
-
-function BottomSection() {
-  return (
-    <section style={{ marginBottom:30 }}>
-      <SectionHeading align="center" sub="A look at your taste, by the numbers">Statistics</SectionHeading>
-      <div className="aicdb-profile-bottom" style={{ display:'grid', gridTemplateColumns:'1.25fr 1fr', gap:20 }}>
-
-        {/* Favorite genre — generated visual */}
-        <div style={{ position:'relative', borderRadius:'var(--radius-lg)', overflow:'hidden', minHeight:280,
-          background:'linear-gradient(140deg, #241a3a 0%, #18233a 48%, #0f2e2b 105%)', boxShadow:'var(--shadow-2)' }}>
-          {/* grid + glow “sci-fi” treatment */}
-          <div style={{ position:'absolute', inset:0, opacity:0.55,
-            backgroundImage:'linear-gradient(rgba(157,141,241,0.13) 1px, transparent 1px),'
-              +'linear-gradient(90deg, rgba(78,205,196,0.10) 1px, transparent 1px)', backgroundSize:'30px 30px' }} />
-          <div style={{ position:'absolute', inset:0,
-            background:'radial-gradient(75% 60% at 72% 18%, rgba(124,111,224,0.40), transparent 62%),'
-              +'radial-gradient(60% 50% at 12% 92%, rgba(78,205,196,0.28), transparent 60%)' }} />
-          <div style={{ position:'absolute', left:-40, top:-40, width:200, height:200, borderRadius:'50%',
-            border:'1px solid rgba(157,141,241,0.35)' }} />
-          <div style={{ position:'absolute', left:-10, top:-10, width:140, height:140, borderRadius:'50%',
-            border:'1px solid rgba(78,205,196,0.30)' }} />
-          <div style={{ position:'relative', height:'100%', padding:'26px 28px', display:'flex', flexDirection:'column', justifyContent:'flex-end' }}>
-            <span className="overline" style={{ color:'var(--type-vertical)' }}>Favorite genre</span>
-            <div style={{ font:'700 52px/1 var(--font-display)', letterSpacing:'-0.015em', color:'var(--fg-0)', margin:'10px 0 8px' }}>{PROFILE.favGenre}</div>
-            <p style={{ font:'var(--text-body)', color:'var(--fg-1)', margin:0, maxWidth:300 }}>{PROFILE.favGenreShare}</p>
+          )}
+          <div style={{ display:'flex', flexDirection:'row', gap:10 }}>
+            <div style={{ flex:1, minWidth:0 }}><FollowingBox isOwnProfile={isOwnProfile} viewedUserId={viewedUserId} /></div>
+            <div style={{ flex:1, minWidth:0 }}><CreatedListsBox onOpenList={onOpenList} isOwnProfile={isOwnProfile} viewedUserId={viewedUserId} /></div>
           </div>
         </div>
-
-        {/* Stat cards grid */}
-        <div style={{ display:'grid', gridTemplateColumns:'1fr 1fr', gap:20 }}>
-          {/* Average rating — full-width feature within grid */}
-          <div style={{ gridColumn:'1 / -1', padding:'20px 24px', background:'var(--bg-1)',
-            border:'1px solid var(--border-subtle)', borderRadius:'var(--radius-lg)',
-            display:'flex', alignItems:'center', justifyContent:'space-between' }}>
-            <div>
-              <div className="overline" style={{ color:'var(--fg-1)', marginBottom:10 }}>Average rating given</div>
-              <StarRating value={PROFILE.avgRating} size={22} />
-            </div>
-            <div style={{ display:'flex', alignItems:'baseline', gap:4 }}>
-              <span style={{ font:'700 44px/1 var(--font-mono)', color:'var(--coral)', letterSpacing:'-0.02em' }}>{PROFILE.avgRating.toFixed(1)}</span>
-              <span style={{ font:'500 15px/1 var(--font-mono)', color:'var(--fg-3)' }}>/5</span>
-            </div>
-          </div>
-          <StatCard icon="clock"         color="var(--teal)"          value={PROFILE.hours.toLocaleString()} unit="hrs" label="Hours watched" />
-          <StatCard icon="chat-centered-text" color="var(--type-vertical)" value={PROFILE.reviews}    label="Reviews written" />
-        </div>
       </div>
-
-      {/* secondary stat strip */}
-      <div style={{ display:'grid', gridTemplateColumns:'repeat(4, 1fr)', gap:20, marginTop:20 }}>
-        <StatCard icon="film-slate" color="var(--coral)"        value={PROFILE.thisYear} label="Titles this year" />
-        <StatCard icon="fire"       color="var(--type-short)"   value="47" unit="days" label="Current streak" />
-        <StatCard icon="heart"      color="var(--coral)"        value={FAVORITES.length} label="Favorites" />
-        <StatCard icon="trophy"     color="var(--teal)"         value="Top 1%" label="Reviewer rank" />
-      </div>
-    </section>
+    </div>
   );
 }
-
 // ---- Followed Creators — profile cards for creators the user follows ----
-const FOLLOWED_CREATOR_IDS = ['maya', 'vale', 'theo', 'noor', 'nullframe', 'ito'];
 
 function FollowedSeal({ size = 14 }) {
   return <Icon name="seal-check" size={size} color="var(--teal-bright)" weight="fill" />;
@@ -509,10 +371,31 @@ function useFollowVisibility() {
   return [isPrivate, setIsPrivate];
 }
 
-function followedList() {
-  const byId = {};
-  (window.AICDB_CREATORS || []).forEach(c => { byId[c.id] = c; });
-  return FOLLOWED_CREATOR_IDS.map(id => byId[id]).filter(Boolean);
+function resolveFollowDisplay(follow) {
+  const id = follow.target_id;
+  if (follow.target_type === 'creator') {
+    const found = (window.AICDB_CREATORS || []).find(c => c.id === id);
+    if (found) return { type: 'creator', creator: found };
+  }
+  const letter = String(id || '?').charAt(0).toUpperCase();
+  return { type: 'placeholder', id, letter };
+}
+
+function followsToCreatorRows(follows) {
+  return follows.map(f => {
+    if (f.target_type === 'creator') {
+      const c = (window.AICDB_CREATORS || []).find(x => x.id === f.target_id);
+      if (c) return c;
+    }
+    const letter = String(f.target_id || '?').charAt(0).toUpperCase();
+    return {
+      id: f.target_id,
+      name: letter,
+      handle: '',
+      verified: false,
+      av: ['#5a5e66', '#3a3d44'],
+    };
+  });
 }
 
 // overlapping avatar disc — gradient for public, lock for private
@@ -531,246 +414,63 @@ function FollowDisc({ creator, isPrivate, size = 30, idx = 0 }) {
     background:`linear-gradient(135deg, ${creator.av[0]}, ${creator.av[1]})` }} />;
 }
 
-function FollowingBox() {
+function FollowingBox({ isOwnProfile = true, viewedUserId }) {
   const [open, setOpen] = React.useState(false);
   const [hover, setHover] = React.useState(false);
   const [isPrivate, setIsPrivate] = useFollowVisibility();
-  const followed = followedList();
-  const total = followed.length;
-  const allPrivate = isPrivate;
-  const shown = followed.slice(0, 5);
-  const overflow = total - shown.length;
+  const [follows, setFollows] = React.useState(() =>
+    isOwnProfile ? (window.AICDB_FOLLOWS?.get() || []) : []);
+
+  React.useEffect(() => {
+    if (!isOwnProfile) return;
+    window.AICDB_FOLLOWS?.load();
+    return window.AICDB_FOLLOWS?.subscribe(setFollows);
+  }, [isOwnProfile]);
+
+  React.useEffect(() => {
+    if (isOwnProfile || !viewedUserId) return;
+    (async () => {
+      const sb = await window.AICDB_AUTH.getClient();
+      const { data } = await sb.from('follows').select('*').eq('follower_user_id', viewedUserId);
+      setFollows(data || []);
+    })();
+  }, [isOwnProfile, viewedUserId]);
+
+  const total = follows.length;
+  const followed = followsToCreatorRows(follows);
+
+  const boxStyle = { position:'relative', padding:'14px 16px', height:'100%', background: hover && isOwnProfile ? 'var(--bg-2)' : 'var(--bg-1)',
+    border:'1px solid', borderColor: hover && isOwnProfile ? 'var(--border-accent)' : 'var(--border-default)',
+    borderRadius:'var(--radius-lg)', cursor: isOwnProfile ? 'pointer' : 'default',
+    transform: hover && isOwnProfile ? 'translateY(-2px)' : 'none',
+    transition:'border-color var(--dur-fast) var(--ease-out), background var(--dur-fast) var(--ease-out), transform var(--dur-base) var(--ease-out)' };
+
+  const inner = (
+    <div style={{ display:'flex', flexDirection:'column', justifyContent:'space-between', height:'100%' }}>
+      <div style={{ display:'flex', alignItems:'center', justifyContent:'space-between' }}>
+        <span style={{ font:'700 28px/0.9 var(--font-mono)', color:'var(--coral)' }}>{total}</span>
+        <Icon name="users" size={16} color="var(--coral-dim)" weight="fill" />
+      </div>
+      <div style={{ display:'flex', alignItems:'center', justifyContent:'space-between', marginTop:12 }}>
+        <span className="overline" style={{ color:'var(--fg-1)' }}>Following</span>
+      </div>
+    </div>
+  );
+
+  if (!isOwnProfile) {
+    return <div style={boxStyle}>{inner}</div>;
+  }
 
   return (
     <>
       <div role="button" tabIndex={0} onClick={() => setOpen(true)}
         onKeyDown={e => { if (e.key === 'Enter' || e.key === ' ') { e.preventDefault(); setOpen(true); } }}
         onMouseEnter={() => setHover(true)} onMouseLeave={() => setHover(false)}
-        style={{ position:'relative', padding:'20px 22px', background: hover ? 'var(--bg-2)' : 'var(--bg-1)',
-          border:'1px solid', borderColor: hover ? 'var(--border-accent)' : 'var(--border-default)',
-          borderRadius:'var(--radius-lg)', cursor:'pointer',
-          transform: hover ? 'translateY(-2px)' : 'none',
-          transition:'border-color var(--dur-fast) var(--ease-out), background var(--dur-fast) var(--ease-out), transform var(--dur-base) var(--ease-out)' }}>
-        <div style={{ display:'flex', alignItems:'baseline', gap:10 }}>
-          <span style={{ font:'700 48px/0.9 var(--font-mono)', color:'var(--coral)' }}>{total}</span>
-          <Icon name="users" size={20} color="var(--coral-dim)" weight="fill" />
-        </div>
-
-        {/* avatar strip (or lock + "Followed" when the list is private) */}
-        {allPrivate ? (
-          <div style={{ display:'flex', alignItems:'center', gap:8, marginTop:16 }}>
-            <div style={{ width:30, height:30, borderRadius:'50%', flex:'none', background:'var(--bg-3)',
-              display:'flex', alignItems:'center', justifyContent:'center' }}>
-              <Icon name="lock-simple" size={15} color="var(--fg-2)" weight="fill" />
-            </div>
-            <span style={{ font:'600 13px/1 var(--font-body)', color:'var(--fg-1)' }}>Followed</span>
-          </div>
-        ) : (
-          <div style={{ display:'flex', alignItems:'center', marginTop:16 }}>
-            {shown.map((c, i) => <FollowDisc key={c.id} creator={c} isPrivate={false} idx={i} />)}
-            {overflow > 0 && (
-              <div style={{ width:30, height:30, borderRadius:'50%', flex:'none', marginLeft:-10,
-                background:'var(--bg-3)', border:'2px solid var(--bg-1)', display:'flex', alignItems:'center', justifyContent:'center',
-                font:'600 11px/1 var(--font-mono)', color:'var(--fg-1)' }}>+{overflow}</div>
-            )}
-          </div>
-        )}
-
-        <div style={{ display:'flex', alignItems:'center', justifyContent:'space-between', marginTop:14 }}>
-          <span className="overline" style={{ color:'var(--fg-1)' }}>Following</span>
-          <span style={{ display:'inline-flex', alignItems:'center', gap:4, font:'600 12px/1 var(--font-body)', color:'var(--coral)' }}>
-            Manage <Icon name="chevron-right" size={13} color="var(--coral)" />
-          </span>
-        </div>
+        style={boxStyle}>
+        {inner}
       </div>
       {open && <FollowingModal followed={followed} isPrivate={isPrivate} setIsPrivate={setIsPrivate} onClose={() => setOpen(false)} />}
     </>
-  );
-}
-
-// the "Created lists" box — opens a management modal (view / edit / delete / new)
-function CreatedListsBox() {
-  const [hover, setHover] = React.useState(false);
-  const [open, setOpen] = React.useState(false);
-  const [lists, setLists] = React.useState(CREATED_LISTS);
-
-  const onDelete = (id) => setLists(ls => ls.filter(l => l.id !== id));
-  const onRename = (id, title) => setLists(ls => ls.map(l => l.id === id ? { ...l, title } : l));
-  const onNew = (title) => setLists(ls => [{ id:'l' + Date.now(), title, count:0, note:'A fresh, empty list' }, ...ls]);
-
-  return (
-    <>
-      <div role="button" tabIndex={0} onClick={() => setOpen(true)}
-        onKeyDown={e => { if (e.key === 'Enter' || e.key === ' ') { e.preventDefault(); setOpen(true); } }}
-        onMouseEnter={() => setHover(true)} onMouseLeave={() => setHover(false)}
-        style={{ position:'relative', padding:'20px 22px', background: hover ? 'var(--bg-2)' : 'var(--bg-1)',
-          border:'1px solid', borderColor: hover ? 'var(--border-accent)' : 'var(--border-default)',
-          borderRadius:'var(--radius-lg)', cursor:'pointer', transform: hover ? 'translateY(-2px)' : 'none',
-          transition:'border-color var(--dur-fast) var(--ease-out), background var(--dur-fast) var(--ease-out), transform var(--dur-base) var(--ease-out)' }}>
-        <div style={{ display:'flex', alignItems:'baseline', gap:10 }}>
-          <span style={{ font:'700 48px/0.9 var(--font-mono)', color:'var(--teal)' }}>{lists.length}</span>
-          <Icon name="list" size={20} color="var(--teal-dim)" />
-        </div>
-        <div style={{ display:'flex', alignItems:'center', justifyContent:'space-between', marginTop:14 }}>
-          <span className="overline" style={{ color:'var(--fg-1)' }}>Created lists</span>
-          <span style={{ display:'inline-flex', alignItems:'center', gap:4, font:'600 12px/1 var(--font-body)', color:'var(--teal)' }}>
-            View <Icon name="chevron-right" size={13} color="var(--teal)" />
-          </span>
-        </div>
-      </div>
-      {open && <CreatedListsModal lists={lists} onClose={() => setOpen(false)}
-        onDelete={onDelete} onRename={onRename} onNew={onNew} />}
-    </>
-  );
-}
-
-// a single editable row inside the Created-lists modal
-function CreatedListRow({ list, onDelete, onRename }) {
-  const [editing, setEditing] = React.useState(false);
-  const [draft, setDraft] = React.useState(list.title);
-  const inputRef = React.useRef(null);
-  React.useEffect(() => { if (editing && inputRef.current) inputRef.current.select(); }, [editing]);
-
-  const commit = () => { const t = draft.trim(); if (t) onRename(list.id, t); else setDraft(list.title); setEditing(false); };
-
-  return (
-    <div style={{ display:'flex', alignItems:'center', gap:14, padding:'14px 14px', borderRadius:'var(--radius-md)',
-      background:'var(--bg-0)', border:'1px solid var(--border-subtle)' }}>
-      <div style={{ width:42, height:42, flex:'none', borderRadius:'var(--radius-md)', background:'var(--teal-ghost)',
-        display:'flex', alignItems:'center', justifyContent:'center' }}>
-        <Icon name="list" size={19} color="var(--teal-bright)" />
-      </div>
-      <div style={{ minWidth:0, flex:1 }}>
-        {editing ? (
-          <input ref={inputRef} value={draft} autoFocus
-            onChange={e => setDraft(e.target.value)} onBlur={commit}
-            onKeyDown={e => { if (e.key === 'Enter') commit(); if (e.key === 'Escape') { setDraft(list.title); setEditing(false); } }}
-            style={{ width:'100%', font:'600 15px/1.2 var(--font-body)', color:'var(--fg-0)', background:'var(--bg-3)',
-              border:'1px solid var(--border-accent)', borderRadius:'var(--radius-sm)', padding:'6px 9px', outline:'none' }} />
-        ) : (
-          <div style={{ font:'600 15px/1.2 var(--font-body)', color:'var(--fg-0)',
-            whiteSpace:'nowrap', overflow:'hidden', textOverflow:'ellipsis' }}>{list.title}</div>
-        )}
-        <div style={{ display:'flex', alignItems:'center', gap:7, marginTop:5, font:'var(--text-data-sm)', color:'var(--fg-2)' }}>
-          <span>{list.count} {list.count === 1 ? 'title' : 'titles'}</span>
-          {list.note && (<><span style={{ color:'var(--fg-3)' }}>·</span>
-            <span style={{ font:'var(--text-body-sm)', color:'var(--fg-2)', whiteSpace:'nowrap', overflow:'hidden', textOverflow:'ellipsis' }}>{list.note}</span></>)}
-        </div>
-      </div>
-      <div style={{ display:'flex', alignItems:'center', gap:7, flex:'none' }}>
-        <button onClick={() => editing ? commit() : setEditing(true)}
-          style={{ display:'inline-flex', alignItems:'center', gap:6, padding:'8px 12px', borderRadius:'var(--radius-md)', cursor:'pointer',
-            background:'var(--bg-2)', border:'1px solid var(--border-subtle)', color:'var(--fg-1)', font:'600 12.5px/1 var(--font-body)',
-            transition:'all var(--dur-fast)' }}
-          onMouseEnter={e => { e.currentTarget.style.borderColor = 'var(--teal-bright)'; e.currentTarget.style.color = 'var(--teal-bright)'; }}
-          onMouseLeave={e => { e.currentTarget.style.borderColor = 'var(--border-subtle)'; e.currentTarget.style.color = 'var(--fg-1)'; }}>
-          <Icon name="pencil-simple" size={14} color="currentColor" /> {editing ? 'Save' : 'Edit'}
-        </button>
-        <button onClick={() => onDelete(list.id)}
-          style={{ display:'inline-flex', alignItems:'center', gap:6, padding:'8px 12px', borderRadius:'var(--radius-md)', cursor:'pointer',
-            background:'var(--bg-2)', border:'1px solid var(--border-subtle)', color:'var(--fg-1)', font:'600 12.5px/1 var(--font-body)',
-            transition:'all var(--dur-fast)' }}
-          onMouseEnter={e => { e.currentTarget.style.borderColor = 'var(--score-low)'; e.currentTarget.style.color = 'var(--score-low)'; }}
-          onMouseLeave={e => { e.currentTarget.style.borderColor = 'var(--border-subtle)'; e.currentTarget.style.color = 'var(--fg-1)'; }}>
-          <Icon name="trash" size={14} color="currentColor" /> Delete
-        </button>
-      </div>
-    </div>
-  );
-}
-
-function CreatedListsModal({ lists, onClose, onDelete, onRename, onNew }) {
-  const [creating, setCreating] = React.useState(false);
-  const [draft, setDraft] = React.useState('');
-  const newRef = React.useRef(null);
-  React.useEffect(() => {
-    const h = e => { if (e.key === 'Escape') onClose(); };
-    window.addEventListener('keydown', h);
-    return () => window.removeEventListener('keydown', h);
-  }, [onClose]);
-  React.useEffect(() => { if (creating && newRef.current) newRef.current.focus(); }, [creating]);
-
-  const commitNew = () => { const t = draft.trim(); if (t) { onNew(t); setDraft(''); setCreating(false); } };
-
-  return (
-    <div onClick={onClose}
-      style={{ position:'fixed', inset:0, zIndex:1000, display:'flex', alignItems:'center', justifyContent:'center', padding:24,
-        background:'rgba(5,5,5,0.74)', backdropFilter:'blur(6px)', WebkitBackdropFilter:'blur(6px)' }}>
-      <style>{`@keyframes aicdbModalIn{from{transform:translateY(14px) scale(0.985)}to{transform:none}}`}</style>
-      <div onClick={e => e.stopPropagation()}
-        style={{ position:'relative', width:'100%', maxWidth:560, maxHeight:'84vh', display:'flex', flexDirection:'column',
-          background:'var(--bg-1)', border:'1px solid var(--border-default)', borderRadius:'var(--radius-xl)',
-          boxShadow:'var(--shadow-3)', overflow:'hidden', animation:'aicdbModalIn 0.34s var(--ease-out) both' }}>
-
-        {/* header — title + New list (top-right) + close */}
-        <div style={{ display:'flex', alignItems:'flex-start', justifyContent:'space-between', gap:12, padding:'24px 26px 18px',
-          borderBottom:'1px solid var(--border-subtle)' }}>
-          <div>
-            <h2 style={{ font:'600 22px/1.2 var(--font-display)', color:'var(--fg-0)', margin:0 }}>Created lists</h2>
-            <p style={{ font:'var(--text-body-sm)', color:'var(--fg-2)', margin:'7px 0 0' }}>
-              {lists.length} {lists.length === 1 ? 'list' : 'lists'} · curate your own corners of the catalog
-            </p>
-          </div>
-          <div style={{ display:'flex', alignItems:'center', gap:10, flex:'none' }}>
-            <button onClick={() => setCreating(c => !c)}
-              style={{ display:'inline-flex', alignItems:'center', gap:7, padding:'9px 14px', borderRadius:'var(--radius-md)', cursor:'pointer',
-                background:'var(--coral)', border:'1px solid transparent', color:'var(--fg-on-accent)', font:'600 13px/1 var(--font-body)',
-                transition:'all var(--dur-fast)' }}
-              onMouseEnter={e => { e.currentTarget.style.background = 'var(--coral-bright)'; }}
-              onMouseLeave={e => { e.currentTarget.style.background = 'var(--coral)'; }}>
-              <Icon name="plus" size={14} color="currentColor" weight="bold" /> New list
-            </button>
-            <button onClick={onClose} style={{ display:'flex', padding:8, borderRadius:'50%', flex:'none', cursor:'pointer',
-              background:'var(--bg-2)', border:'1px solid var(--border-default)' }}>
-              <Icon name="x" size={15} color="var(--fg-1)" />
-            </button>
-          </div>
-        </div>
-
-        {/* new-list composer (revealed by the button) */}
-        {creating && (
-          <div style={{ display:'flex', alignItems:'center', gap:10, padding:'14px 26px', borderBottom:'1px solid var(--border-subtle)',
-            background:'var(--bg-0)' }}>
-            <input ref={newRef} value={draft} placeholder="Name your new list…"
-              onChange={e => setDraft(e.target.value)}
-              onKeyDown={e => { if (e.key === 'Enter') commitNew(); if (e.key === 'Escape') { setDraft(''); setCreating(false); } }}
-              style={{ flex:1, font:'var(--text-body)', color:'var(--fg-0)', background:'var(--bg-3)',
-                border:'1px solid var(--border-default)', borderRadius:'var(--radius-md)', padding:'10px 12px', outline:'none' }} />
-            <button onClick={commitNew}
-              style={{ padding:'10px 16px', borderRadius:'var(--radius-md)', cursor:'pointer', background:'var(--coral)',
-                border:'1px solid transparent', color:'var(--fg-on-accent)', font:'600 13px/1 var(--font-body)' }}>Create</button>
-          </div>
-        )}
-
-        {/* list rows */}
-        <div style={{ overflowY:'auto', padding:'14px 18px 18px', display:'flex', flexDirection:'column', gap:10 }}>
-          {lists.length ? lists.map(l => (
-            <CreatedListRow key={l.id} list={l} onDelete={onDelete} onRename={onRename} />
-          )) : (
-            <div style={{ padding:'48px 0', textAlign:'center', font:'var(--text-body)', color:'var(--fg-2)' }}>
-              No lists yet — hit <b style={{ color:'var(--fg-1)' }}>New list</b> to start one.
-            </div>
-          )}
-        </div>
-      </div>
-    </div>
-  );
-}
-
-// single small list-wide privacy button (lives in the modal's top-right corner)
-function ListPrivacyButton({ isPrivate, onToggle }) {
-  const [hover, setHover] = React.useState(false);
-  const accent = isPrivate ? 'var(--fg-1)' : 'var(--teal-bright)';
-  return (
-    <button onClick={onToggle} onMouseEnter={() => setHover(true)} onMouseLeave={() => setHover(false)}
-      title={isPrivate ? 'Following list is private — tap to make public' : 'Following list is public — tap to make private'}
-      style={{ display:'inline-flex', alignItems:'center', gap:7, padding:'8px 13px', flex:'none', cursor:'pointer',
-        borderRadius:'var(--radius-pill)', border:'1px solid', borderColor: hover ? 'var(--border-strong)' : 'var(--border-default)',
-        background: hover ? 'var(--bg-2)' : 'var(--bg-0)', font:'600 12px/1 var(--font-body)', color: accent,
-        transition:'all var(--dur-fast)' }}>
-      <Icon name={isPrivate ? 'lock-simple' : 'eye'} size={13} color={accent} weight={isPrivate ? 'fill' : 'regular'} />
-      {isPrivate ? 'Private' : 'Public'}
-    </button>
   );
 }
 
@@ -916,7 +616,7 @@ function FollowedCreatorCard({ creator }) {
 function FollowedCreators() {
   const byId = {};
   (window.AICDB_CREATORS || []).forEach(c => { byId[c.id] = c; });
-  const followed = FOLLOWED_CREATOR_IDS.map(id => byId[id]).filter(Boolean);
+  const followed = [];
   if (!followed.length) return null;
   return (
     <section style={{ marginBottom:64 }}>
@@ -928,107 +628,119 @@ function FollowedCreators() {
   );
 }
 
-// ---- linked creator accounts shown on the main profile (toggle-controlled) ----
-function LinkedCreatorAccounts() {
-  const accounts = useCreatorAccounts().filter(a => a.showOnProfile);
-  if (!accounts.length) return null;
-  return (
-    <section style={{ marginBottom:56 }}>
-      <SectionHeading align="center" sub="Creator accounts connected to this profile">Also creating as</SectionHeading>
-      <div style={{ display:'flex', gap:16, flexWrap:'wrap', justifyContent:'center' }}>
-        {accounts.map(a => (
-          <a key={a.id} href={'creator.html?account=' + encodeURIComponent(a.id)}
-            style={{ display:'flex', alignItems:'center', gap:14, padding:'14px 20px 14px 14px', textDecoration:'none',
-              background:'var(--bg-1)', border:'1px solid var(--border-default)', borderRadius:'var(--radius-pill)',
-              transition:'border-color var(--dur-fast), background var(--dur-fast)' }}
-            onMouseEnter={e=>{ e.currentTarget.style.borderColor='var(--border-accent)'; e.currentTarget.style.background='var(--bg-2)'; }}
-            onMouseLeave={e=>{ e.currentTarget.style.borderColor='var(--border-default)'; e.currentTarget.style.background='var(--bg-1)'; }}>
-            <div style={{ width:46, height:46, borderRadius:'50%', flex:'none',
-              background: a.avatar ? `linear-gradient(135deg, ${a.avatar[0]}, ${a.avatar[1]})` : 'var(--bg-3)',
-              display:'flex', alignItems:'center', justifyContent:'center', font:'600 18px/1 var(--font-display)', color:'rgba(255,255,255,0.92)' }}>
-              {(a.name || 'C').charAt(0).toUpperCase()}
-            </div>
-            <div>
-              <div style={{ display:'flex', alignItems:'center', gap:7 }}>
-                <span style={{ font:'600 15px/1.2 var(--font-body)', color:'var(--fg-0)' }}>{a.name}</span>
-                <span style={{ font:'600 9px/1 var(--font-body)', letterSpacing:'0.05em', textTransform:'uppercase', color:'var(--coral-bright)',
-                  background:'var(--coral-ghost)', padding:'3px 7px', borderRadius:'var(--radius-pill)' }}>Creator</span>
-              </div>
-              <div style={{ font:'var(--text-data-sm)', color:'var(--fg-2)', marginTop:4 }}>{a.handle || ''}</div>
-            </div>
-            <Icon name="arrow-right" size={15} color="var(--fg-3)" />
-          </a>
-        ))}
-      </div>
-    </section>
-  );
-}
-
-// ============================================================
-// Reviews — the user's submitted written reviews (bottom of profile)
-// ============================================================
-const PROFILE_REVIEWS = [
-  { id:'echoes-of-tomorrow', you:5,   date:'2026-05-31', likes:142,
-    body:"Still the bar. The third act rewires how you think about memory on a second watch — I keep finding new seams in the edit." },
-  { id:'glass-orchard', you:4, date:'2026-05-22', likes:64,
-    body:"Quiet, patient, and gorgeously lit. Not for everyone, but if you let it breathe it gets under your skin. The glass-fruit reveal is one for the year-end lists." },
-  { id:'the-long-render', you:3.5, date:'2026-05-14', likes:38,
-    body:"Technically dazzling and emotionally cold — on purpose, I think. I wanted a little more heart underneath the obsession, but the final frame nearly earns the whole decade." },
-  { id:'paper-suns', you:4.5, date:'2026-04-30', likes:91,
-    body:"Eleven wordless minutes that say more than most features. The folded-paper dawn sequence is the most beautiful thing I've seen out of a frame-interpolation pipeline." },
-];
-
-function ProfileReviewRow({ r, onOpen }) {
-  const film = r.film;
-  const t = window.AICDB_TYPES[film.type];
-  return (
-    <div style={{ display:'flex', gap:16, padding:'18px 20px', background:'var(--bg-1)', border:'1px solid var(--border-subtle)',
-      borderRadius:'var(--radius-lg)' }}>
-      <div onClick={() => onOpen && onOpen(film)} style={{ width:58, flex:'none', aspectRatio:'2/3', borderRadius:'var(--radius-md)', overflow:'hidden',
-        cursor:'pointer', background:`linear-gradient(150deg, ${film.g[0]}, ${film.g[1]} 150%)`, boxShadow:'var(--shadow-1)' }} />
-      <div style={{ flex:1, minWidth:0 }}>
-        <div style={{ display:'flex', alignItems:'center', gap:10, marginBottom:8, flexWrap:'wrap' }}>
-          <span onClick={() => onOpen && onOpen(film)} style={{ font:'600 17px/1.2 var(--font-display)', color:'var(--fg-0)', cursor:'pointer' }}>{film.title}</span>
-          <span style={{ font:'600 9px/1 var(--font-body)', letterSpacing:'0.05em', textTransform:'uppercase',
-            color:t.text, background:t.ghost, padding:'4px 8px', borderRadius:'var(--radius-pill)' }}>{t.label}</span>
-          <StarRating value={r.you} size={14} />
-          <span style={{ font:'var(--text-data-sm)', color:'var(--fg-3)' }}>· {fmtRatedDate(r.date)}</span>
-        </div>
-        <p style={{ font:'var(--text-body)', color:'var(--fg-1)', margin:'0 0 12px' }}>{r.body}</p>
-        <div style={{ display:'flex', alignItems:'center', gap:8 }}>
-          <span style={{ display:'inline-flex', alignItems:'center', gap:6, font:'var(--text-data-sm)', color:'var(--fg-2)', marginRight:6 }}>
-            <Icon name="heart" size={14} color="var(--fg-3)" /> {r.likes}
-          </span>
-          <Button variant="ghost" size="sm" icon="pencil-simple">Edit</Button>
-          <Button variant="ghost" size="sm" icon="trash">Delete</Button>
-        </div>
-      </div>
-    </div>
-  );
-}
-
-function ProfileReviews({ onOpen }) {
-  const byId = filmsById();
-  const rows = PROFILE_REVIEWS.map(r => ({ ...r, film: byId[r.id] })).filter(r => r.film);
-  if (!rows.length) return null;
-  return (
-    <section style={{ marginBottom:20 }}>
-      <SectionHeading align="center" sub={`${PROFILE.reviews} reviews written · your most recent takes`}>Reviews</SectionHeading>
-      <div style={{ maxWidth:820, margin:'0 auto', display:'flex', flexDirection:'column', gap:12 }}>
-        {rows.map(r => <ProfileReviewRow key={r.id} r={r} onOpen={onOpen} />)}
-      </div>
-    </section>
-  );
-}
-
 // ---- Page ----
-function Profile({ embedded = false, onOpen }) {
+function Profile({ embedded = false, onOpen, onOpenList, viewedUserId }) {
+  const isOwnProfile = !viewedUserId;
+  const allCreatorAccounts = useCreatorAccounts();
+  const creatorAccounts = isOwnProfile ? allCreatorAccounts.filter(a => a.showOnProfile) : [];
+  const [profileUserId, setProfileUserId] = React.useState(viewedUserId || null);
+  const [favoriteCount, setFavoriteCount] = React.useState(0);
   const [showAllRatings, setShowAllRatings] = React.useState(false);
+  const [showEdit, setShowEdit] = React.useState(false);
+  const [activeListId, setActiveListId] = React.useState(() => {
+    if (embedded) return null;
+    try { return new URLSearchParams(window.location.search).get('list') || null; } catch (e) { return null; }
+  });
+  const [, forceUpdate] = React.useReducer(x => x + 1, 0);
+  React.useEffect(() => {
+    if (viewedUserId) {
+      loadProfileFromUserId(viewedUserId).then(async () => {
+        await loadProfileStats(viewedUserId);
+        await loadLastRated(viewedUserId);
+        forceUpdate();
+      });
+      return;
+    }
+    if (!window.AICDB_AUTH) return;
+    window.AICDB_AUTH.getSession().then(async session => {
+      await loadProfileFromSession(session);
+      const resolvedUserId = session?.user?.id;
+      if (resolvedUserId) {
+        await loadProfileStats(resolvedUserId);
+        await loadLastRated(resolvedUserId);
+      }
+      forceUpdate();
+    }).catch(() => {});
+  }, [viewedUserId]);
+
+  React.useEffect(() => {
+    if (viewedUserId) return;
+    const onRated = async () => {
+      if (!window.AICDB_AUTH) return;
+      try {
+        const session = await window.AICDB_AUTH.getSession();
+        const uid = session?.user?.id;
+        if (!uid) return;
+        await loadProfileStats(uid);
+        await loadLastRated(uid);
+        forceUpdate();
+      } catch (e) {}
+    };
+    window.addEventListener('dreamwall:rated', onRated);
+    return () => window.removeEventListener('dreamwall:rated', onRated);
+  }, [viewedUserId]);
+
+  React.useEffect(() => {
+    if (viewedUserId) {
+      setProfileUserId(viewedUserId);
+      return;
+    }
+    if (!window.AICDB_AUTH) { setProfileUserId(null); return; }
+    window.AICDB_AUTH.getSession().then(session => {
+      setProfileUserId(session?.user?.id || null);
+    }).catch(() => setProfileUserId(null));
+  }, [viewedUserId]);
+
+  React.useEffect(() => {
+    if (embedded) return;
+    const onPop = () => {
+      const listId = (history.state && history.state.listId)
+        || new URLSearchParams(window.location.search).get('list')
+        || null;
+      setActiveListId(listId);
+    };
+    window.addEventListener('popstate', onPop);
+    return () => window.removeEventListener('popstate', onPop);
+  }, [embedded]);
+
+  const handleOpenList = (listId) => {
+    if (embedded && onOpenList) { onOpenList(listId); return; }
+    setActiveListId(listId);
+    window.scrollTo(0, 0);
+    try {
+      const u = new URL(window.location.href);
+      u.searchParams.set('list', listId);
+      history.pushState({ listId }, '', u.toString());
+    } catch (e) {}
+  };
+
+  const closeList = () => { history.back(); };
+
+  // When rendered standalone (profile.html), all NavBar interactions bridge to the SPA.
+  // Nav links  â†’ index.html#PageName
+  // Search typing â†’ local state only (no catalog on standalone, dropdown stays empty)
+  // Search Enter  â†’ index.html?q=term  (SPA reads ?q= on load and pre-seeds search)
+  // Result pick   â†’ index.html?film=id (SPA opens the film detail once catalog loads)
+  const [standaloneQuery, setStandaloneQuery] = React.useState('');
+  const standaloneNav        = embedded ? null : (n) => { window.location.href = 'index.html#' + encodeURIComponent(n); };
+  const standaloneOnQuery    = embedded ? null : (term) => { setStandaloneQuery(term); };
+  const standaloneOnSearch   = embedded ? null : (term) => { if (term) window.location.href = 'index.html?q=' + encodeURIComponent(term); };
+  const standaloneOpenResult = embedded ? null : (film) => { window.location.href = 'index.html?film=' + encodeURIComponent(film.id); };
+
+  if (activeListId && !embedded) {
+    return (
+      <div style={{ minHeight: '100vh' }}>
+        {!embedded && <NavBar active="Profile" onNav={standaloneNav} query={standaloneQuery} onQuery={standaloneOnQuery} onSearch={standaloneOnSearch} onOpenResult={standaloneOpenResult} />}
+        <ListDetail listId={activeListId} onBack={closeList} backLabel="Back to profile"
+          onOpen={standaloneOpenResult} onWatch={(film) => { window.location.href = 'index.html?film=' + encodeURIComponent(film.id); }} />
+      </div>
+    );
+  }
 
   if (showAllRatings) {
     return (
       <div style={{ minHeight: embedded ? 'auto' : '100vh' }}>
-        {!embedded && <NavBar active="" />}
+        {!embedded && <NavBar active="" onNav={standaloneNav} query={standaloneQuery} onQuery={standaloneOnQuery} onSearch={standaloneOnSearch} onOpenResult={standaloneOpenResult} />}
         <AllRatingsPage onBack={() => { setShowAllRatings(false); window.scrollTo(0,0); }} onOpen={onOpen} />
       </div>
     );
@@ -1036,17 +748,23 @@ function Profile({ embedded = false, onOpen }) {
 
   return (
     <div style={{ minHeight: embedded ? 'auto' : '100vh' }}>
-      {!embedded && <NavBar active="" />}
-      <div style={{ maxWidth:1100, margin:'0 auto', padding:'28px 28px 90px' }}>
-        <TopSection />
-        <LinkedCreatorAccounts />
-        <LastRated onOpen={onOpen} onSeeAll={() => { setShowAllRatings(true); window.scrollTo(0,0); }} />
-        <LowerSection />
-        <BottomSection />
-        <ProfileReviews onOpen={onOpen} />
+      {!embedded && <NavBar active="Profile" onNav={standaloneNav} query={standaloneQuery} onQuery={standaloneOnQuery} onSearch={standaloneOnSearch} onOpenResult={standaloneOpenResult} />}
+      <div className="aicdb-page" style={{ maxWidth:1100, margin:'0 auto', padding:'28px 28px 90px' }}>
+        <TopSection onEdit={isOwnProfile ? () => setShowEdit(true) : undefined} onOpenList={handleOpenList} isOwnProfile={isOwnProfile} creatorAccounts={creatorAccounts} viewedUserId={viewedUserId} />
+        <LastRated onOpen={onOpen} onSeeAll={() => { setShowAllRatings(true); window.scrollTo(0,0); }}
+          isOwnProfile={isOwnProfile} profileUserId={profileUserId} onFavoriteCount={setFavoriteCount} />
+        <StatsAndAchievements isOwnProfile={isOwnProfile} favoriteCount={favoriteCount} />
+        <ProfileReviews onOpen={onOpen} viewedUserId={viewedUserId} isOwnProfile={isOwnProfile} />
       </div>
+      {showEdit && isOwnProfile && (
+        <EditProfilePanel
+          onClose={() => setShowEdit(false)}
+          onSaved={() => forceUpdate()}
+        />
+      )}
     </div>
   );
 }
 
-Object.assign(window, { Profile });
+Object.assign(window, { Profile, PROFILE, loadProfileFromSession, loadProfileFromUserId, SectionHeading, filmsById, fmtRatedDate });
+

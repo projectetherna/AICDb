@@ -23,6 +23,7 @@ function SearchResult({ film, onOpen }) {
 
 function ProfileMenu({ onNav, isCreator = true, isAdmin = true }) {
   const [open, setOpen] = React.useState(false);
+  const [account, setAccount] = React.useState(window.AICDB_MAIN_ACCOUNT || null);
   const ref = React.useRef(null);
   React.useEffect(() => {
     if (!open) return;
@@ -30,29 +31,59 @@ function ProfileMenu({ onNav, isCreator = true, isAdmin = true }) {
     document.addEventListener('mousedown', close);
     return () => document.removeEventListener('mousedown', close);
   }, [open]);
+  // Re-read account info whenever auth state changes (covers Google OAuth name/avatar).
+  // Also fetch the session directly on mount as a fallback for the timing window
+  // where auth.js hasn't fired _notify() yet but a session already exists.
+  React.useEffect(() => {
+    if (!window.AICDB_AUTH) return;
+    // Immediate sync read (may already be populated)
+    setAccount(window.AICDB_MAIN_ACCOUNT || null);
+    // Async fallback: if AICDB_MAIN_ACCOUNT is still null, pull the session
+    // directly so we can build the account object without waiting for _notify.
+    window.AICDB_AUTH.getSession().then((session) => {
+      if (session && session.user && !window.AICDB_MAIN_ACCOUNT) {
+        const u    = session.user;
+        const meta = u.user_metadata || {};
+        const raw  = meta.full_name || meta.name || meta.display_name
+                   || (u.email || '').split('@')[0] || '';
+        const name = raw ? raw.charAt(0).toUpperCase() + raw.slice(1) : (u.email || '').split('@')[0];
+        setAccount({ name, avatar: null });
+      }
+    }).catch(() => {});
+    // Subscribe to future auth-state changes
+    const unsub = window.AICDB_AUTH.subscribe(() => {
+      setAccount(window.AICDB_MAIN_ACCOUNT || null);
+    });
+    return unsub;
+  }, []);
+  const displayName  = account ? account.name : '';
+  const avatarColors = account && account.avatar ? account.avatar : ['#d85a30', '#9d8df1'];
+  const avatarUrl    = account && account.avatarUrl ? account.avatarUrl : null;
   const items = [
-    { icon:'user',     label:'Profile',     action:() => { window.location.href = 'profile.html'; } },
-    { icon:'film-slate', label:'My Contents', action:() => { window.location.href = 'creator.html?manage=1'; } },
-    { icon:'plus-circle', label:'Add Creator Account', action:() => { window.location.href = 'creator-setup.html'; } },
-    { icon:'chat-text', label:'My Reviews',  action:() => onNav && onNav('My Reviews') },
-    { icon:'gear',     label:'Preferences', action:() => onNav && onNav('Preferences') },
-    { icon:'sign-out', label:'Log Out',     action:() => {}, danger:true },
-    isAdmin && { iconNode:<ShieldNoldor size={16} />, label:'Admin Panel', action:() => { window.location.href = 'admin.html'; } },
+    { icon:'user',       label:'Profile',              action:() => onNav && onNav('Profile') },
+    { icon:'film-slate', label:'My Contents',           action:() => { window.location.href = '/my-contents.html'; } },
+    { icon:'plus-circle',label:'Add Creator Account',   action:() => { window.location.href = 'creator-setup.html'; } },
+    { icon:'gear',       label:'Preferences',           action:() => onNav && onNav('Preferences') },
+    { icon:'sign-out',   label:'Log Out',               action:() => { window.AICDB_AUTH && window.AICDB_AUTH.signOut(); }, danger:true },
   ].filter(Boolean);
   return (
     <div ref={ref} style={{ position:'relative', flex:'none' }}>
       <div onClick={() => setOpen(o => !o)} style={{ cursor:'pointer', display:'flex', borderRadius:'50%',
         outline: open ? '2px solid var(--coral)' : '2px solid transparent', outlineOffset:2,
         transition:'outline-color var(--dur-fast)' }}>
-        <Avatar size={30} colors={['#d85a30','#9d8df1']} />
+        {avatarUrl ? (
+          <img src={avatarUrl} alt={displayName}
+            style={{ width:30, height:30, borderRadius:'50%', objectFit:'cover', display:'block' }} />
+        ) : (
+          <Avatar size={30} colors={avatarColors} />
+        )}
       </div>
       {open && (
-        <div style={{ position:'absolute', top:44, right:0, width:188, padding:6, zIndex:80,
+        <div style={{ position:'absolute', top:44, right:0, width:220, padding:6, zIndex:80,
           background:'var(--bg-1)', border:'1px solid var(--border-default)', borderRadius:'var(--radius-lg)',
           boxShadow:'var(--shadow-3)' }}>
           <div style={{ padding:'8px 10px 10px', borderBottom:'1px solid var(--border-subtle)', marginBottom:4 }}>
-            <div style={{ font:'600 14px/1.2 var(--font-body)', color:'var(--fg-0)' }}>Ada Vance</div>
-            <div style={{ font:'var(--text-data-sm)', color:'var(--fg-2)', marginTop:3 }}>@adavance</div>
+            <div style={{ font:'600 14px/1.2 var(--font-body)', color:'var(--fg-0)', whiteSpace:'nowrap', overflow:'hidden', textOverflow:'ellipsis' }}>{displayName}</div>
           </div>
           {items.map(it => (
             <MenuRow key={it.label} icon={it.icon} iconNode={it.iconNode} danger={it.danger} admin={it.admin}
@@ -122,14 +153,40 @@ function NavLink({ label, display, icon, bold, active, onNav }) {
   );
 }
 
-function NavBar({ active = 'Feed', onNav, query, onQuery, onOpenResult, isCreator = true, isAdmin = true }) {
+// signed-out nav cluster — Sign In / Sign Up buttons (replaces the avatar)
+function AuthButtons() {
+  const [hov, setHov] = React.useState(false);
+  const go = (k) => { window.location.href = window.AICDB_PAGE(k); };
+  return (
+    <div style={{ display:'flex', alignItems:'center', gap:10, flex:'none' }}>
+      <button onClick={() => go('login')}
+        style={{ padding:'9px 15px', borderRadius:'var(--radius-pill)', cursor:'pointer', whiteSpace:'nowrap',
+          background:'transparent', border:'1px solid var(--border-strong)', color:'var(--fg-0)',
+          font:'600 13.5px/1 var(--font-body)', transition:'all var(--dur-fast)' }}
+        onMouseEnter={e => e.currentTarget.style.borderColor = 'var(--fg-2)'}
+        onMouseLeave={e => e.currentTarget.style.borderColor = 'var(--border-strong)'}>Sign In</button>
+      <button onClick={() => go('signup')} onMouseEnter={() => setHov(true)} onMouseLeave={() => setHov(false)}
+        style={{ padding:'9px 16px', borderRadius:'var(--radius-pill)', cursor:'pointer', border:'1px solid transparent', whiteSpace:'nowrap',
+          background: hov ? 'var(--coral-bright)' : 'var(--coral)', color:'var(--fg-on-accent)',
+          font:'600 13.5px/1 var(--font-body)', transition:'background var(--dur-fast)' }}>Sign Up</button>
+    </div>
+  );
+}
+
+function NavBar({ active = 'Feed', onNav, query, onQuery, onSearch, onOpenResult, isCreator = true, isAdmin = true, films }) {
   const primaryLinks = ['Discover', 'Films', 'Series', 'Creators'];
-  const [focused, setFocused] = React.useState(false);
+  const loggedIn = useAuth();
+  // Auto-open the dropdown when the SPA is loaded with a pre-seeded query (e.g. from ?q= bridging).
+  const [focused, setFocused] = React.useState(() => !!(query && query.trim()));
   const q = (query || '').trim().toLowerCase();
-  const results = q ? window.AICDB_FILMS.filter(f =>
-    f.title.toLowerCase().includes(q) ||
-    f.creator.toLowerCase().includes(q) ||
-    f.genres.join(' ').toLowerCase().includes(q)
+  // `films` prop is the React-state catalog array from App (null while loading,
+  // then the real array).  Fall back to window.AICDB_FILMS only on standalone
+  // pages that don't wire up the prop — those pages accept eventual consistency.
+  const catalog = films !== undefined ? (films || []) : window.AICDB_FILMS;
+  const results = q ? catalog.filter(f =>
+    (f.title || '').toLowerCase().includes(q) ||
+    (f.creator || '').toLowerCase().includes(q) ||
+    (f.genres || []).join(' ').toLowerCase().includes(q)
   ).slice(0, 6) : [];
   const showDrop = focused && q.length > 0;
   const suggestion = (!results.length && q.length >= 2 && window.aicdbSuggest) ? window.aicdbSuggest(query) : null;
@@ -155,6 +212,7 @@ function NavBar({ active = 'Feed', onNav, query, onQuery, onOpenResult, isCreato
           <Icon name="search" size={16} color="var(--fg-2)" />
           <input value={query||''} onChange={e=>{ setFocused(true); onQuery && onQuery(e.target.value); }}
             onFocus={()=>setFocused(true)} onBlur={()=>setFocused(false)}
+            onKeyDown={e=>{ if (e.key === 'Enter' && (query||'').trim()) { onSearch && onSearch((query||'').trim()); } }}
             placeholder="Search titles, creators…"
             style={{ background:'none', border:'none', outline:'none', color:'var(--fg-0)',
               font:'var(--text-body-sm)', width:'100%' }} />
@@ -188,9 +246,9 @@ function NavBar({ active = 'Feed', onNav, query, onQuery, onOpenResult, isCreato
       <div className="aicdb-nav-right" style={{ display:'flex', alignItems:'center', gap:22 }}>
         <NavLink label="Feed" display="People" icon="users" bold active={active==='Feed'} onNav={onNav} />
         <NavLink label="Watchlist" display="My Watchlist" icon="bookmark" active={active==='Watchlist'} onNav={onNav} />
-        <ProfileMenu onNav={onNav} isCreator={isCreator} isAdmin={isAdmin} />
+        {loggedIn ? <ProfileMenu onNav={onNav} isCreator={isCreator} isAdmin={isAdmin} /> : <AuthButtons />}
       </div>
     </nav>
   );
 }
-Object.assign(window, { NavBar, NavLink, ProfileMenu, SearchResult });
+Object.assign(window, { NavBar, NavLink, ProfileMenu, SearchResult, AuthButtons });

@@ -3,19 +3,19 @@
 // ContentBadge, scoreColor), NavBar, FilmCard, and AICDB_FILMS / AICDB_TYPES.
 
 const PROFILE = {
-  name: 'Ada Vance',
-  initials: 'A',
-  joined: 'Joined March 2024',
-  quote: 'Chasing the one frame that remembers me.',
-  avatar: ['#d85a30', '#9d8df1'],
-  watched: 852,
-  lists: 10,
-  avgRating: 4.2,
-  hours: 1284,
-  reviews: 96,
-  thisYear: 218,
-  favGenre: 'Sci-Fi',
-  favGenreShare: '38% of everything you watch',
+  name: 'Guest',
+  initials: 'G',
+  joined: 'Not signed in',
+  quote: '',
+  avatar: ['#5a5e66', '#3a3d44'],
+  watched: 0,
+  lists: 0,
+  avgRating: 0,
+  hours: 0,
+  reviews: 0,
+  thisYear: 0,
+  favGenre: '—',
+  favGenreShare: 'No ratings yet',
 };
 
 // films keyed by id for convenience
@@ -25,14 +25,7 @@ function filmsById() {
   return m;
 }
 
-const LAST_RATED = [
-  { id:'echoes-of-tomorrow', you:5,   date:'2026-05-31' },
-  { id:'synthetic-dreams',   you:4.5, date:'2026-05-28' },
-  { id:'glass-orchard',      you:4,   date:'2026-05-22' },
-  { id:'the-long-render',    you:3.5, date:'2026-05-14' },
-  { id:'minute-of-static',   you:4,   date:'2026-05-09' },
-  { id:'paper-suns',         you:4.5, date:'2026-04-30' },
-];
+const LAST_RATED = [];
 
 // the full rating history (built from the catalog) for the "See all" page.
 // Deterministic pseudo user-scores + dates so the same titles always read the same.
@@ -62,30 +55,12 @@ function fmtRatedDate(iso) {
   } catch (e) { return iso; }
 }
 
-const FAVORITES = ['synthetic-dreams', 'echoes-of-tomorrow', 'glass-orchard', 'the-long-render', 'paper-suns'];
+const FAVORITES = [];
 
 // user-created lists (title + how many titles each holds)
-const CREATED_LISTS = [
-  { id:'l1', title:'Best of Diffusion', count:24, note:'The generative films that still hold up' },
-  { id:'l2', title:'3AM Static',        count:12, note:'Vertical horror for the doomscroll' },
-  { id:'l3', title:'Latent Epics',      count:9,  note:'Generation-spanning, world-sized stories' },
-  { id:'l4', title:'Wordless',          count:15, note:'No dialogue, all light' },
-  { id:'l5', title:'Hybrid Live-Action',count:18, note:'Where cameras meet the model' },
-  { id:'l6', title:'Comfort Renders',   count:7,  note:'Rewatchable, low-stakes, warm' },
-  { id:'l7', title:'Coastlines',        count:6,  note:'Films that drown you beautifully' },
-  { id:'l8', title:'Festival Circuit',  count:11, note:'What the juries are arguing about' },
-  { id:'l9', title:'Shorts Under 10',   count:21, note:'Quick hits worth your lunch break' },
-  { id:'l10',title:'The Uncanny Shelf', count:8,  note:'Titles that learned to look back' },
-];
+const CREATED_LISTS = [];
 
-const BADGES = [
-  { icon:'trophy',     label:'1,000 Rated',  sub:'Titles rated',       color:'var(--coral-bright)', ghost:'rgba(216,90,48,0.18)' },
-  { icon:'fire',       label:'47-Day Streak', sub:'Daily ratings',     color:'var(--type-short)',   ghost:'rgba(229,178,59,0.16)' },
-  { icon:'medal',      label:'Top Reviewer',  sub:'Top 1% this month',  color:'var(--teal-bright)',  ghost:'rgba(78,205,196,0.16)' },
-  { icon:'film-slate', label:'Cinephile',     sub:'500 films watched',  color:'var(--type-vertical)',ghost:'rgba(157,141,241,0.18)' },
-  { icon:'star',       label:'Tastemaker',    sub:'200 helpful votes',  color:'var(--coral-bright)', ghost:'rgba(216,90,48,0.18)' },
-  { icon:'sparkles',   label:'Early Adopter', sub:'Joined in 2024',     color:'var(--teal-bright)',  ghost:'rgba(78,205,196,0.16)' },
-];
+const BADGES = [];
 
 // ---- Section heading (centered or left) ----
 function SectionHeading({ children, align = 'left', sub }) {
@@ -130,10 +105,12 @@ function TopSection() {
           <div style={{ font:'var(--text-data-sm)', color:'var(--fg-2)', marginTop:8, display:'flex', alignItems:'center', gap:6 }}>
             <Icon name="clock" size={13} color="var(--fg-3)" />{PROFILE.joined}
           </div>
-          <p style={{ font:'400 italic 15px/1.45 var(--font-display)', color:'var(--fg-1)', fontStyle:'italic',
-            margin:'14px 0 0', maxWidth:260, borderLeft:'2px solid var(--coral-dim)', paddingLeft:12 }}>
-            “{PROFILE.quote}”
-          </p>
+          {PROFILE.quote ? (
+            <p style={{ font:'400 italic 15px/1.45 var(--font-display)', color:'var(--fg-1)', fontStyle:'italic',
+              margin:'14px 0 0', maxWidth:260, borderLeft:'2px solid var(--coral-dim)', paddingLeft:12 }}>
+              “{PROFILE.quote}”
+            </p>
+          ) : null}
         </div>
 
         {/* CENTER — watched stat */}
@@ -256,13 +233,19 @@ function LastRated({ onOpen, onSeeAll }) {
       <div>
         <h3 style={{ font:'var(--text-h3)', color:'var(--fg-0)', marginBottom:6 }}>Favorites</h3>
         <p style={{ font:'var(--text-body-sm)', color:'var(--fg-2)', margin:'0 0 16px' }}>The five you’d save from the fire</p>
-        <div style={{ display:'flex', gap:16, overflowX:'auto', paddingBottom:8, scrollbarWidth:'thin' }}>
-          {favFilms.map(f => (
-            <div key={f.id} style={{ width:128, flex:'none' }}>
-              <FilmCard film={f} width="auto" onOpen={onOpen || (()=>{})} />
-            </div>
-          ))}
-        </div>
+        {favFilms.length ? (
+          <div style={{ display:'flex', gap:16, overflowX:'auto', paddingBottom:8, scrollbarWidth:'thin' }}>
+            {favFilms.map(f => (
+              <div key={f.id} style={{ width:128, flex:'none' }}>
+                <FilmCard film={f} width="auto" onOpen={onOpen || (()=>{})} />
+              </div>
+            ))}
+          </div>
+        ) : (
+          <EmptyState icon="heart" accent="var(--teal)" compact
+            title="No favorites yet"
+            sub="Mark the titles you love and the five you’d save from the fire will live here." />
+        )}
       </div>
     </section>
   );
@@ -402,9 +385,15 @@ function LowerSection() {
   return (
     <section style={{ marginBottom:64 }}>
       <h3 style={{ font:'var(--text-h3)', color:'var(--fg-0)', marginBottom:24, textAlign:'center' }}>Achievements</h3>
-      <div style={{ maxWidth:680, margin:'0 auto', display:'grid', gridTemplateColumns:'1fr 1fr', rowGap:24, columnGap:40 }}>
-        {BADGES.map(b => <BadgeItem key={b.label} b={b} />)}
-      </div>
+      {BADGES.length ? (
+        <div style={{ maxWidth:680, margin:'0 auto', display:'grid', gridTemplateColumns:'1fr 1fr', rowGap:24, columnGap:40 }}>
+          {BADGES.map(b => <BadgeItem key={b.label} b={b} />)}
+        </div>
+      ) : (
+        <EmptyState icon="medal" accent="var(--coral)" compact
+          title="No achievements yet"
+          sub="Rate titles, write reviews, and keep a streak going to start earning badges." />
+      )}
     </section>
   );
 }
@@ -454,7 +443,7 @@ function BottomSection() {
         </div>
 
         {/* Stat cards grid */}
-        <div style={{ display:'grid', gridTemplateColumns:'1fr 1fr', gap:20 }}>
+        <div className="aicdb-stat-cards" style={{ display:'grid', gridTemplateColumns:'1fr 1fr', gap:20 }}>
           {/* Average rating — full-width feature within grid */}
           <div style={{ gridColumn:'1 / -1', padding:'20px 24px', background:'var(--bg-1)',
             border:'1px solid var(--border-subtle)', borderRadius:'var(--radius-lg)',
@@ -474,18 +463,18 @@ function BottomSection() {
       </div>
 
       {/* secondary stat strip */}
-      <div style={{ display:'grid', gridTemplateColumns:'repeat(4, 1fr)', gap:20, marginTop:20 }}>
+      <div className="aicdb-stat-strip" style={{ display:'grid', gridTemplateColumns:'repeat(4, 1fr)', gap:20, marginTop:20 }}>
         <StatCard icon="film-slate" color="var(--coral)"        value={PROFILE.thisYear} label="Titles this year" />
-        <StatCard icon="fire"       color="var(--type-short)"   value="47" unit="days" label="Current streak" />
+        <StatCard icon="fire"       color="var(--type-short)"   value="0" unit="days" label="Current streak" />
         <StatCard icon="heart"      color="var(--coral)"        value={FAVORITES.length} label="Favorites" />
-        <StatCard icon="trophy"     color="var(--teal)"         value="Top 1%" label="Reviewer rank" />
+        <StatCard icon="trophy"     color="var(--teal)"         value="—" label="Reviewer rank" />
       </div>
     </section>
   );
 }
 
 // ---- Followed Creators — profile cards for creators the user follows ----
-const FOLLOWED_CREATOR_IDS = ['maya', 'vale', 'theo', 'noor', 'nullframe', 'ito'];
+const FOLLOWED_CREATOR_IDS = [];
 
 function FollowedSeal({ size = 14 }) {
   return <Icon name="seal-check" size={size} color="var(--teal-bright)" weight="fill" />;
@@ -1037,7 +1026,7 @@ function Profile({ embedded = false, onOpen }) {
   return (
     <div style={{ minHeight: embedded ? 'auto' : '100vh' }}>
       {!embedded && <NavBar active="" />}
-      <div style={{ maxWidth:1100, margin:'0 auto', padding:'28px 28px 90px' }}>
+      <div className="aicdb-page" style={{ maxWidth:1100, margin:'0 auto', padding:'28px 28px 90px' }}>
         <TopSection />
         <LinkedCreatorAccounts />
         <LastRated onOpen={onOpen} onSeeAll={() => { setShowAllRatings(true); window.scrollTo(0,0); }} />

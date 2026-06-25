@@ -6,7 +6,7 @@ const PH = {
   sparkles:'sparkle', film:'film-slate', tv:'television-simple', smartphone:'device-mobile',
   clapperboard:'film-slate', 'message-square':'chat-centered-text', 'share-2':'share-network',
   list:'list-bullets', plus:'plus', 'chevron-left':'caret-left', check:'check', clock:'clock',
-  heart:'heart', eye:'eye', fire:'fire', trophy:'trophy', mail:'envelope-simple', x:'x',
+  heart:'heart', eye:'eye', 'eye-slash':'eye-slash', fire:'fire', trophy:'trophy', mail:'envelope-simple', x:'x',
 };
 
 function Icon({ name, size = 20, color = 'currentColor', weight = 'bold', fill, style }) {
@@ -20,7 +20,7 @@ function Icon({ name, size = 20, color = 'currentColor', weight = 'bold', fill, 
 function Logo({ size = 22, onClick }) {
   return (
     <div onClick={onClick} style={{ display:'flex', alignItems:'center', gap: size*0.5, cursor: onClick ? 'pointer' : 'default' }}>
-      <img src={(window.__resources && window.__resources.aicdbMark) || "../../assets/aicdb-mark.png"} width={size*1.55} height={size*1.55}
+      <img src={(window.__resources && window.__resources.aicdbMark) || "/assets/aicdb-mark.png"} width={size*1.55} height={size*1.55}
         style={{ display:'block', filter:'drop-shadow(0 2px 6px rgba(0,0,0,0.5))' }} alt="" />
       <span style={{ font:`800 ${size}px/0.9 var(--font-display)`, letterSpacing:'-0.02em', color:'var(--fg-0)' }}>
         Dream<span style={{ color:'var(--coral)' }}>wall</span>
@@ -93,7 +93,7 @@ function StarRating({ value = 0, interactive = false, onChange, size = 18 }) {
   );
 }
 
-function scoreColor(s) { return s >= 8 ? 'var(--score-high)' : s >= 5 ? 'var(--score-mid)' : 'var(--score-low)'; }
+function scoreColor(s) { return s >= 4 ? 'var(--score-high)' : s >= 2.5 ? 'var(--score-mid)' : 'var(--score-low)'; }
 
 // Score + rating count, e.g. "8.4 · 1.2k". countColor adapts to light/dark contexts.
 function ScoreLine({ film, size = 22, countColor = 'var(--fg-2)', gap = 6 }) {
@@ -147,6 +147,13 @@ function useWatchlist() {
   return ids;
 }
 
+// Subscribe to the shared user-created lists store.
+function useLists() {
+  const [list, setList] = React.useState(window.AICDB_LISTS.get());
+  React.useEffect(() => window.AICDB_LISTS.subscribe(setList), []);
+  return list;
+}
+
 // Subscribe to the shared creator-accounts store.
 function useCreatorAccounts() {
   const [list, setList] = React.useState(window.AICDB_CREATOR_ACCOUNTS.get());
@@ -154,9 +161,16 @@ function useCreatorAccounts() {
   return list;
 }
 
+// Subscribe to the shared auth (logged-in) state.
+function useAuth() {
+  const [on, setOn] = React.useState(window.AICDB_AUTH.isLoggedIn());
+  React.useEffect(() => window.AICDB_AUTH.subscribe(setOn), []);
+  return on;
+}
+
 function ScoreRing({ score = 0, size = 78 }) {
-  const pct = (score/10)*100;
-  const col = score >= 8 ? '#4ecdc4' : score >= 5 ? '#e5b23b' : '#e5484d';
+  const pct = (score/5)*100;
+  const col = score >= 4 ? '#4ecdc4' : score >= 2.5 ? '#e5b23b' : '#e5484d';
   return (
     <div style={{ width:size, height:size, borderRadius:'50%',
       background:`conic-gradient(${col} 0 ${pct}%, var(--rating-track) ${pct}% 100%)`,
@@ -175,4 +189,4 @@ function Avatar({ colors = ['#d85a30','#4ecdc4'], size = 30 }) {
     background:`linear-gradient(135deg, ${colors[0]}, ${colors[1]})` }} />;
 }
 
-Object.assign(window, { Icon, Logo, Button, ContentBadge, StarRating, ScoreRing, Avatar, scoreColor, ScoreLine, ContentRibbon, formatDuration, useWatchlist, useCreatorAccounts, fmtCount });
+Object.assign(window, { Icon, Logo, Button, ContentBadge, StarRating, ScoreRing, Avatar, scoreColor, ScoreLine, ContentRibbon, formatDuration, useWatchlist, useLists, useCreatorAccounts, useAuth, fmtCount });

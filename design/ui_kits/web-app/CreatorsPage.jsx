@@ -268,6 +268,16 @@ function FullWidthFollow({ id }) {
 
 function CreatorsPage({ onCreator, onOpen }) {
   const all = window.AICDB_CREATORS;
+  if (!all.length) {
+    return (
+      <div style={{ maxWidth:1180, margin:'0 auto', padding:'48px 28px 90px' }}>
+        <EmptyState icon="users-three" accent="var(--coral)"
+          title="No creators yet"
+          sub="No one has set up a creator account on Dreamwall yet. Be the first to publish your work."
+          actionLabel="Create a creator account" onAction={() => { window.location.href = 'Dreamwall%20Add%20Creator%20Account.html'; }} />
+      </div>
+    );
+  }
   const featured = all.slice().sort((a, b) => b.followers - a.followers)[0];
   const rest = all.filter(c => c.id !== featured.id);
   return (

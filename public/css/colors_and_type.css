@@ -9,11 +9,11 @@
    Body/UI:  DM Sans          (Google Fonts CDN)
    Data:     JetBrains Mono   (Google Fonts CDN)
 */
-@import url('https://fonts.googleapis.com/css2?family=DM+Sans:opsz,wght@9..40,400;9..40,500;9..40,600;9..40,700&family=JetBrains+Mono:wght@400;500;600&family=Spectral:ital,wght@0,200..800;1,200..800&display=swap');
+@import url('https://fonts.googleapis.com/css2?family=DM+Sans:opsz,wght@9..40,400;9..40,500;9..40,600;9..40,700&family=Outfit:wght@400;500;600;700&family=JetBrains+Mono:wght@400;500;600&display=swap');
 
 :root {
   /* ---------- Brand fonts ---------- */
-  --font-display: 'Spectral', Georgia, 'Times New Roman', serif;
+  --font-display: 'Outfit', system-ui, sans-serif;
   --font-body: 'DM Sans', system-ui, -apple-system, sans-serif;
   --font-mono: 'JetBrains Mono', ui-monospace, 'SF Mono', monospace;
 

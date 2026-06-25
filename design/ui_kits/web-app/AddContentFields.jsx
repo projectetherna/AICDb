@@ -251,14 +251,8 @@ function EpisodeEmbeds({ rows, onChange }) {
 }
 
 // ---- the user's previously-added series (for "add episode to existing series") ----
-const AC_MY_SERIES = [
-  { id:'echoes', name:'Echoes of Tomorrow', g:['#10302d','#4ecdc4'], genres:['Sci-Fi','Drama'], seasons:3, episodes:24,
-    description:'Across three timelines, a family keeps almost meeting itself — an aching, generation-spanning epic rendered entirely in latent space.' },
-  { id:'glass', name:'Glass Orchard', g:['#0f2e2b','#3aa9a1'], genres:['Mystery','Drama'], seasons:1, episodes:8,
-    description:'In a town where the trees grow glass fruit, a botanist investigates why the harvest has started showing faces.' },
-  { id:'quiet', name:'The Quiet Sequence', g:['#241a3a','#7c6fe0'], genres:['Sci-Fi','Thriller'], seasons:4, episodes:32,
-    description:'A research station listens to a signal that only repeats when nobody is awake to hear it.' },
-];
+// Empty by default — the user hasn't added any series yet.
+const AC_MY_SERIES = [];
 
 // ---- Series submission mode: brand-new series vs. add an episode to an existing one ----
 function SeriesModeCard({ active, onClick, icon, label, sub }) {

@@ -173,10 +173,10 @@ function EmbeddedList({ title, films, onOpen }) {
 
 // ---- expandable comment thread (revealed when the comment button is clicked) ----
 const FEED_COMMENTERS = [
-  { name:'Ada Vance',     handle:'@adavance',   av:['#d85a30','#9d8df1'] },
-  { name:'Rui Tanaka',    handle:'@ruit',       av:['#4ecdc4','#6f9ceb'] },
-  { name:'Sloane Park',   handle:'@sloane',     av:['#e8a13b','#d85a30'] },
-  { name:'Devi Anand',    handle:'@devianand',  av:['#9d8df1','#4ecdc4'] },
+  { name:'Viewer',        handle:'',            av:['#5a5e66','#3a3d44'] },
+  { name:'Viewer',        handle:'',            av:['#4ecdc4','#6f9ceb'] },
+  { name:'Viewer',        handle:'',            av:['#e8a13b','#d85a30'] },
+  { name:'Viewer',        handle:'',            av:['#9d8df1','#4ecdc4'] },
 ];
 const FEED_COMMENT_TEXT = [
   'This looks unreal — the lighting in the second act especially.',
@@ -208,11 +208,11 @@ function CommentThread({ post }) {
             background:'var(--bg-2)', border:'1px solid ' + (focus ? 'var(--border-accent)' : 'var(--border-subtle)'),
             borderRadius:'var(--radius-lg)', padding:'8px 8px 8px 14px', transition:'border-color var(--dur-fast)' }}>
             <input value={draft} onChange={e => setDraft(e.target.value)}
-              onFocus={() => setFocus(true)} onBlur={() => setFocus(false)}
+              onFocus={() => { if (!window.AICDB_REQUIRE_AUTH('Sign in to join the conversation.')) { document.activeElement && document.activeElement.blur(); return; } setFocus(true); }} onBlur={() => setFocus(false)}
               placeholder="Add a comment…"
               style={{ flex:1, background:'none', border:'none', outline:'none', color:'var(--fg-0)',
                 font:'var(--text-body-sm)' }} />
-            <button onClick={() => setDraft('')} disabled={!draft.trim()}
+            <button onClick={() => { if (!window.AICDB_REQUIRE_AUTH('Sign in to join the conversation.')) return; setDraft(''); }} disabled={!draft.trim()}
               style={{ display:'inline-flex', alignItems:'center', justifyContent:'center', width:30, height:30, flex:'none',
                 borderRadius:'50%', border:'none', cursor: draft.trim() ? 'pointer' : 'default',
                 background: draft.trim() ? 'var(--coral)' : 'var(--bg-3)', transition:'background var(--dur-fast)' }}>
@@ -313,9 +313,7 @@ function PostCard({ post, onOpen, onCreator }) {
 
 // ---- composer: identities the signed-in user can post as ----
 const POST_AS = [
-  { id:'ada',  name:'Ada Vance',           handle:'@adavance',     av:['#d85a30','#9d8df1'], role:'Personal' },
-  { id:'vale', name:'The Vale Collective',  handle:'@thevale',      av:['#4ecdc4','#6f9ceb'], role:'Creator' },
-  { id:'maya', name:'Maya Okonkwo',         handle:'@mayaokonkwo',  av:['#d85a30','#9d8df1'], role:'Creator' },
+  { id:'you',  name:'You', handle:'', av:['#5a5e66','#3a3d44'], role:'Personal' },
 ];
 
 // identity (creator account) selector at the top of the composer
@@ -433,7 +431,7 @@ function ComposerTool({ icon, label, active, onClick }) {
 
 // ---- composer (creator-account version) ----
 function Composer() {
-  const [identity, setIdentity] = React.useState(POST_AS[1]);
+  const [identity, setIdentity] = React.useState(POST_AS[0]);
   const [val, setVal] = React.useState('');
   const [mentionOpen, setMentionOpen] = React.useState(false);
   const [mention, setMention] = React.useState(null);
@@ -512,7 +510,7 @@ function Composer() {
               <ComposerTool icon="at" label="Mention content" active={mentionOpen || !!mention}
                 onClick={() => { if (mention) { setMention(null); } else { setMentionOpen(o => !o); } }} />
             </div>
-            <Button variant="primary" size="sm">Post</Button>
+            <Button variant="primary" size="sm" onClick={() => { window.AICDB_REQUIRE_AUTH('Sign in to post to the community.'); }}>Post</Button>
           </div>
         </div>
       </div>
@@ -554,7 +552,7 @@ function FeedSidebar({ onCreator, onOpen }) {
       <div style={{ background:'var(--bg-1)', borderRadius:'var(--radius-lg)', borderWidth:1, borderStyle:'solid',
         borderColor:'var(--border-subtle)', padding:'6px 0' }}>
         <div style={{ font:'600 16px/1 var(--font-display)', color:'var(--fg-0)', padding:'14px 18px 10px' }}>Who to follow</div>
-        {suggested.map(c => (
+        {suggested.length ? suggested.map(c => (
           <div key={c.id} style={{ display:'flex', alignItems:'center', gap:11, padding:'10px 18px' }}>
             <div onClick={() => onCreator && onCreator(c.name)} style={{ cursor:'pointer', flex:'none' }}>
               <Avatar size={40} colors={c.av} />
@@ -568,13 +566,15 @@ function FeedSidebar({ onCreator, onOpen }) {
             </div>
             <FollowPill id={c.id} size="sm" />
           </div>
-        ))}
+        )) : (
+          <div style={{ padding:'4px 18px 16px', font:'var(--text-body-sm)', color:'var(--fg-3)' }}>No suggestions yet — check back as creators join.</div>
+        )}
       </div>
 
       <div style={{ background:'var(--bg-1)', borderRadius:'var(--radius-lg)', borderWidth:1, borderStyle:'solid',
         borderColor:'var(--border-subtle)', padding:'6px 0' }}>
         <div style={{ font:'600 16px/1 var(--font-display)', color:'var(--fg-0)', padding:'14px 18px 10px' }}>Trending now</div>
-        {trending.map((f, i) => (
+        {trending.length ? trending.map((f, i) => (
           <div key={f.id} onClick={() => onOpen && onOpen(f)}
             style={{ display:'flex', alignItems:'center', gap:12, padding:'10px 18px', cursor:'pointer' }}
             onMouseEnter={e => e.currentTarget.style.background = 'var(--bg-2)'}
@@ -588,7 +588,9 @@ function FeedSidebar({ onCreator, onOpen }) {
             </div>
             <span style={{ font:'700 14px/1 var(--font-mono)', color:scoreColor(f.score), flex:'none' }}>{f.score.toFixed(1)}</span>
           </div>
-        ))}
+        )) : (
+          <div style={{ padding:'4px 18px 16px', font:'var(--text-body-sm)', color:'var(--fg-3)' }}>Nothing trending yet.</div>
+        )}
       </div>
     </aside>
   );
@@ -597,16 +599,7 @@ function FeedSidebar({ onCreator, onOpen }) {
 function Feed({ onOpen, onCreator, onNav }) {
   const posts = window.AICDB_FEED || [];
   const [creatorMode, setCreatorMode] = React.useState(true);
-  if (!posts.length) {
-    return (
-      <div style={{ maxWidth:640, margin:'0 auto', padding:'40px 24px' }}>
-        <EmptyState icon="users-three" accent="var(--teal)"
-          title="Your feed is quiet"
-          sub="Follow some creators to see their updates, releases, and ratings here as they happen."
-          actionLabel="Discover creators" onAction={() => onNav && onNav('Creators')} />
-      </div>
-    );
-  }
+  const hasPosts = posts.length > 0;
   return (
     <div style={{ maxWidth:1000, margin:'0 auto', padding:'0 24px', display:'flex', gap:32, alignItems:'flex-start' }}>
       {/* main column */}
@@ -633,10 +626,19 @@ function Feed({ onOpen, onCreator, onNav }) {
           </div>
         </div>
         {creatorMode ? <Composer /> : <ComposerLocked onNav={onNav} />}
-        {posts.map(p => <PostCard key={p.id} post={p} onOpen={onOpen} onCreator={onCreator} />)}
-        <div style={{ padding:'30px 0', textAlign:'center', font:'var(--text-body-sm)', color:'var(--fg-2)' }}>
-          You're all caught up. Follow more creators to see more.
-        </div>
+        {hasPosts ? (
+          <>
+            {posts.map(p => <PostCard key={p.id} post={p} onOpen={onOpen} onCreator={onCreator} />)}
+            <div style={{ padding:'30px 0', textAlign:'center', font:'var(--text-body-sm)', color:'var(--fg-2)' }}>
+              You're all caught up. Follow more creators to see more.
+            </div>
+          </>
+        ) : (
+          <EmptyState icon="users-three" accent="var(--teal)"
+            title="You’re not following anyone yet"
+            sub="When you follow creators, their releases, ratings, and updates will stream in right here."
+            actionLabel="Discover creators" onAction={() => onNav && onNav('Creators')} />
+        )}
       </div>
       <FeedSidebar onCreator={onCreator} onOpen={onOpen} />
     </div>

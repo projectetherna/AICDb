@@ -6,152 +6,497 @@ window.AICDB_TYPES = {
   vertical: { label: 'Vertical', color: 'var(--type-vertical)', ghost: 'var(--type-vertical-ghost)', text: 'var(--type-vertical-text)', icon: 'smartphone' },
 };
 
-window.AICDB_FILMS = [
-  { id:'synthetic-dreams', title:'Synthetic Dreams', type:'movie', year:2025, runtime:'142 min', score:8.7, stars:4.5, ratings:'24.1k',
-    g:['#3a2118','#d85a30'], genres:['Sci-Fi','Neo-Noir'], technique:'Diffusion',
-    creator:'Maya Okonkwo', synopsis:'A memory-broker in a rain-slicked megacity discovers the dreams she sells are bleeding into a shared reality no one can switch off.' },
-  { id:'echoes-of-tomorrow', title:'Echoes of Tomorrow', type:'series', year:2024, runtime:'3 seasons', score:9.1, stars:5, ratings:'58.3k',
-    g:['#10302d','#4ecdc4'], genres:['Sci-Fi','Drama'], technique:'Hybrid Live-Action',
-    creator:'The Vale Collective', synopsis:'Across three timelines, a family keeps almost meeting itself. An aching, generation-spanning epic rendered entirely in latent space.' },
-  { id:'paper-suns', title:'Paper Suns', type:'short', year:2025, runtime:'11 min', score:7.9, stars:4, ratings:'6.2k',
-    g:['#332a12','#e5b23b'], genres:['Animation'], technique:'Frame Interp.',
-    creator:'Ito Render Lab', synopsis:'A folded-paper world unfurls at dawn. A wordless miniature about the things light touches first.' },
-  { id:'sixty-seconds-down', title:'Sixty Seconds Down', type:'vertical', year:2025, runtime:'1 min', score:7.2, stars:3.5, ratings:'12.8k',
-    g:['#241a3a','#9d8df1'], genres:['Thriller'], technique:'Text-to-Video',
-    creator:'@nullframe', synopsis:'An elevator. A stranger. Sixty floors. Shot for the phone, built for the scroll.' },
-  { id:'the-long-render', title:'The Long Render', type:'movie', year:2024, runtime:'128 min', score:8.3, stars:4, ratings:'19.4k',
-    g:['#2a1410','#c44a2a'], genres:['Drama'], technique:'Diffusion',
-    creator:'Bashir Halabi', synopsis:'A reclusive director spends a decade generating a single perfect frame — and loses everyone who waited for it.' },
-  { id:'glass-orchard', title:'Glass Orchard', type:'series', year:2025, runtime:'1 season', score:8.8, stars:4.5, ratings:'31.0k',
-    g:['#0f2e2b','#3aa9a1'], genres:['Mystery','Drama'], technique:'Hybrid Live-Action',
-    creator:'Noor Farah', synopsis:'In a town where the trees grow glass fruit, a botanist investigates why the harvest has started showing faces.' },
-  { id:'redshift', title:'Redshift', type:'movie', year:2025, runtime:'117 min', score:6.4, stars:3, ratings:'9.7k',
-    g:['#341512','#e5484d'], genres:['Sci-Fi','Action'], technique:'Diffusion',
-    creator:'Cosmic Pixel Co.', synopsis:'A salvage crew chases a derelict generation-ship toward a star that is moving away faster than light should allow.' },
-  { id:'minute-of-static', title:'Minute of Static', type:'vertical', year:2024, runtime:'1 min', score:7.6, stars:4, ratings:'15.2k',
-    g:['#1e1a36','#7c6fe0'], genres:['Horror'], technique:'Text-to-Video',
-    creator:'@deadair', synopsis:'Every night at 3:33 the channel cuts to static — and something on the other side is learning to look back.' },
-];
+window.AICDB_FILMS = [];
+// Films are added by admins through the admin panel. Catalog starts empty.
 
-// Watchlist store — shared across pages, persisted to localStorage.
+// Quick lookup by id
+window.AICDB_FILM_BY_ID = Object.fromEntries(window.AICDB_FILMS.map(f => [f.id, f]));
+
+// Watchlist store — DB-backed, owner-scoped via Supabase RLS.
+// Synchronous reads (get/has) reflect the last-fetched DB state.
+// toggle() does an optimistic local update then persists to the DB.
+//
+// KEY DESIGN: the store only reloads from the DB on genuine login/logout
+// transitions — NOT on every auth _notify() call (which fires on profile
+// updates too and would race with in-flight INSERTs to revert optimistic UI).
+//
+// STORAGE: reads/writes use the `list_items` table keyed by the user's system
+// Watchlist list (resolved once via get_or_create_watchlist_list() RPC).
+// The old `watchlist` table is kept intact for verification; it is no longer
+// the source of truth.
 window.AICDB_WATCHLIST = (function () {
-  const KEY = 'aicdb_watchlist';
-  let ids;
-  try { ids = JSON.parse(localStorage.getItem(KEY) || '["glass-orchard","redshift"]'); }
-  catch (e) { ids = ['glass-orchard', 'redshift']; }
+  let ids           = [];    // content_id strings currently in the watchlist
+  let loadPromise   = null;  // deduplicates concurrent load() calls; null when idle
+  let pendingWrites = 0;     // number of in-flight INSERT/DELETE operations
+  let lastUserId    = null;  // tracks which user's data is loaded (skip re-load for same user)
+  let listId        = null;  // uuid of the user's system Watchlist list row
   const subs = new Set();
-  function emit() {
-    try { localStorage.setItem(KEY, JSON.stringify(ids)); } catch (e) {}
-    subs.forEach(fn => fn(ids));
-  }
-  return {
-    get: () => ids,
-    has: (id) => ids.includes(id),
-    toggle: (id) => { ids = ids.includes(id) ? ids.filter(x => x !== id) : [id, ...ids]; emit(); },
-    subscribe: (fn) => { subs.add(fn); return () => subs.delete(fn); },
-  };
-})();
 
-// Creator accounts the (signed-in) user has created. Empty by default — the
-// user starts with no creator account. Shared across pages via localStorage.
-window.AICDB_CREATOR_ACCOUNTS = (function () {
-  const KEY = 'aicdb_creator_accounts';
-  let list;
-  try { list = JSON.parse(localStorage.getItem(KEY) || '[]'); }
-  catch (e) { list = []; }
-  if (!Array.isArray(list)) list = [];
-  const subs = new Set();
-  function emit() {
-    try { localStorage.setItem(KEY, JSON.stringify(list)); } catch (e) {}
-    subs.forEach(fn => fn(list));
+  function emit() { subs.forEach(fn => fn(ids)); }
+
+  // Resolve (and cache) the system Watchlist list id for the current user.
+  // Creates the list row on first call via the SECURITY DEFINER RPC.
+  async function resolveListId(sb) {
+    if (listId) return listId;
+    const { data, error } = await sb.rpc('get_or_create_watchlist_list');
+    if (error) throw new Error('[Watchlist] resolveListId: ' + error.message);
+    listId = data;
+    return listId;
   }
-  return {
-    get: () => list,
-    count: () => list.length,
-    byId: (id) => list.find(a => a.id === id) || null,
-    add: (acct) => {
-      const id = acct.id || ('ca-' + Date.now().toString(36));
-      const rec = { id, showOnProfile: true, ...acct };
-      list = [...list, rec];
+
+  // Load from DB. Deduplicates: concurrent calls share the same in-flight promise.
+  // IMPORTANT: if writes are in flight we skip stamping ids — the optimistic local
+  // state is more current than whatever the SELECT will return.
+  function load() {
+    if (loadPromise) return loadPromise;
+    loadPromise = (async () => {
+      try {
+        const sb      = await window.AICDB_AUTH.getClient();
+        const session = await window.AICDB_AUTH.getSession();
+        if (!session) { ids = []; listId = null; lastUserId = null; emit(); return; }
+        const uid = session.user.id;
+        const lid = await resolveListId(sb);
+        const { data, error } = await sb
+          .from('list_items')
+          .select('content_id')
+          .eq('list_id', lid);
+        if (error) { console.warn('[Watchlist] load error:', error.message, error.code); return; }
+        // Only stamp ids when no writes are in flight. If a toggle() is pending
+        // the optimistic local state is authoritative; overwriting it with a stale
+        // SELECT is exactly the revert bug we're fixing.
+        if (pendingWrites === 0) {
+          ids = (data || []).map(r => r.content_id);
+          lastUserId = uid;
+          emit();
+        } else {
+          // Store the uid so the next write-free load won't re-fetch unnecessarily.
+          lastUserId = uid;
+        }
+      } catch (e) {
+        console.warn('[Watchlist] load exception:', e.message);
+      } finally {
+        loadPromise = null;
+      }
+    })();
+    return loadPromise;
+  }
+
+  // Optimistic toggle: update local state immediately, then persist to DB.
+  async function toggle(contentId) {
+    const wasIn = ids.includes(contentId);
+
+    // Optimistic update — renders immediately
+    ids = wasIn ? ids.filter(x => x !== contentId) : [contentId, ...ids];
+    emit();
+
+    pendingWrites++;
+    try {
+      const sb      = await window.AICDB_AUTH.getClient();
+      const session = await window.AICDB_AUTH.getSession();
+      if (!session) throw new Error('Not signed in');
+      const lid = await resolveListId(sb);
+
+      let error;
+      if (wasIn) {
+        ({ error } = await sb
+          .from('list_items')
+          .delete()
+          .eq('list_id',   lid)
+          .eq('content_id', contentId));
+      } else {
+        ({ error } = await sb
+          .from('list_items')
+          .insert({ list_id: lid, content_id: contentId }));
+        // 23505 = unique_violation: row already exists — optimistic state is correct
+        if (error && error.code === '23505') error = null;
+      }
+      if (error) throw error;
+      // Success — optimistic ids is already correct, nothing more to do.
+    } catch (e) {
+      console.warn('[Watchlist] toggle error:', e.message || JSON.stringify(e));
+      // Roll back to pre-toggle state and re-fetch from DB to get truth
+      ids = wasIn ? [contentId, ...ids] : ids.filter(x => x !== contentId);
       emit();
-      return rec;
-    },
-    update: (id, patch) => { list = list.map(a => a.id === id ? { ...a, ...patch } : a); emit(); },
-    remove: (id) => { list = list.filter(a => a.id !== id); emit(); },
+      loadPromise = null; // force a fresh load even if one was cached
+      load();
+    } finally {
+      pendingWrites--;
+    }
+  }
+
+  // Auth subscription: reload when the signed-in user changes (login / logout).
+  // Guarded by lastUserId so repeated _notify() calls from auth.js (e.g. after a
+  // profile save) do NOT trigger a re-load that races with in-flight writes.
+  setTimeout(() => {
+    if (!window.AICDB_AUTH || !window.AICDB_AUTH.subscribe) return;
+    window.AICDB_AUTH.subscribe(async () => {
+      try {
+        const session = await window.AICDB_AUTH.getSession();
+        const uid = session ? session.user.id : null;
+        if (uid === lastUserId) return; // same user, nothing changed
+        listId     = null;              // clear cached list id on user-change
+        lastUserId = uid;               // update eagerly to block duplicate loads
+        loadPromise = null;             // always do a fresh fetch on user-change
+        load();
+      } catch (e) { /* swallow — next subscribe call will retry */ }
+    });
+    load(); // initial load for a session already active on page load
+  }, 0);
+
+  return {
+    get:       () => ids,
+    has:       (id) => ids.includes(id),
+    toggle,
+    load,
     subscribe: (fn) => { subs.add(fn); return () => subs.delete(fn); },
   };
 })();
 
-// the signed-in user's main (viewer) account — shown atop the creator-setup page
-window.AICDB_MAIN_ACCOUNT = { name: 'Ada Vance', handle: '@adavance', avatar: ['#d85a30', '#9d8df1'], joined: 'Joined March 2024' };
+// User-created lists store — DB-backed, owner-scoped via Supabase RLS.
+// Manages non-system lists only (excludes the system watchlist row).
+// Same subscribe/emit + optimistic update + rollback pattern as AICDB_WATCHLIST.
+window.AICDB_LISTS = (function () {
+  let lists         = [];
+  let loadPromise   = null;
+  let lastUserId    = null;
+  const subs = new Set();
+
+  function emit() { subs.forEach(fn => fn(lists)); }
+
+  function normalizeRow(row) {
+    const count = row.list_items?.[0]?.count ?? 0;
+    const { list_items, ...rest } = row;
+    return { ...rest, count, title: rest.name };
+  }
+
+  function load() {
+    if (loadPromise) return loadPromise;
+    loadPromise = (async () => {
+      try {
+        const sb      = await window.AICDB_AUTH.getClient();
+        const session = await window.AICDB_AUTH.getSession();
+        if (!session) { lists = []; lastUserId = null; emit(); return; }
+        const uid = session.user.id;
+        const { data, error } = await sb
+          .from('lists')
+          .select('*, list_items(count)')
+          .eq('user_id', uid)
+          .eq('is_system', false)
+          .order('created_at', { ascending: false });
+        if (error) { console.warn('[Lists] load error:', error.message, error.code); return; }
+        lists = (data || []).map(normalizeRow);
+        lastUserId = uid;
+        emit();
+      } catch (e) {
+        console.warn('[Lists] load exception:', e.message);
+      } finally {
+        loadPromise = null;
+      }
+    })();
+    return loadPromise;
+  }
+
+  async function create(name, visibility = 'public') {
+    const trimmed = String(name || '').trim();
+    if (!trimmed) return null;
+    const tempId = 'temp-' + Date.now();
+    const optimistic = {
+      id: tempId, name: trimmed, title: trimmed, visibility,
+      count: 0, is_system: false, created_at: new Date().toISOString(),
+    };
+    lists = [optimistic, ...lists];
+    emit();
+    try {
+      const sb      = await window.AICDB_AUTH.getClient();
+      const session = await window.AICDB_AUTH.getSession();
+      if (!session) throw new Error('Not signed in');
+      const { data, error } = await sb
+        .from('lists')
+        .insert({ user_id: session.user.id, name: trimmed, visibility, is_system: false })
+        .select()
+        .single();
+      if (error) throw error;
+      lists = lists.map(l => l.id === tempId
+        ? normalizeRow({ ...data, list_items: [{ count: 0 }] })
+        : l);
+      emit();
+      return lists.find(l => l.id === data.id);
+    } catch (e) {
+      console.warn('[Lists] create error:', e.message || JSON.stringify(e));
+      lists = lists.filter(l => l.id !== tempId);
+      emit();
+      throw e;
+    }
+  }
+
+  async function rename(id, name) {
+    const trimmed = String(name || '').trim();
+    if (!trimmed) return;
+    const prev = lists.find(l => l.id === id);
+    if (!prev) return;
+    lists = lists.map(l => l.id === id ? { ...l, name: trimmed, title: trimmed } : l);
+    emit();
+    try {
+      const sb = await window.AICDB_AUTH.getClient();
+      const { error } = await sb.from('lists').update({ name: trimmed }).eq('id', id);
+      if (error) throw error;
+    } catch (e) {
+      console.warn('[Lists] rename error:', e.message || JSON.stringify(e));
+      lists = lists.map(l => l.id === id ? prev : l);
+      emit();
+    }
+  }
+
+  async function remove(id) {
+    const prev = lists;
+    lists = lists.filter(l => l.id !== id);
+    emit();
+    try {
+      const sb = await window.AICDB_AUTH.getClient();
+      const { error } = await sb.from('lists').delete().eq('id', id);
+      if (error) throw error;
+    } catch (e) {
+      console.warn('[Lists] remove error:', e.message || JSON.stringify(e));
+      lists = prev;
+      emit();
+    }
+  }
+
+  async function setVisibility(id, visibility) {
+    console.log('VIS: setVisibility called', { id, requestedVisibility: visibility });
+    const prev = lists.find(l => l.id === id);
+    if (!prev) return;
+    lists = lists.map(l => l.id === id ? { ...l, visibility } : l);
+    emit();
+    try {
+      const sb = await window.AICDB_AUTH.getClient();
+      const { data, error } = await sb.from('lists').update({ visibility }).eq('id', id);
+      console.log('VIS: update result', { data, error });
+      if (error) throw error;
+    } catch (e) {
+      console.log('VIS: rolled back', { error: e });
+      console.warn('[Lists] setVisibility error:', e.message || JSON.stringify(e));
+      lists = lists.map(l => l.id === id ? prev : l);
+      emit();
+    }
+  }
+
+  // Return ids of the user's non-system lists that contain contentId.
+  async function getMembership(contentId) {
+    try {
+      const sb      = await window.AICDB_AUTH.getClient();
+      const session = await window.AICDB_AUTH.getSession();
+      if (!session) return [];
+      let listIds = lists
+        .filter(l => l.id && !String(l.id).startsWith('temp-'))
+        .map(l => l.id);
+      if (!listIds.length) {
+        const { data: owned, error: ownedErr } = await sb
+          .from('lists')
+          .select('id')
+          .eq('user_id', session.user.id)
+          .eq('is_system', false);
+        if (ownedErr) { console.warn('[Lists] getMembership lists error:', ownedErr.message); return []; }
+        listIds = (owned || []).map(r => r.id);
+      }
+      if (!listIds.length) return [];
+      const { data, error } = await sb
+        .from('list_items')
+        .select('list_id')
+        .eq('content_id', contentId)
+        .in('list_id', listIds);
+      if (error) { console.warn('[Lists] getMembership error:', error.message); return []; }
+      return (data || []).map(r => r.list_id);
+    } catch (e) {
+      console.warn('[Lists] getMembership exception:', e.message);
+      return [];
+    }
+  }
+
+  // Add or remove contentId from a user list; updates that list's count optimistically.
+  async function toggleItem(listId, contentId) {
+    const target = lists.find(l => l.id === listId);
+    if (!target) throw new Error('List not found');
+    const prevCount = target.count;
+
+    const sb      = await window.AICDB_AUTH.getClient();
+    const session = await window.AICDB_AUTH.getSession();
+    if (!session) throw new Error('Not signed in');
+
+    const { data: existing, error: selErr } = await sb
+      .from('list_items')
+      .select('id')
+      .eq('list_id', listId)
+      .eq('content_id', contentId)
+      .maybeSingle();
+    if (selErr) throw selErr;
+    const wasIn = !!existing;
+
+    lists = lists.map(l => l.id === listId
+      ? { ...l, count: wasIn ? Math.max(0, l.count - 1) : l.count + 1 }
+      : l);
+    emit();
+
+    try {
+      let error;
+      if (wasIn) {
+        ({ error } = await sb
+          .from('list_items')
+          .delete()
+          .eq('list_id', listId)
+          .eq('content_id', contentId));
+      } else {
+        ({ error } = await sb
+          .from('list_items')
+          .insert({ list_id: listId, content_id: contentId }));
+        if (error && error.code === '23505') error = null;
+      }
+      if (error) throw error;
+    } catch (e) {
+      console.warn('[Lists] toggleItem error:', e.message || JSON.stringify(e));
+      lists = lists.map(l => l.id === listId ? { ...l, count: prevCount } : l);
+      emit();
+      throw e;
+    }
+  }
+
+  // Return content_ids for a list, ordered by added_at (newest first).
+  async function getItems(listId) {
+    try {
+      const sb = await window.AICDB_AUTH.getClient();
+      const { data, error } = await sb
+        .from('list_items')
+        .select('content_id')
+        .eq('list_id', listId)
+        .order('added_at', { ascending: false });
+      if (error) { console.warn('[Lists] getItems error:', error.message); return []; }
+      return (data || []).map(r => r.content_id);
+    } catch (e) {
+      console.warn('[Lists] getItems exception:', e.message);
+      return [];
+    }
+  }
+
+  async function recordView(listId) {
+    try {
+      const sb = await window.AICDB_AUTH.getClient();
+      const session = await window.AICDB_AUTH.getSession();
+      if (!session) return { error: 'Not signed in' };
+      const userId = session.user.id;
+      const { error } = await sb.from('list_views').insert({ list_id: listId, viewer_user_id: userId });
+      if (error) {
+        if (error.code === '23505') return { viewed: false };
+        return { error };
+      }
+      return { viewed: true };
+    } catch (e) {
+      return { error: e.message };
+    }
+  }
+
+  async function toggleFavorite(listId) {
+    try {
+      const sb = await window.AICDB_AUTH.getClient();
+      const session = await window.AICDB_AUTH.getSession();
+      if (!session) return { error: 'Not signed in' };
+      const userId = session.user.id;
+      const { data: existing } = await sb.from('list_favorites').select('list_id').eq('user_id', userId).eq('list_id', listId).maybeSingle();
+      if (existing) {
+        const { error } = await sb.from('list_favorites').delete().eq('user_id', userId).eq('list_id', listId);
+        if (error) return { error };
+        return { favorited: false };
+      }
+      const { error } = await sb.from('list_favorites').insert({ user_id: userId, list_id: listId });
+      if (error) return { error };
+      return { favorited: true };
+    } catch (e) {
+      return { error: e.message };
+    }
+  }
+
+  async function loadFavoritedLists() {
+    try {
+      const sb = await window.AICDB_AUTH.getClient();
+      const session = await window.AICDB_AUTH.getSession();
+      if (!session) return [];
+      const { data } = await sb.from('list_favorites')
+        .select('list_id, lists(id, name, view_count, user_id)')
+        .eq('user_id', session.user.id)
+        .order('created_at', { ascending: false });
+      return (data || []).map(r => r.lists).filter(Boolean);
+    } catch (e) {
+      return [];
+    }
+  }
+
+  setTimeout(() => {
+    if (!window.AICDB_AUTH || !window.AICDB_AUTH.subscribe) return;
+    window.AICDB_AUTH.subscribe(async () => {
+      try {
+        const session = await window.AICDB_AUTH.getSession();
+        const uid = session ? session.user.id : null;
+        if (uid === lastUserId) return;
+        lastUserId = uid;
+        loadPromise = null;
+        load();
+      } catch (e) { /* swallow — next subscribe call will retry */ }
+    });
+    load();
+  }, 0);
+
+  return {
+    get:            () => lists,
+    load,
+    create,
+    rename,
+    remove,
+    setVisibility,
+    getMembership,
+    toggleItem,
+    getItems,
+    recordView,
+    toggleFavorite,
+    loadFavoritedLists,
+    subscribe: (fn) => { subs.add(fn); return () => subs.delete(fn); },
+  };
+})();
+
+// the signed-in user's main (viewer) account — populated by auth.js once the
+// session resolves; null until then so components never show stale mock data.
+window.AICDB_MAIN_ACCOUNT = null;
 
 // Signed-in viewer stats. `loggedTitles` gates power-user features (e.g. the
 // uniqueness/Sıradışılık rating, which needs 1000+ logged titles to access).
 window.AICDB_VIEWER = { loggedTitles: 1240 };
 window.AICDB_UNIQUENESS_MIN_LOGGED = 1000;
 
-// Per-title detail metadata — quotes, series counts, crew, production, "extraordinary" meter.
-window.AICDB_DETAILS = {
-  'synthetic-dreams': {
-    quote: 'Every dream I sell is a door someone forgets to close.',
-    extraordinary: 78, budget: '$2.4M', duration: '14 months', contributors: 38,
-    models: ['Diffusion v6', 'VoxSynth 2', 'ToneField'],
-    crew: [['Direction','Maya Okonkwo'],['Prompt Architect','Yuki Tanaka'],['Model Supervisor','Dapo Okafor'],['Sound Design','Lena Sørensen'],['Voice Synthesis','Atlas Voices'],['Edit & Compositing','Reva Mehta']],
-  },
-  'echoes-of-tomorrow': {
-    seasons: 3, episodes: 24,
-    quote: 'We keep almost meeting ourselves — and almost is its own kind of forever.',
-    extraordinary: 91, budget: '$11.8M', duration: '2 years', contributors: 84,
-    models: ['Hybrid-Render X', 'VoxSynth 3', 'MotionField Pro', 'NeRF-Live'],
-    crew: [['Showrunner','The Vale Collective'],['Prompt Architect','Iris Calloway'],['Model Supervisor','Theo Vance'],['Sound Design','Marisol Reyes'],['Voice Cast','Live + Synth Ensemble'],['Continuity AI','Juno Park']],
-  },
-  'paper-suns': {
-    quote: 'The light always touches the smallest things first.',
-    extraordinary: 64, budget: '$180k', duration: '5 months', contributors: 9,
-    models: ['FrameInterp 4', 'PaperGAN'],
-    crew: [['Direction','Ito Render Lab'],['Animation Lead','Kenji Aoyama'],['Prompt Architect','Mira Sato'],['Sound Design','Field & Fold'],['Score','Hana Vermeer']],
-  },
-  'sixty-seconds-down': {
-    quote: 'Sixty floors. One of us is not getting off.',
-    extraordinary: 52, budget: '$45k', duration: '6 weeks', contributors: 5,
-    models: ['Text-to-Video 3', 'VoxSynth 2'],
-    crew: [['Direction','@nullframe'],['Prompt Architect','D. Reyes'],['Sound Design','Nullroom'],['Voice Synthesis','Atlas Voices']],
-  },
-  'the-long-render': {
-    quote: 'A perfect frame costs you every imperfect year.',
-    extraordinary: 83, budget: '$3.1M', duration: '4 years', contributors: 27,
-    models: ['Diffusion v6', 'ToneField', 'GrainEngine'],
-    crew: [['Direction','Bashir Halabi'],['Prompt Architect','Selin Aydın'],['Model Supervisor','M. Costa'],['Sound Design','Halabi Audio'],['Edit & Compositing','Noa Frank']],
-  },
-  'glass-orchard': {
-    seasons: 1, episodes: 8,
-    quote: 'The fruit grows faces because the orchard remembers.',
-    extraordinary: 74, budget: '$6.4M', duration: '18 months', contributors: 52,
-    models: ['Hybrid-Render X', 'VoxSynth 3', 'BotanyGAN'],
-    crew: [['Showrunner','Noor Farah'],['Prompt Architect','Eli Brandt'],['Model Supervisor','S. Aziz'],['Sound Design','Orchard Foley'],['Voice Cast','Live Ensemble'],['Edit & Compositing','Dana Wu']],
-  },
-  'redshift': {
-    quote: 'The star is running. So are we.',
-    extraordinary: 47, budget: '$2.0M', duration: '11 months', contributors: 31,
-    models: ['Diffusion v6', 'MotionField Pro'],
-    crew: [['Direction','Cosmic Pixel Co.'],['Prompt Architect','V. Sokolov'],['Model Supervisor','R. Okonjo'],['Sound Design','Pixel Audio'],['Voice Synthesis','Atlas Voices']],
-  },
-  'minute-of-static': {
-    quote: 'At 3:33 the static learns your face.',
-    extraordinary: 69, budget: '$30k', duration: '4 weeks', contributors: 4,
-    models: ['Text-to-Video 3', 'GrainEngine'],
-    crew: [['Direction','@deadair'],['Prompt Architect','K. Mraz'],['Sound Design','Dead Air Foley']],
-  },
-};
+// Per-title detail metadata — populated dynamically when content is added via admin panel.
+window.AICDB_DETAILS = {};
 
 // Derived community stats for a title (from its rating count).
 window.AICDB_STAT = function (film) {
   const n = parseFloat(String(film.ratings)) * (String(film.ratings).includes('k') ? 1000 : 1);
-  return { watched: n * 6.2, favorited: n * 0.42, watchlisted: n * 0.85, rated: n, completion: 0.78 + (film.score - 7) * 0.03 };
+  return { watched: n * 6.2, favorited: n * 0.42, watchlisted: n * 0.85, rated: n, completion: 0.78 + (film.score - 3.5) * 0.06 };
 };
 
-window.AICDB_REVIEWS = [
-  { user:'Lena R.', av:['#d85a30','#e5b23b'], stars:5, when:'2 days ago', likes:142, body:"The diffusion grain isn't a limitation here — it's the whole point. Every frame looks like a half-remembered dream. Stunning." },
-  { user:'theframekeeper', av:['#4ecdc4','#6f9ceb'], stars:4, when:'1 week ago', likes:88, body:"Ambitious to a fault. The middle act loses the plot in its own latent space, but that final render is worth the price of admission." },
-  { user:'Marco V.', av:['#9d8df1','#d85a30'], stars:4.5, when:'2 weeks ago', likes:54, body:"Proof that 'AI-generated' and 'has a soul' aren't mutually exclusive. I've rewatched the rooftop sequence five times." },
-];
+// Page URL map — used by NavBar, AuthPrompt, and App to navigate to auth pages.
+window.AICDB_PAGE = (function () {
+  const MAP = {
+    login:   '/login.html',
+    signup:  '/signup.html',
+    profile: '/profile.html',
+    admin:   '/admin.html',
+    creator: '/creator.html',
+  };
+  return function (key) {
+    return MAP[key] || ('/' + key + '.html');
+  };
+})();
+
+// Dispatch a require-auth event so AuthPromptHost shows the sign-in modal.
+// Returns false when the user is not logged in (caller should bail out).
+window.AICDB_REQUIRE_AUTH = function (message) {
+  if (window.AICDB_AUTH && window.AICDB_AUTH.isLoggedIn()) return true;
+  window.dispatchEvent(new CustomEvent('aicdb:require-auth', { detail: { message } }));
+  return false;
+};

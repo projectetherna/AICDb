@@ -7,7 +7,7 @@ function WatchlistButton({ film, size = 30 }) {
   const [hover, setHover] = React.useState(false);
   return (
     <button
-      onClick={(e) => { e.stopPropagation(); window.AICDB_WATCHLIST.toggle(film.id); }}
+      onClick={(e) => { e.stopPropagation(); if (!window.AICDB_REQUIRE_AUTH('Sign in to build your watchlist.')) return; window.AICDB_WATCHLIST.toggle(film.id); }}
       onMouseEnter={() => setHover(true)} onMouseLeave={() => setHover(false)}
       title={inList ? 'In watchlist' : 'Add to watchlist'}
       style={{ width: size, height: size, flex: 'none', borderRadius: '50%', cursor: 'pointer',
@@ -63,7 +63,7 @@ function FilmRow({ title, sub, films, onOpen }) {
         <h2 style={{ font:'var(--text-h3)', color:'var(--fg-0)', letterSpacing:'-0.005em' }}>{title}</h2>
         {sub && <p style={{ font:'var(--text-body-sm)', color:'var(--fg-2)', margin:'5px 0 0' }}>{sub}</p>}
       </div>
-      <div style={{ display:'grid', gridTemplateColumns:'repeat(auto-fill, minmax(150px, 1fr))', gap:20 }}>
+      <div className="aicdb-film-grid" style={{ display:'grid', gridTemplateColumns:'repeat(auto-fill, minmax(150px, 1fr))', gap:20 }}>
         {films.map((f, i) => <FilmCard key={f.id + '-' + i} film={f} onOpen={onOpen} width="auto" />)}
       </div>
     </section>

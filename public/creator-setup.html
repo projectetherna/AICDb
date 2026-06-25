@@ -4,9 +4,9 @@
 <meta charset="utf-8">
 <meta name="viewport" content="width=device-width, initial-scale=1">
 <title>Dreamwall — Creator Account Setup</title>
-<link rel="stylesheet" href="../../colors_and_type.css">
-<script src="theme-init.js"></script>
-<link rel="stylesheet" href="responsive.css">
+<link rel="stylesheet" href="/css/colors_and_type.css">
+<script src="/theme-init.js"></script>
+<link rel="stylesheet" href="/css/responsive.css">
 <style>
   html, body { margin:0; background: var(--bg-0); }
   * { box-sizing: border-box; }
@@ -21,8 +21,8 @@
 <script src="https://unpkg.com/@babel/standalone@7.29.0/babel.min.js" integrity="sha384-m08KidiNqLdpJqLq95G/LEi8Qvjl/xUYll3QILypMoQ65QorJ9Lvtp2RXYGBFj1y" crossorigin="anonymous"></script>
 <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/@phosphor-icons/web@2.1.1/src/bold/style.css">
 <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/@phosphor-icons/web@2.1.1/src/fill/style.css">
-<meta name="ext-resource-dependency" content="../../assets/aicdb-mark.png" data-resource-id="aicdbMark" />
-<link rel="icon" type="image/png" href="../../assets/aicdb-favicon.png">
+<meta name="ext-resource-dependency" content="/assets/aicdb-mark.png" data-resource-id="aicdbMark" />
+<link rel="icon" href="/assets/aicdb-favicon-32.png" type="image/png">
 </head>
 <body>
   <template id="__bundler_thumbnail" data-bg-color="#0a0a0a">
@@ -35,7 +35,11 @@
     </svg>
   </template>
   <div id="root"></div>
+  <script src="/config.js"></script>
+  <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2/dist/umd/supabase.min.js"></script>
+  <script src="/js/auth.js"></script>
   <script src="data.js"></script>
+  <script src="data-stores.js"></script>
   <script src="catalog-extra.js"></script>
   <script type="text/babel" src="Primitives.jsx"></script>
   <script type="text/babel" src="FeedbackFlama.jsx"></script>

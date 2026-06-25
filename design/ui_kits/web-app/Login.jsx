@@ -14,21 +14,27 @@ function SocialButton({ icon, label, onClick }) {
   );
 }
 
-function Field({ label, type='text', value, onChange, placeholder, trailing }) {
+function Field({ label, type='text', value, onChange, placeholder, trailing, error, onBlur }) {
   const [focus, setFocus] = React.useState(false);
+  const borderColor = error ? 'var(--danger)' : (focus ? 'var(--border-accent)' : 'var(--border-default)');
   return (
     <label style={{ display:'block' }}>
-      <span className="overline" style={{ display:'block', marginBottom:7, color:'var(--fg-2)' }}>{label}</span>
+      <span className="overline" style={{ display:'block', marginBottom:7, color: error ? 'var(--danger)' : 'var(--fg-2)' }}>{label}</span>
       <div style={{ display:'flex', alignItems:'center', gap:8, background:'var(--bg-3)', minWidth:0,
-        border:'1px solid', borderColor: focus ? 'var(--border-accent)' : 'var(--border-default)',
+        border:'1px solid', borderColor,
         borderRadius:'var(--radius-md)', padding:'0 12px',
-        boxShadow: focus ? 'var(--glow-coral)' : 'none', transition:'border-color var(--dur-fast), box-shadow var(--dur-fast)' }}>
+        boxShadow: error ? 'none' : (focus ? 'var(--glow-coral)' : 'none'), transition:'border-color var(--dur-fast), box-shadow var(--dur-fast)' }}>
         <input type={type} value={value} onChange={onChange} placeholder={placeholder}
-          onFocus={()=>setFocus(true)} onBlur={()=>setFocus(false)}
+          onFocus={()=>setFocus(true)} onBlur={(e)=>{ setFocus(false); onBlur && onBlur(e); }}
           style={{ flex:1, minWidth:0, width:0, background:'none', border:'none', outline:'none', color:'var(--fg-0)',
             font:'var(--text-body)', padding:'12px 0' }} />
         {trailing}
       </div>
+      {error && (
+        <p style={{ display:'flex', alignItems:'center', gap:6, font:'var(--text-caption)', color:'var(--danger)', margin:'7px 2px 0' }}>
+          <Icon name="warning-circle" size={13} color="var(--danger)" weight="fill" />{error}
+        </p>
+      )}
     </label>
   );
 }
@@ -47,10 +53,31 @@ function PrimaryWideButton({ children, onClick }) {
   );
 }
 
+// shared email-format check + a small set of "already registered" addresses
+// so the signup flow can demonstrate the duplicate-email error.
+window.AICDB_EMAIL_RE = /^[^\s@]+@[^\s@]+\.[^\s@]+$/;
+window.AICDB_REGISTERED_EMAILS = ['ada@dreamwall.io', 'you@example.com', 'taken@dreamwall.io'];
+
 function Login() {
   const [email, setEmail] = React.useState('');
   const [pw, setPw] = React.useState('');
   const [showPw, setShowPw] = React.useState(false);
+  const [remember, setRemember] = React.useState(true);
+  const [errors, setErrors] = React.useState({});
+  const clear = (k) => setErrors(e => (e[k] ? { ...e, [k]: undefined } : e));
+
+  const validate = () => {
+    const e = {};
+    const em = email.trim();
+    if (!em) e.email = 'Email is required.';
+    else if (!window.AICDB_EMAIL_RE.test(em)) e.email = 'Enter a valid email address.';
+    if (!pw) e.pw = 'Password is required.';
+    else if (pw.length < 8) e.pw = 'Password must be at least 8 characters.';
+    setErrors(e);
+    return Object.keys(e).filter(k => e[k]).length === 0;
+  };
+  const submit = () => { if (validate()) { window.AICDB_AUTH.login(); window.location.href = window.AICDB_PAGE('home'); } };
+  const social = () => { window.AICDB_AUTH.login(); window.location.href = window.AICDB_PAGE('home'); };
 
   const socials = [
     { key:'google',    icon:<GoogleIcon size={18} />,    label:'Continue with Google' },
@@ -91,7 +118,7 @@ function Login() {
 
         {/* social buttons */}
         <div style={{ display:'flex', flexDirection:'column', gap:10 }}>
-          {socials.map(s => <SocialButton key={s.key} icon={s.icon} label={s.label} onClick={()=>{}} />)}
+          {socials.map(s => <SocialButton key={s.key} icon={s.icon} label={s.label} onClick={social} />)}
         </div>
 
         {/* divider */}
@@ -103,18 +130,29 @@ function Login() {
 
         {/* email + password */}
         <div style={{ display:'flex', flexDirection:'column', gap:14 }}>
-          <Field label="Email" type="email" value={email} onChange={e=>setEmail(e.target.value)} placeholder="you@example.com" />
-          <Field label="Password" type={showPw?'text':'password'} value={pw} onChange={e=>setPw(e.target.value)} placeholder="••••••••"
+          <Field label="Email" type="email" value={email} error={errors.email}
+            onChange={e=>{ setEmail(e.target.value); clear('email'); }} placeholder="you@example.com" />
+          <Field label="Password" type={showPw?'text':'password'} value={pw} error={errors.pw}
+            onChange={e=>{ setPw(e.target.value); clear('pw'); }} placeholder="••••••••"
             trailing={
-              <button onClick={()=>setShowPw(v=>!v)} aria-label="Toggle password"
+              <button onClick={()=>setShowPw(v=>!v)} aria-label={showPw?'Hide password':'Show password'}
                 style={{ background:'none', border:'none', cursor:'pointer', padding:4, display:'flex', color:'var(--fg-2)' }}>
-                <Icon name={showPw?'eye':'eye'} size={17} />
+                <Icon name={showPw?'eye-slash':'eye'} size={17} />
               </button>
             } />
-          <div style={{ textAlign:'right', marginTop:-4 }}>
+          <div style={{ display:'flex', alignItems:'center', justifyContent:'space-between', gap:12, marginTop:-2 }}>
+            <label style={{ display:'inline-flex', alignItems:'center', gap:9, cursor:'pointer', userSelect:'none' }}>
+              <span onClick={()=>setRemember(v=>!v)} style={{ width:18, height:18, flex:'none', borderRadius:5,
+                display:'inline-flex', alignItems:'center', justifyContent:'center',
+                border:'1px solid ' + (remember ? 'var(--coral)' : 'var(--border-strong)'),
+                background: remember ? 'var(--coral)' : 'transparent', transition:'all var(--dur-fast)' }}>
+                {remember && <Icon name="check" size={12} color="var(--fg-on-accent)" weight="bold" />}
+              </span>
+              <span style={{ font:'500 12.5px/1 var(--font-body)', color:'var(--fg-1)' }}>Remember me</span>
+            </label>
             <a style={{ font:'500 12.5px/1 var(--font-body)', color:'var(--fg-1)', cursor:'pointer' }}>Forgot password?</a>
           </div>
-          <PrimaryWideButton onClick={()=>{}}>Sign in</PrimaryWideButton>
+          <PrimaryWideButton onClick={submit}>Sign in</PrimaryWideButton>
         </div>
 
         {/* sign up */}

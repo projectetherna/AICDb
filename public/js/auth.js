@@ -65,18 +65,41 @@
 
   async function handleOAuthCallback() {
     const supabase = await getClient();
+
+    // Supabase automatically exchanges the PKCE code from the URL when the
+    // client initialises (detectSessionInUrl: true). Calling exchangeCodeForSession
+    // manually would consume the one-time code a second time and throw an error.
+    // Instead, we wait for the built-in auto-exchange by listening for the
+    // SIGNED_IN event; fall back to a getSession() poll if it fires quickly.
     const params = new URLSearchParams(global.location.search);
-    const code = params.get('code');
+    const hasCode = !!params.get('code');
 
-    if (code) {
-      const { error } = await supabase.auth.exchangeCodeForSession(code);
+    if (hasCode) {
+      // Wait up to 8 s for Supabase to fire SIGNED_IN after auto-exchanging the code.
+      await new Promise((resolve, reject) => {
+        const timer = setTimeout(() => reject(new Error('Sign-in timed out. Try again.')), 8000);
+        const { data: { subscription } } = supabase.auth.onAuthStateChange((event, session) => {
+          if (event === 'SIGNED_IN' && session) {
+            clearTimeout(timer);
+            subscription.unsubscribe();
+            resolve();
+          }
+        });
+        // Also check immediately in case the exchange already finished before
+        // we attached the listener.
+        supabase.auth.getSession().then(({ data }) => {
+          if (data.session) {
+            clearTimeout(timer);
+            subscription.unsubscribe();
+            resolve();
+          }
+        });
+      });
+    } else {
+      // No code in URL — just confirm a session already exists (e.g. implicit flow).
+      const { data, error } = await supabase.auth.getSession();
       if (error) throw error;
-    }
-
-    const { data, error } = await supabase.auth.getSession();
-    if (error) throw error;
-    if (!data.session) {
-      throw new Error('Sign-in could not be completed. Try again.');
+      if (!data.session) throw new Error('Sign-in could not be completed. Try again.');
     }
 
     global.location.replace('/');
@@ -98,12 +121,15 @@
     global.location.replace('/');
   }
 
-  async function signUpWithPassword(email, password) {
+  async function signUpWithPassword(email, password, userData) {
     const supabase = await getClient();
     const { data, error } = await supabase.auth.signUp({
       email,
       password,
-      options: { emailRedirectTo: redirectUrl('/auth/callback.html') },
+      options: {
+        ...(userData ? { data: userData } : {}),
+        emailRedirectTo: redirectUrl('/auth/callback.html'),
+      },
     });
     if (error) throw error;
     return data;
@@ -212,8 +238,254 @@
     }
   }
 
+  // Synchronous auth state — kept in sync via onAuthStateChange so that
+  // useAuth() can read it without awaiting a promise on every render.
+  let _loggedIn = false;
+  const _subscribers = new Set();
+
+  function _notify() {
+    _subscribers.forEach((fn) => fn(_loggedIn));
+  }
+
+  function _userColors(userId) {
+    // Derive two deterministic accent colors from the user ID so every
+    // user gets a unique avatar gradient without needing an image.
+    const palettes = [
+      ['#d85a30', '#9d8df1'], ['#e5484d', '#4ecdc4'], ['#3b82f6', '#f59e0b'],
+      ['#10b981', '#8b5cf6'], ['#f97316', '#06b6d4'], ['#ec4899', '#14b8a6'],
+    ];
+    let hash = 0;
+    for (let i = 0; i < (userId || '').length; i++) hash = (hash * 31 + userId.charCodeAt(i)) >>> 0;
+    return palettes[hash % palettes.length];
+  }
+
+  function _applySessionToGlobals(session) {
+    if (!session || !session.user) return;
+    const u    = session.user;
+    const meta = u.user_metadata || {};
+    // Build a best-effort account from the JWT immediately so the UI is never blank.
+    // Priority: Google full_name/name > display_name hint > email prefix.
+    const rawName = meta.full_name || meta.name || meta.display_name
+                  || (u.email || '').split('@')[0] || 'User';
+    const name   = rawName.charAt(0).toUpperCase() + rawName.slice(1);
+    const created = u.created_at ? new Date(u.created_at) : null;
+    const joined  = created
+      ? 'Joined ' + created.toLocaleDateString('en-US', { month: 'long', year: 'numeric' })
+      : 'Member';
+    global.AICDB_MAIN_ACCOUNT = { name, avatar: _userColors(u.id), joined };
+    _notify();
+
+    // Asynchronously upgrade with the profiles row (has the authoritative display_name
+    // and avatar_url written by the DB trigger, which may be richer than the JWT).
+    getClient().then((supabase) => {
+      supabase
+        .from('profiles')
+        .select('display_name, avatar_url')
+        .eq('id', u.id)
+        .maybeSingle()
+        .then(({ data }) => {
+          if (!data) return;
+          const profileName = data.display_name || name;
+          const upgradedName = profileName.charAt(0).toUpperCase() + profileName.slice(1);
+          global.AICDB_MAIN_ACCOUNT = {
+            name:      upgradedName,
+            avatar:    _userColors(u.id),
+            avatarUrl: data.avatar_url || null,
+            joined,
+          };
+          _notify();
+        })
+        .catch(() => {});
+    });
+  }
+
+  // Initialise: resolve the current session once, then keep state live.
+  getClient().then((supabase) => {
+    supabase.auth.getSession().then(({ data }) => {
+      _loggedIn = !!data.session;
+      if (data.session) {
+        _applySessionToGlobals(data.session);
+      } else {
+        global.AICDB_MAIN_ACCOUNT = null;
+      }
+      _notify();
+    });
+    supabase.auth.onAuthStateChange((_event, session) => {
+      _loggedIn = !!session;
+      if (session) {
+        _applySessionToGlobals(session);
+      } else {
+        global.AICDB_MAIN_ACCOUNT = null;
+      }
+      _notify();
+    });
+  });
+
+  // Synchronous read — safe to call from React render / useState initialiser.
+  function isLoggedIn() {
+    return _loggedIn;
+  }
+
+  // Subscribe to auth changes. Returns an unsubscribe function (matches
+  // the React.useEffect cleanup contract used by useAuth()).
+  function subscribe(fn) {
+    _subscribers.add(fn);
+    return () => _subscribers.delete(fn);
+  }
+
+  // Update the signed-in user's profile row and refresh AICDB_MAIN_ACCOUNT.
+  // fields: { display_name?, bio? }
+  // Returns the saved row data on success, throws on error.
+  async function updateProfile(fields) {
+    const supabase = await getClient();
+    const { data: sessionData } = await supabase.auth.getSession();
+    const uid = sessionData?.session?.user?.id;
+    if (!uid) throw new Error('Not signed in.');
+
+    // ── Diagnostic logging — remove once the save path is confirmed stable ──
+    const _dbg = (label, err) => {
+      if (!err) return;
+      console.error('[updateProfile] FAILED at:', label);
+      console.error('[updateProfile] message:', err.message);
+      console.error('[updateProfile] code:   ', err.code);
+      console.error('[updateProfile] details:', err.details);
+      console.error('[updateProfile] hint:   ', err.hint);
+      console.error('[updateProfile] full:   ', err);
+    };
+
+    // Step 1: UPDATE without RETURNING.
+    // Chaining .select().single() on an UPDATE causes PostgREST to run RETURNING
+    // through the SELECT RLS policies. Keeping them separate is safer.
+    console.debug('[updateProfile] step 1 — UPDATE, uid=', uid, 'fields=', Object.keys(fields));
+    const { error: updateError } = await supabase
+      .from('profiles')
+      .update({ ...fields, updated_at: new Date().toISOString() })
+      .eq('id', uid);
+
+    _dbg('UPDATE profiles', updateError);
+    if (updateError) throw updateError;
+
+    // Step 2: Re-fetch via a plain SELECT.
+    // Use .maybeSingle() so we can give an actionable error if no row exists
+    // (accounts created before the handle_new_user trigger was installed).
+    console.debug('[updateProfile] step 2 — SELECT, uid=', uid);
+    const { data, error } = await supabase
+      .from('profiles')
+      .select('display_name, bio, avatar_url, banner_url, quote, quote_from')
+      .eq('id', uid)
+      .maybeSingle();
+
+    _dbg('SELECT profiles', error);
+    if (error) throw error;
+    console.debug('[updateProfile] step 2 result — data=', data);
+    if (!data) throw new Error('Profile record not found. Please sign out and sign back in to repair your account.');
+
+    // Treat any null fields from the DB as empty strings/null for safety.
+    const row = {
+      display_name: data.display_name || fields.display_name || '',
+      bio:          data.bio          ?? fields.bio          ?? '',
+      avatar_url:   data.avatar_url   ?? fields.avatar_url   ?? null,
+      banner_url:   data.banner_url   ?? fields.banner_url   ?? null,
+      quote:        data.quote        ?? fields.quote        ?? '',
+      quote_from:   data.quote_from   ?? fields.quote_from   ?? '',
+    };
+
+    // Keep AICDB_MAIN_ACCOUNT in sync so NavBar picks up the new name/avatar.
+    if (global.AICDB_MAIN_ACCOUNT) {
+      const n = row.display_name
+        ? row.display_name.charAt(0).toUpperCase() + row.display_name.slice(1)
+        : global.AICDB_MAIN_ACCOUNT.name;
+      global.AICDB_MAIN_ACCOUNT = {
+        ...global.AICDB_MAIN_ACCOUNT,
+        name:      n,
+        avatarUrl: row.avatar_url || null,
+      };
+      _notify();
+    }
+    return row;
+  }
+
+  // ── Storage upload helper ─────────────────────────────────────────────────
+  //
+  // uploadImage({ file, path, bucket? })
+  //   file   – a File / Blob object from an <input type="file"> or drag-drop
+  //   path   – storage path RELATIVE to the user-id prefix, e.g. "avatar.jpg"
+  //            the helper prepends the user's id automatically: {uid}/{path}
+  //   bucket – defaults to 'images'
+  //
+  // Returns { publicUrl } on success, throws a descriptive Error on failure.
+  //
+  // Validation enforced client-side (server also enforces via bucket config):
+  //   • Must be an image (MIME type starts with "image/")
+  //   • Must be ≤ 5 MB
+  //
+  const UPLOAD_MAX_BYTES  = 5 * 1024 * 1024; // 5 MB
+  const UPLOAD_BUCKET     = 'images';
+
+  async function uploadImage({ file, path, bucket = UPLOAD_BUCKET }) {
+    // ── Validation ──
+    if (!file || !(file instanceof Blob)) {
+      throw new Error('No file provided.');
+    }
+    if (!file.type.startsWith('image/')) {
+      throw new Error('Only image files are allowed (JPEG, PNG, WebP, GIF, AVIF).');
+    }
+    if (file.size > UPLOAD_MAX_BYTES) {
+      throw new Error(`File is too large. Maximum size is ${UPLOAD_MAX_BYTES / 1024 / 1024} MB.`);
+    }
+
+    // ── Auth ──
+    const supabase = await getClient();
+    const { data: sessionData } = await supabase.auth.getSession();
+    const uid = sessionData?.session?.user?.id;
+    if (!uid) throw new Error('You must be signed in to upload images.');
+
+    // ── Build storage path: {uid}/{path} ──
+    const storagePath = `${uid}/${path}`;
+
+    // ── Upload (upsert = replace if exists) ──
+    console.debug('[uploadImage] uploading to bucket=', bucket, 'path=', storagePath, 'type=', file.type, 'size=', file.size);
+    const { error: uploadError } = await supabase.storage
+      .from(bucket)
+      .upload(storagePath, file, {
+        contentType: file.type,
+        upsert: true,
+      });
+
+    if (uploadError) {
+      console.error('[uploadImage] FAILED — storage upload error:', uploadError);
+      throw new Error(uploadError.message || 'Upload failed.');
+    }
+
+    // ── Resolve public URL ──
+    const { data: urlData } = supabase.storage
+      .from(bucket)
+      .getPublicUrl(storagePath);
+
+    console.debug('[uploadImage] publicUrl=', urlData?.publicUrl);
+    if (!urlData?.publicUrl) throw new Error('Could not resolve public URL after upload.');
+
+    // Append a cache-busting version stamp so that when the same path is
+    // overwritten (upsert), the resulting URL is different from the previous
+    // one.  Browsers and CDNs key their caches on the full URL, so a changed
+    // query-string forces a fresh fetch even though the storage path is
+    // identical.  The stamp is persisted into avatar_url / banner_url in the
+    // profiles table, so it survives page reloads.
+    const bust = Date.now();
+    const publicUrl = urlData.publicUrl.split('?')[0] + '?v=' + bust;
+    return { publicUrl };
+  }
+
   global.AICDB_AUTH = {
     getClient,
+    getSession,
+    isLoggedIn,
+    subscribe,
+    signOut,
+    signInWithPassword,
+    signUpWithPassword,
+    updateProfile,
+    uploadImage,
     requireGuest,
     handleOAuthCallback,
     wireGoogleButton,

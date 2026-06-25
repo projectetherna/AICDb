@@ -1,0 +1,262 @@
+<!DOCTYPE html>
+<html lang="en">
+  <head>
+    <meta charset="utf-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1" />
+    <title>Verify your email — Dreamwall</title>
+    <link rel="stylesheet" href="/css/tokens.css" />
+    <link rel="stylesheet" href="/css/auth.css" />
+    <link rel="icon" href="/assets/aicdb-favicon-32.png" type="image/png">
+    <style>
+      .otp-inputs {
+        display: flex;
+        gap: 10px;
+        justify-content: center;
+        margin-bottom: 20px;
+      }
+      .otp-digit {
+        width: 52px;
+        height: 62px;
+        text-align: center;
+        font: 700 26px/1 var(--font-mono, monospace);
+        background: var(--bg-2);
+        border: 1px solid var(--border-default);
+        border-radius: var(--radius-md);
+        color: var(--fg-0);
+        outline: none;
+        transition: border-color 0.15s, box-shadow 0.15s;
+        caret-color: var(--coral);
+      }
+      .otp-digit:focus {
+        border-color: var(--coral, #d85a30);
+        box-shadow: 0 0 0 3px rgba(216, 90, 48, 0.18);
+      }
+      .otp-digit.filled {
+        border-color: var(--border-accent, rgba(216,90,48,0.5));
+      }
+      .resend-row {
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        gap: 6px;
+        margin-top: 18px;
+        font: var(--text-body-sm, 13px/1.4 sans-serif);
+        color: var(--fg-2);
+      }
+      .resend-btn {
+        background: none;
+        border: none;
+        cursor: pointer;
+        font: 600 13px/1 var(--font-body, sans-serif);
+        color: var(--coral, #d85a30);
+        padding: 0;
+        text-decoration: underline;
+      }
+      .resend-btn:disabled {
+        color: var(--fg-3);
+        cursor: default;
+        text-decoration: none;
+      }
+    </style>
+  </head>
+  <body class="auth-page">
+    <main class="auth-card">
+      <div class="auth-brand">
+        <img src="/assets/aicdb-mark.png" width="56" height="56" alt="" />
+        <div>
+          <h1>Check your email</h1>
+          <p id="subtitle">We sent a 6-digit code to your email address.</p>
+        </div>
+      </div>
+
+      <div id="alert" class="auth-alert" role="alert"></div>
+
+      <div class="otp-inputs" id="otp-inputs">
+        <input class="otp-digit" type="text" inputmode="numeric" maxlength="1" autocomplete="one-time-code" />
+        <input class="otp-digit" type="text" inputmode="numeric" maxlength="1" />
+        <input class="otp-digit" type="text" inputmode="numeric" maxlength="1" />
+        <input class="otp-digit" type="text" inputmode="numeric" maxlength="1" />
+        <input class="otp-digit" type="text" inputmode="numeric" maxlength="1" />
+        <input class="otp-digit" type="text" inputmode="numeric" maxlength="1" />
+      </div>
+
+      <button type="button" id="btn-verify" class="btn btn-primary" disabled>Verify email</button>
+
+      <div class="resend-row">
+        Didn't receive it?
+        <button type="button" id="btn-resend" class="resend-btn" disabled>Resend</button>
+        <span id="resend-timer" style="color: var(--fg-3)"></span>
+      </div>
+
+      <p class="auth-footer">
+        Wrong email? <a href="/signup.html">Back to sign up</a>
+      </p>
+    </main>
+
+    <script src="/config.js"></script>
+    <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2/dist/umd/supabase.min.js"></script>
+    <script src="/js/auth.js"></script>
+    <script>
+      (async () => {
+        const alertEl = document.getElementById('alert');
+        const verifyBtn = document.getElementById('btn-verify');
+        const resendBtn = document.getElementById('btn-resend');
+        const timerEl = document.getElementById('resend-timer');
+        const subtitleEl = document.getElementById('subtitle');
+        const digits = Array.from(document.querySelectorAll('.otp-digit'));
+
+        // Read email from URL or sessionStorage
+        const params = new URLSearchParams(location.search);
+        const email = params.get('email') || sessionStorage.getItem('aicdb_verify_email') || '';
+        const type = params.get('type') || sessionStorage.getItem('aicdb_verify_type') || 'signup';
+
+        if (!email) {
+          window.location.replace('/signup.html');
+          return;
+        }
+        if (email) {
+          subtitleEl.textContent = 'We sent a 6-digit code to ' + email;
+          sessionStorage.setItem('aicdb_verify_email', email);
+          sessionStorage.setItem('aicdb_verify_type', type);
+        }
+
+        // OTP input logic: auto-advance, paste, backspace
+        digits.forEach((input, i) => {
+          input.addEventListener('input', () => {
+            const val = input.value.replace(/\D/g, '');
+            input.value = val.slice(0, 1);
+            if (val && i < digits.length - 1) digits[i + 1].focus();
+            updateFilled();
+          });
+          input.addEventListener('keydown', (e) => {
+            if (e.key === 'Backspace' && !input.value && i > 0) {
+              digits[i - 1].focus();
+              digits[i - 1].value = '';
+              updateFilled();
+            }
+          });
+          input.addEventListener('paste', (e) => {
+            e.preventDefault();
+            const pasted = (e.clipboardData || window.clipboardData).getData('text').replace(/\D/g, '');
+            for (let j = 0; j < 6 && j < pasted.length; j++) {
+              digits[j].value = pasted[j];
+            }
+            const next = Math.min(pasted.length, 5);
+            digits[next].focus();
+            updateFilled();
+          });
+        });
+
+        function updateFilled() {
+          const code = getCode();
+          digits.forEach((d, i) => {
+            d.classList.toggle('filled', d.value.length === 1);
+          });
+          verifyBtn.disabled = code.length !== 6;
+        }
+
+        function getCode() {
+          return digits.map(d => d.value).join('');
+        }
+
+        // Verify button
+        verifyBtn.addEventListener('click', async () => {
+          const code = getCode();
+          if (code.length !== 6) return;
+          verifyBtn.disabled = true;
+          verifyBtn.textContent = 'Verifying…';
+          AICDB_AUTH.hideAlert(alertEl);
+          try {
+            const client = await AICDB_AUTH.getClient();
+            // Try 'email' type first (works when Supabase sends OTP via email template),
+            // then fallback to 'signup' (used by older Supabase versions)
+            let verifyError = null;
+            const { error: e1 } = await client.auth.verifyOtp({
+              email, token: code, type: 'email',
+            });
+            verifyError = e1;
+            if (verifyError) {
+              const { error: e2 } = await client.auth.verifyOtp({
+                email, token: code, type: type === 'recovery' ? 'recovery' : 'signup',
+              });
+              verifyError = e2;
+            }
+            const error = verifyError;
+            if (error) throw error;
+            sessionStorage.removeItem('aicdb_verify_email');
+            sessionStorage.removeItem('aicdb_verify_type');
+            window.location.replace('/');
+          } catch (err) {
+            AICDB_AUTH.showAlert(alertEl, err.message || 'Invalid code. Please try again.', 'error');
+            verifyBtn.disabled = false;
+            verifyBtn.textContent = 'Verify email';
+            digits.forEach(d => d.value = '');
+            updateFilled();
+            digits[0].focus();
+          }
+        });
+
+        // Resend with 60s cooldown
+        const COOLDOWN_SEC = 60;
+        let cooldownInterval = null;
+        function startCooldown() {
+          if (cooldownInterval) clearInterval(cooldownInterval);
+          let remaining = COOLDOWN_SEC;
+          resendBtn.disabled = true;
+          timerEl.textContent = '(' + remaining + 's)';
+          cooldownInterval = setInterval(() => {
+            remaining--;
+            if (remaining <= 0) {
+              clearInterval(cooldownInterval);
+              cooldownInterval = null;
+              resendBtn.disabled = false;
+              timerEl.textContent = '';
+            } else {
+              timerEl.textContent = '(' + remaining + 's)';
+            }
+          }, 1000);
+        }
+        startCooldown();
+
+        resendBtn.addEventListener('click', async () => {
+          resendBtn.disabled = true;
+          AICDB_AUTH.hideAlert(alertEl);
+          try {
+            const client = await AICDB_AUTH.getClient();
+            // Try resend first; if it fails fall back to signInWithOtp (also sends OTP)
+            let err1 = null;
+            const { error: resendError } = await client.auth.resend({
+              type: 'signup',
+              email: email,
+              options: { emailRedirectTo: window.location.origin + '/auth/callback.html' },
+            });
+            err1 = resendError;
+            if (err1) {
+              // Fallback: signInWithOtp sends a fresh OTP to any address
+              const { error: otpError } = await client.auth.signInWithOtp({
+                email: email,
+                options: { shouldCreateUser: false },
+              });
+              if (otpError) throw otpError;
+            }
+            AICDB_AUTH.showAlert(alertEl, 'A new code has been sent to ' + email, 'success');
+            startCooldown();
+          } catch (err) {
+            const msg = (err.message || '');
+            const isRateLimit = err.status === 429 || msg.toLowerCase().includes('rate limit') || msg.toLowerCase().includes('over_email');
+            AICDB_AUTH.showAlert(
+              alertEl,
+              isRateLimit
+                ? 'Too many emails sent. Please wait a few minutes before trying again.'
+                : (msg || 'Could not resend code. Try signing up again.'),
+              'error'
+            );
+            resendBtn.disabled = false;
+          }
+        });
+
+        digits[0].focus();
+      })();
+    </script>
+  </body>
+</html>

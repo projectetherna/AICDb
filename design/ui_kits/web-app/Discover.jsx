@@ -1,7 +1,7 @@
 // Dreamwall UI kit — Discover / home screen
 function Hero({ film, onOpen }) {
   return (
-    <div style={{ position:'relative', borderRadius:'var(--radius-xl)', overflow:'hidden', marginBottom:44,
+    <div className="aicdb-hero" style={{ position:'relative', borderRadius:'var(--radius-xl)', overflow:'hidden', marginBottom:44,
       minHeight:340, background:'var(--bg-inset)' }}>
       {/* fading poster — featured content bleeds in from the left into the dark */}
       <div style={{ position:'absolute', top:0, left:0, bottom:0, width:'64%',
@@ -13,7 +13,7 @@ function Hero({ film, onOpen }) {
           + 'linear-gradient(to top, var(--bg-inset) 2%, transparent 32%)' }} />
       <div style={{ position:'absolute', inset:0, opacity:0.4,
         backgroundImage:'radial-gradient(rgba(245,243,239,0.05) 1px, transparent 1px)', backgroundSize:'5px 5px' }} />
-      <div style={{ position:'relative', padding:'44px 48px', maxWidth:540, marginLeft:'auto', display:'flex', flexDirection:'column', alignItems:'flex-end', textAlign:'right' }}>
+      <div className="aicdb-hero-body aicdb-hero-body--right" style={{ position:'relative', padding:'44px 48px', maxWidth:540, marginLeft:'auto', display:'flex', flexDirection:'column', alignItems:'flex-end', textAlign:'right' }}>
         <div style={{ display:'flex', alignItems:'center', gap:10, marginBottom:16 }}>
           <span className="overline" style={{ color:'var(--coral-bright)' }}>Featured this week</span>
           <ContentBadge type={film.type} />
@@ -36,6 +36,16 @@ function Hero({ film, onOpen }) {
 
 function Discover({ onOpen }) {
   const films = window.AICDB_FILMS;
+  if (!films.length) {
+    return (
+      <div style={{ maxWidth:1180, margin:'0 auto', padding:'32px 28px 80px' }}>
+        <EmptyState icon="film-slate" accent="var(--coral)"
+          title="Nothing to discover yet"
+          sub="No titles have been published to Dreamwall yet. When creators start releasing work, it’ll surface here."
+          actionLabel="Explore creators" onAction={() => { window.location.href = 'index.html#Creators'; }} />
+      </div>
+    );
+  }
   const byScore = [...films].sort((a,b)=> b.score-a.score);
   const byStars = [...films].sort((a,b)=> b.stars-a.stars);
   const byYear  = [...films].sort((a,b)=> b.year-a.year);
@@ -56,7 +66,7 @@ function Discover({ onOpen }) {
   ];
 
   return (
-    <div style={{ maxWidth:1180, margin:'0 auto', padding:'32px 28px 80px' }}>
+    <div className="aicdb-page" style={{ maxWidth:1180, margin:'0 auto', padding:'32px 28px 80px' }}>
       <Hero film={films[1]} onOpen={onOpen} />
       {sections.map(s => <FilmRow key={s.title} title={s.title} sub={s.sub} films={s.films} onOpen={onOpen} />)}
     </div>

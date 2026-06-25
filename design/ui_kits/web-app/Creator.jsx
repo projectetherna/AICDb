@@ -4,31 +4,13 @@
 // About section + (creator-only) Creator Studio management panel.
 // Reuses CreatorParts.jsx, CreatorManage.jsx, Primitives, FilmCard, NavBar.
 
-// ---- the creator + their catalog (fictional, mockup data) ----
-const CREATOR = {
-  name: 'Maya Okonkwo',
-  initials: 'M',
-  location: 'Lagos · Berlin',
-  joined: 'Creating since 2023',
-  avatar: ['#d85a30', '#9d8df1'],   // gradient fallback if no avatarImg
-  avatarImg: null,
-  banner: null,                      // gradient placeholder if null
-  followers: 48200,
-  manifesto: "I don't generate films — I haunt them into existence. Every frame is a memory I haven't had yet. Diffusion is just the séance.",
-  social: { youtube:'#', instagram:'#', x:'#', tiktok:'#', website:'#' },
-  tools: ['Runway Gen-3', 'Sora', 'Midjourney v6', 'ElevenLabs', 'Kling 1.5', 'Topaz', 'DaVinci Resolve'],
-  influences: ['Wong Kar-wai', 'Tarkovsky', 'Hideaki Anno', 'Neo-noir', 'Liminal spaces', 'Saul Bass'],
-  notes: "Currently deep in a feature-length piece about a city that dreams its own residents.\n\nOpen to scoring collaborations and prompt-architecture residencies. If you've trained a grain model you're proud of, my inbox is always open — I'm hunting for the texture of 16mm rendered in latent space.\n\nNo NFTs. Don't ask.",
-  // works the creator has published (ids into AICDB_FILMS)
-  works: ['echoes-of-tomorrow', 'glass-orchard', 'synthetic-dreams', 'the-long-render', 'redshift', 'paper-suns'],
-};
+// ---- the creator + their catalog ----
+// No hand-authored default creator — a creator page only renders for a real
+// (user-created) creator account; otherwise it shows an empty state.
+const CREATOR = null;
 
-// drafts in progress (creator-only studio)
-const DRAFTS = [
-  { title: 'The City That Dreams (feature)', edited: '2 hours ago', pct: 72 },
-  { title: 'Untitled — Lagos 2099', edited: '4 days ago', pct: 41 },
-  { title: 'Grain Study #7 (short)', edited: '3 weeks ago', pct: 18 },
-];
+// drafts in progress (creator-only studio) — none by default
+const DRAFTS = [];
 
 // ---- build a creator object from a stored (user-created) creator account ----
 function creatorFromAccount(acct) {
@@ -64,10 +46,9 @@ function resolveCreator() {
     const acct = window.AICDB_CREATOR_ACCOUNTS.byId(accountId);
     if (acct) return creatorFromAccount(acct);
   }
-  if (!name) return CREATOR;
+  if (!name) return null;
   const reg = window.AICDB_CREATOR_BY_NAME ? window.AICDB_CREATOR_BY_NAME[name] : null;
-  if (!reg) return CREATOR;
-  if (reg.name === CREATOR.name) return CREATOR; // rich hand-authored default (Maya)
+  if (!reg) return null;
   const works = window.AICDB_FILMS.filter(f => f.creator === reg.name).map(f => f.id);
   const handleClean = reg.handle ? reg.handle.replace('@', '') : reg.name;
   return {
@@ -236,6 +217,32 @@ function CreatorPage() {
   }
 
   const creator = isMyContents ? creatorFromAccount(accounts[0]) : resolveCreator();
+
+  // No real creator to show (e.g. the page was opened without a valid creator)
+  if (!creator) {
+    return (
+      <div style={{ minHeight:'100vh' }}>
+        <NavBar active="" onNav={goApp} query="" onQuery={() => {}} onOpenResult={() => {}} />
+        <div style={{ maxWidth:560, margin:'0 auto', padding:'90px 28px', textAlign:'center' }}>
+          <div style={{ width:96, height:96, margin:'0 auto 24px', borderRadius:'50%', display:'flex', alignItems:'center', justifyContent:'center',
+            background:'var(--bg-1)', border:'1px solid var(--border-subtle)' }}>
+            <Icon name="user" size={40} color="var(--fg-3)" />
+          </div>
+          <h1 style={{ font:'700 clamp(26px,4vw,34px)/1.1 var(--font-display)', letterSpacing:'-0.015em', color:'var(--fg-0)', margin:'0 0 14px' }}>
+            No creator to show
+          </h1>
+          <p style={{ font:'var(--text-body-lg)', color:'var(--fg-2)', margin:'0 auto 28px', maxWidth:420 }}>
+            There’s no creator account here yet. When creators publish to Dreamwall, their pages will appear here.
+          </p>
+          <a onClick={() => goApp('')} style={{ display:'inline-flex', alignItems:'center', gap:9, padding:'13px 24px', borderRadius:'var(--radius-md)',
+            background:'var(--coral)', color:'var(--fg-on-accent)', font:'600 15px/1 var(--font-body)', textDecoration:'none', cursor:'pointer' }}>
+            <Icon name="arrow-left" size={16} color="var(--fg-on-accent)" /> Back to browsing
+          </a>
+        </div>
+      </div>
+    );
+  }
+
   const drafts = creator === CREATOR ? DRAFTS : [];
   const byId = filmsById();
   const works = creator.works.map(id => byId[id]).filter(Boolean);

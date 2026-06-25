@@ -38,8 +38,8 @@
 <script src="https://unpkg.com/@babel/standalone@7.29.0/babel.min.js" integrity="sha384-m08KidiNqLdpJqLq95G/LEi8Qvjl/xUYll3QILypMoQ65QorJ9Lvtp2RXYGBFj1y" crossorigin="anonymous"></script>
 <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/@phosphor-icons/web@2.1.1/src/bold/style.css">
 <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/@phosphor-icons/web@2.1.1/src/fill/style.css">
-<meta name="ext-resource-dependency" content="../../assets/aicdb-mark.png" data-resource-id="aicdbMark" />
-<link rel="icon" type="image/png" href="../../assets/aicdb-favicon.png">
+<meta name="ext-resource-dependency" content="/assets/aicdb-mark.png" data-resource-id="aicdbMark" />
+<link rel="icon" href="/assets/aicdb-favicon-32.png" type="image/png">
 </head>
 <body>
   <template id="__bundler_thumbnail" data-bg-color="#0a0a0a">
@@ -52,7 +52,11 @@
     </svg>
   </template>
   <div id="root"></div>
+  <script src="/config.js"></script>
+  <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2/dist/umd/supabase.min.js"></script>
+  <script src="/js/auth.js"></script>
   <script src="data.js"></script>
+  <script src="data-stores.js"></script>
   <script src="catalog-extra.js"></script>
   <script type="text/babel" src="Primitives.jsx"></script>
   <script type="text/babel" src="FeedbackFlama.jsx"></script>
@@ -70,11 +74,14 @@
   <script type="text/babel" src="Watching.jsx"></script>
   <script type="text/babel" src="Preferences.jsx"></script>
   <script type="text/babel" src="FilmDetail.jsx"></script>
+  <script type="text/babel" src="ListDetail.jsx"></script>
   <script type="text/babel" src="Profile.jsx"></script>
+  <script type="text/babel" src="ProfileStats.jsx"></script>
+  <script type="text/babel" src="ProfileLists.jsx"></script>
+  <script type="text/babel" src="ProfileReviews.jsx"></script>
+  <script type="text/babel" src="ProfileFavorites.jsx"></script>
+  <script type="text/babel" src="ProfileEdit.jsx"></script>
+  <script type="text/babel" src="ProfileRatings.jsx"></script>
   <script type="text/babel" src="App.jsx"></script>
-  <script src="/config.js"></script>
-  <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2/dist/umd/supabase.min.js"></script>
-  <script src="/js/auth.js"></script>
-  <script>AICDB_AUTH.initHome();</script>
 </body>
 </html>

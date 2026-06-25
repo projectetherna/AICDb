@@ -91,10 +91,28 @@ function StepChoice({ onEmail }) {
 function StepForm({ onBack, onSubmit }) {
   const [f, setF] = React.useState({ first:'', last:'', email:'', pw:'', pw2:'' });
   const [showPw, setShowPw] = React.useState(false);
-  const set = k => e => setF(s => ({ ...s, [k]: e.target.value }));
+  const [errors, setErrors] = React.useState({});
+  const set = k => e => { const v = e.target.value; setF(s => ({ ...s, [k]: v })); setErrors(er => (er[k] ? { ...er, [k]: undefined } : er)); };
   const pwOk = f.pw.length >= 8;
   const match = f.pw2.length > 0 && f.pw === f.pw2;
   const mismatch = f.pw2.length > 0 && f.pw !== f.pw2;
+
+  const validate = () => {
+    const e = {};
+    if (!f.first.trim()) e.first = 'First name is required.';
+    if (!f.last.trim()) e.last = 'Last name is required.';
+    const em = f.email.trim().toLowerCase();
+    if (!em) e.email = 'Email is required.';
+    else if (!window.AICDB_EMAIL_RE.test(em)) e.email = 'Enter a valid email address.';
+    else if ((window.AICDB_REGISTERED_EMAILS || []).includes(em)) e.email = 'That email is already registered. Try signing in instead.';
+    if (!f.pw) e.pw = 'Password is required.';
+    else if (!pwOk) e.pw = 'Password must be at least 8 characters.';
+    if (!f.pw2) e.pw2 = 'Please confirm your password.';
+    else if (f.pw !== f.pw2) e.pw2 = 'Passwords don’t match.';
+    setErrors(e);
+    return Object.keys(e).filter(k => e[k]).length === 0;
+  };
+  const submit = () => { if (validate()) onSubmit(f.email); };
 
   return (
     <div>
@@ -102,28 +120,30 @@ function StepForm({ onBack, onSubmit }) {
       <Header title="Sign up with email" sub="Fill in your details to create your Dreamwall account." />
       <div style={{ display:'flex', flexDirection:'column', gap:14 }}>
         <div style={{ display:'flex', gap:12 }}>
-          <div style={{ flex:1, minWidth:0 }}><Field label="First name" value={f.first} onChange={set('first')} placeholder="Ada" /></div>
-          <div style={{ flex:1, minWidth:0 }}><Field label="Last name" value={f.last} onChange={set('last')} placeholder="Lovelace" /></div>
+          <div style={{ flex:1, minWidth:0 }}><Field label="First name" value={f.first} error={errors.first} onChange={set('first')} placeholder="Ada" /></div>
+          <div style={{ flex:1, minWidth:0 }}><Field label="Last name" value={f.last} error={errors.last} onChange={set('last')} placeholder="Lovelace" /></div>
         </div>
-        <Field label="Email" type="email" value={f.email} onChange={set('email')} placeholder="you@example.com" />
+        <Field label="Email" type="email" value={f.email} error={errors.email} onChange={set('email')} placeholder="you@example.com" />
         <div>
-          <Field label="Password" type={showPw?'text':'password'} value={f.pw} onChange={set('pw')} placeholder="••••••••"
+          <Field label="Password" type={showPw?'text':'password'} value={f.pw} error={errors.pw} onChange={set('pw')} placeholder="••••••••"
             trailing={
-              <button onClick={()=>setShowPw(v=>!v)} aria-label="Toggle password"
+              <button onClick={()=>setShowPw(v=>!v)} aria-label={showPw?'Hide password':'Show password'}
                 style={{ background:'none', border:'none', cursor:'pointer', padding:4, display:'flex', color:'var(--fg-2)' }}>
-                <Icon name="eye" size={17} />
+                <Icon name={showPw?'eye-slash':'eye'} size={17} />
               </button>
             } />
-          <p style={{ font:'var(--text-caption)', color: f.pw.length===0 ? 'var(--fg-3)' : (pwOk ? 'var(--teal)' : 'var(--fg-2)'), margin:'8px 2px 0' }}>
-            {f.pw.length===0 ? 'At least 8 characters.' : (pwOk ? '✓ Strong enough.' : 'At least 8 characters.')}
-          </p>
+          {!errors.pw && (
+            <p style={{ font:'var(--text-caption)', color: f.pw.length===0 ? 'var(--fg-3)' : (pwOk ? 'var(--teal)' : 'var(--fg-2)'), margin:'8px 2px 0' }}>
+              {f.pw.length===0 ? 'At least 8 characters.' : (pwOk ? '✓ Strong enough.' : 'At least 8 characters.')}
+            </p>
+          )}
         </div>
         <div>
-          <Field label="Confirm password" type={showPw?'text':'password'} value={f.pw2} onChange={set('pw2')} placeholder="••••••••" />
-          {mismatch && <p style={{ font:'var(--text-caption)', color:'var(--danger)', margin:'8px 2px 0' }}>Passwords don’t match.</p>}
-          {match && <p style={{ font:'var(--text-caption)', color:'var(--teal)', margin:'8px 2px 0' }}>✓ Passwords match.</p>}
+          <Field label="Confirm password" type={showPw?'text':'password'} value={f.pw2} error={errors.pw2} onChange={set('pw2')} placeholder="••••••••" />
+          {!errors.pw2 && mismatch && <p style={{ font:'var(--text-caption)', color:'var(--danger)', margin:'8px 2px 0' }}>Passwords don’t match.</p>}
+          {!errors.pw2 && match && <p style={{ font:'var(--text-caption)', color:'var(--teal)', margin:'8px 2px 0' }}>✓ Passwords match.</p>}
         </div>
-        <PrimaryWideButton onClick={()=>onSubmit(f.email)}>Create account</PrimaryWideButton>
+        <PrimaryWideButton onClick={submit}>Create account</PrimaryWideButton>
       </div>
       <p style={{ textAlign:'center', font:'var(--text-caption)', color:'var(--fg-2)', margin:'16px 4px 0', lineHeight:1.5 }}>
         By creating an account you agree to our <a style={{ color:'var(--fg-1)', textDecoration:'underline', cursor:'pointer' }}>Terms</a> and <a style={{ color:'var(--fg-1)', textDecoration:'underline', cursor:'pointer' }}>Privacy Policy</a>.

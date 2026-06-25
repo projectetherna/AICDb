@@ -1,0 +1,106 @@
+---
+description: Dreamwall full system spec — product definition, rules, and architecture. Always apply to keep every decision aligned with what we are building.
+alwaysApply: true
+---
+
+# Dreamwall — Full System Spec
+
+## What It Is
+
+Dreamwall = AI film platform + creator broadcast network + taste-based recommendation engine + multi-dimensional quality scoring system.
+
+Combines: content streaming · multi-dimensional rating · creator publishing · taste-precision discovery (NOT popularity-based).
+
+---
+
+## Non-Negotiable System Rules
+
+- Users **cannot** follow other users
+- Users **cannot** publish, upload, or post content
+- Only **creators** can publish
+- The **Feed** is a creator-only output stream
+- Creators are NOT separate accounts — they are an **upgrade layer** on user accounts
+
+---
+
+## User System (Base Layer)
+
+Users **can**: watch, rate (3 dimensions), write reviews, manage watchlists, create lists, earn badges, track stats.
+
+Users **cannot**: upload, post, follow other users, publish anything.
+
+**Role**: viewer + evaluator + curator.
+
+---
+
+## Creator System (Upgrade Layer)
+
+Activated via "Add Creator Account" on a user account — not a separate account.
+
+Creators can: upload AI content, publish posts/updates, own a creator page, appear in Feed, build an audience via followers.
+
+**Identity**:
+- User identity = First Name + Last Name (real name)
+- Creator identity = alias/handle layer attached to the user account
+- Content can be published under real name or creator alias
+
+---
+
+## Content Model
+
+Each content item scores across 3 dimensions:
+- `visualsScore`
+- `soundScore`
+- `scriptScore`
+
+Overall score = average of the 3.
+
+Optional (locked): `originalityScore` — unlocked only after user rates 1000+ items. Measures how unconventional a work is. High-trust metric.
+
+---
+
+## Feed System
+
+Feed = creator broadcast channel, NOT a social network.
+
+- Creators: post updates, publish content, share releases
+- Users: like posts, comment, watch content
+- Users: cannot post, publish, or upload anything
+
+---
+
+## Recommendation Engine
+
+**NOT** popularity-based. **NOT** trending-based.
+
+Process: build user taste vector from ratings → compute similarity between users → cluster by taste → detect unseen content liked by cluster → recommend.
+
+Output principle: *"People like you liked this — you haven't seen it yet."*
+
+---
+
+## Architecture Layers
+
+| Layer | Who | What |
+|---|---|---|
+| Consumption | Users | Watch, rate, review |
+| Creation | Creators | Upload, publish, broadcast |
+| Distribution | Feed | Creator-only content stream |
+| Intelligence | Engine | Taste graph + originality scoring |
+
+---
+
+## Core Entities
+
+User · Creator (linked to User) · Content · Rating · Review · Watchlist · Follow (creator→user direction only) · Badge
+
+---
+
+## Tech Stack
+
+- Frontend: React (in-browser Babel, no build step), JSX component files served statically
+- Backend: Cloudflare Workers
+- Database/Auth: Supabase (PostgreSQL + Supabase Auth)
+- Auth flow: PKCE, email sign-up with immediate session (confirm email disabled), Google OAuth, Facebook OAuth, X/Twitter OAuth
+- Static assets: `public/` directory served by Worker
+- Key files: `public/js/auth.js` (auth state), `public/Primitives.jsx`, `public/NavBar.jsx`, `public/BrandIcons.jsx`

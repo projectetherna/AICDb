@@ -100,9 +100,9 @@ function ModalEmailForm({ onBack }) {
         <Field label="Email" type="email" value={email} onChange={e=>setEmail(e.target.value)} placeholder="you@example.com" />
         <Field label="Password" type={showPw?'text':'password'} value={pw} onChange={e=>setPw(e.target.value)} placeholder="••••••••"
           trailing={
-            <button onClick={()=>setShowPw(v=>!v)} aria-label="Toggle password"
+            <button onClick={()=>setShowPw(v=>!v)} aria-label={showPw?'Hide password':'Show password'}
               style={{ background:'none', border:'none', cursor:'pointer', padding:4, display:'flex', color:'var(--fg-2)' }}>
-              <Icon name="eye" size={17} />
+              <Icon name={showPw?'eye-slash':'eye'} size={17} />
             </button>
           } />
         <PrimaryWideButton onClick={()=>{}}>Sign in</PrimaryWideButton>

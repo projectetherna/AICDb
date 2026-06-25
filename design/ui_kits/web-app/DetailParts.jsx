@@ -40,7 +40,7 @@ function WatchlistSplit({ film }) {
   return (
     <div ref={ref} style={{ position:'relative' }}>
       <div style={{ display:'flex', borderRadius:'var(--radius-md)', overflow:'hidden', boxShadow:'var(--shadow-1)' }}>
-        <button onClick={() => window.AICDB_WATCHLIST.toggle(film.id)}
+        <button onClick={() => { if (!window.AICDB_REQUIRE_AUTH('Sign in to build your watchlist.')) return; window.AICDB_WATCHLIST.toggle(film.id); }}
           style={{ flex:1, display:'inline-flex', alignItems:'center', justifyContent:'center', gap:8,
             padding:'12px 14px', border:'none', cursor:'pointer', font:'600 14px/1 var(--font-body)',
             background: inList ? 'var(--teal)' : 'var(--teal-ghost)', color: inList ? '#04201e' : 'var(--teal-bright)',
@@ -62,7 +62,7 @@ function WatchlistSplit({ film }) {
           background:'var(--bg-1)', border:'1px solid var(--border-default)', borderRadius:'var(--radius-lg)',
           boxShadow:'var(--shadow-3)' }}>
           <div className="overline" style={{ padding:'6px 10px 8px', color:'var(--fg-2)' }}>Add to list</div>
-          <ListRow name="Watchlist" checked={inList} onClick={() => window.AICDB_WATCHLIST.toggle(film.id)} />
+          <ListRow name="Watchlist" checked={inList} onClick={() => { if (!window.AICDB_REQUIRE_AUTH('Sign in to build your watchlist.')) return; window.AICDB_WATCHLIST.toggle(film.id); }} />
           {Object.keys(lists).map(n => <ListRow key={n} name={n} checked={lists[n]} onClick={() => toggleList(n)} />)}
           <div style={{ height:1, background:'var(--border-subtle)', margin:'6px 4px' }} />
           <ListRow name="Create new list…" plus onClick={() => {}} />
@@ -152,7 +152,7 @@ function ExtraordinaryMeter({ film }) {
     return { ax, ay, rot };
   };
 
-  const openPopup = () => { setDraft(user != null ? user : community); setOpen(true); };
+  const openPopup = () => { if (!window.AICDB_REQUIRE_AUTH('Sign in to rate this title’s uniqueness.')) return; setDraft(user != null ? user : community); setOpen(true); };
   const submit = () => { setUser(draft); setOpen(false); };
 
   const tri = user != null ? triFor(user) : null;

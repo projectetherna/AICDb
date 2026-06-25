@@ -235,12 +235,12 @@ function ActivityRow({ a }) {
 function Dashboard({ onNav }) {
   const s = window.ADMIN_STATS;
   const cards = [
-    { icon:'users', label:'Total Users', value:fmtCount(s.totalUsers), delta:'+4.2%', tone:'var(--teal)' },
-    { icon:'film-slate', label:'Total Content', value:s.totalContent, delta:'+3', tone:'var(--coral)' },
-    { icon:'hourglass-medium', label:'Pending Reviews', value:s.pendingReviews, tone:'var(--warning)', alert:true },
-    { icon:'pulse', label:'Active Today', value:fmtCount(s.activeToday), delta:'+1.8%', tone:'var(--info)' },
-    { icon:'star', label:'Total Ratings', value:fmtCount(s.totalRatings), delta:'+12k', tone:'var(--coral)' },
-    { icon:'flag', label:'Reported Items', value:s.reportedItems, tone:'var(--danger)', alert:true },
+    { icon:'users', label:'Total Users', value:fmtCount(s.totalUsers), tone:'var(--teal)' },
+    { icon:'film-slate', label:'Total Content', value:s.totalContent, tone:'var(--coral)' },
+    { icon:'hourglass-medium', label:'Pending Reviews', value:s.pendingReviews, tone:'var(--warning)', alert:s.pendingReviews > 0 },
+    { icon:'pulse', label:'Active Today', value:fmtCount(s.activeToday), tone:'var(--info)' },
+    { icon:'star', label:'Total Ratings', value:fmtCount(s.totalRatings), tone:'var(--coral)' },
+    { icon:'flag', label:'Reported Items', value:s.reportedItems, tone:'var(--danger)', alert:s.reportedItems > 0 },
   ];
   return (
     <div>
@@ -257,7 +257,9 @@ function Dashboard({ onNav }) {
               <span style={{ width:7, height:7, borderRadius:'50%', background:'var(--teal-bright)', boxShadow:'0 0 8px rgba(78,205,196,0.9)' }} /> Live
             </span>
           </div>
-          {window.ADMIN_ACTIVITY.map((a, i) => <ActivityRow key={i} a={a} />)}
+          {window.ADMIN_ACTIVITY.length
+            ? window.ADMIN_ACTIVITY.map((a, i) => <ActivityRow key={i} a={a} />)
+            : <div style={{ padding:'28px 0', textAlign:'center', font:'var(--text-body-sm)', color:'var(--fg-3)' }}>No activity yet.</div>}
         </ACard>
 
         <div style={{ display:'flex', flexDirection:'column', gap:20 }}>
@@ -362,7 +364,7 @@ function AdminSidebar({ active, onNav }) {
         <div style={{ display:'flex', alignItems:'center', gap:10, marginBottom:12 }}>
           <Avatar size={34} colors={['#d85a30','#9d8df1']} />
           <div style={{ minWidth:0 }}>
-            <div style={{ font:'600 13px/1.2 var(--font-body)', color:'var(--fg-0)' }}>Ada Vance</div>
+            <div style={{ font:'600 13px/1.2 var(--font-body)', color:'var(--fg-0)' }}>Admin</div>
             <div style={{ font:'var(--text-data-sm)', color:'var(--fg-2)' }}>Administrator</div>
           </div>
         </div>

@@ -9,6 +9,8 @@
 })();
 
 // ---- additional titles ----
+// (sample catalog removed — platform starts with no published titles)
+/* removed sample titles
 window.AICDB_FILMS.push(
   // movies
   { id:'saltwater-gods', title:'Saltwater Gods', type:'movie', year:2025, runtime:'141 min', score:9.0, stars:5, ratings:'33.4k',
@@ -47,9 +49,12 @@ window.AICDB_FILMS.push(
     g:['#241a1a','#9a5a5a'], genres:['Drama'], technique:'Text-to-Video', creator:'@nullframe',
     synopsis:'Two strangers, one stalled subway car, fourteen real-time minutes. Shot vertical, built for the scroll.' },
 );
+*/
 
 // ---- creators registry. `name` matches film.creator strings so works/score derive at runtime ----
-window.AICDB_CREATORS = [
+window.AICDB_CREATORS = [];
+/* removed sample creators registry
+const _AICDB_CREATORS_SAMPLE = [
   { id:'vale',     name:'The Vale Collective', handle:'@thevale',     av:['#4ecdc4','#6f9ceb'], followers:92400, verified:true,
     location:'Remote', tagline:'A six-person studio building generation-spanning epics in latent space.' },
   { id:'maya',     name:'Maya Okonkwo',        handle:'@mayaokonkwo', av:['#d85a30','#9d8df1'], followers:48200, verified:true,
@@ -73,6 +78,7 @@ window.AICDB_CREATORS = [
   { id:'deadair',  name:'@deadair',            handle:'@deadair',     av:['#7c6fe0','#1e1a36'], followers:15200, verified:false,
     location:'Unknown', tagline:'At 3:33 the static learns your face.' },
 ];
+*/
 
 window.AICDB_CREATOR_BY_NAME = {};
 window.AICDB_CREATORS.forEach(c => { window.AICDB_CREATOR_BY_NAME[c.name] = c; });
@@ -85,7 +91,9 @@ window.AICDB_CREATOR_STATS = function (creator) {
 };
 
 // ---- social feed: posts from creators (newest first) ----
-window.AICDB_FEED = [
+window.AICDB_FEED = [];
+/* removed sample social feed
+const _AICDB_FEED_SAMPLE = [
   { id:'p1', creator:'maya', time:'2h', kind:'upload', film:'saltwater-gods',
     text:'Three years in latent space. <b>Saltwater Gods</b> is finally live. Go drown in it. \u{1F30A}',
     likes:1240, comments:89, reposts:142 },
@@ -115,6 +123,7 @@ window.AICDB_FEED = [
     text:'Prepping something big for next quarter. If you\u2019ve trained a coastline model you\u2019re proud of, my inbox is open. No coastlines too small.',
     likes:295, comments:28, reposts:12 },
 ];
+*/
 
 window.AICDB_FILM_BY_ID = {};
 window.AICDB_FILMS.forEach(f => { window.AICDB_FILM_BY_ID[f.id] = f; });

@@ -226,12 +226,12 @@ function StatisticsPage() {
     <div>
       <APageHead title="Statistics" sub="Growth, engagement, and the titles & creators driving the platform." />
       <div style={{ display:'grid', gridTemplateColumns:'1fr 1fr', gap:20, marginBottom:20 }}>
-        <ChartCard title="Active users" value={fmtCount(active[active.length-1])} delta="+1.8%">
+        <ChartCard title="Active users" value={fmtCount(active[active.length-1])}>
           <div style={{ display:'flex', justifyContent:'flex-end', marginBottom:12 }}><RangeToggle value={range} onChange={setRange} /></div>
           <LineChart series={active} tone="var(--teal)" />
           <div style={{ font:'var(--text-data-sm)', color:'var(--fg-3)', marginTop:10 }}>Avg {fmtCount(avgActive)} · {range.toLowerCase()} active</div>
         </ChartCard>
-        <ChartCard title="New registrations" value={fmtCount(s.regs.reduce((a, b) => a + b, 0))} delta="+6.4%">
+        <ChartCard title="New registrations" value={fmtCount(s.regs.reduce((a, b) => a + b, 0))}>
           <div style={{ height:34 }} />
           <BarChart series={s.regs} tone="var(--coral)" />
           <div style={{ font:'var(--text-data-sm)', color:'var(--fg-3)', marginTop:10 }}>Last 30 days · {fmtCount(s.regs[s.regs.length-1])} today</div>

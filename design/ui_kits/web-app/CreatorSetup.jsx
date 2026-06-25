@@ -102,6 +102,7 @@ function SetupCard({ children, style }) {
 // ---- main (viewer) account card ----
 function MainAccountCard() {
   const m = window.AICDB_MAIN_ACCOUNT;
+  if (!m) return null;
   return (
     <SetupCard style={{ display:'flex', alignItems:'center', gap:16, marginBottom:14 }}>
       <div style={{ width:54, height:54, borderRadius:'50%', flex:'none',

@@ -1,0 +1,62 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>Dreamwall — My Contents</title>
+<link rel="stylesheet" href="/css/colors_and_type.css">
+<script src="/theme-init.js"></script>
+<link rel="stylesheet" href="/css/responsive.css">
+<style>
+  html, body { margin:0; background: var(--bg-0); }
+  * { box-sizing: border-box; }
+  ::-webkit-scrollbar { width:10px; height:10px; }
+  ::-webkit-scrollbar-thumb { background: var(--bg-3); border-radius:6px; }
+  ::-webkit-scrollbar-track { background: var(--bg-0); }
+  a { color: inherit; }
+</style>
+<script src="https://unpkg.com/react@18.3.1/umd/react.development.js" integrity="sha384-hD6/rw4ppMLGNu3tX5cjIb+uRZ7UkRJ6BPkLpg4hAu/6onKUg4lLsHAs9EBPT82L" crossorigin="anonymous"></script>
+<script src="https://unpkg.com/react-dom@18.3.1/umd/react-dom.development.js" integrity="sha384-u6aeetuaXnQ38mYT8rp6sbXaQe3NL9t+IBXmnYxwkUI2Hw4bsp2Wvmx4yRQF1uAm" crossorigin="anonymous"></script>
+<script src="https://unpkg.com/@babel/standalone@7.29.0/babel.min.js" integrity="sha384-m08KidiNqLdpJqLq95G/LEi8Qvjl/xUYll3QILypMoQ65QorJ9Lvtp2RXYGBFj1y" crossorigin="anonymous"></script>
+<link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/@phosphor-icons/web@2.1.1/src/bold/style.css">
+<link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/@phosphor-icons/web@2.1.1/src/fill/style.css">
+<meta name="ext-resource-dependency" content="/assets/aicdb-mark.png" data-resource-id="aicdbMark" />
+<link rel="icon" href="/assets/aicdb-favicon-32.png" type="image/png">
+</head>
+<body>
+<div id="root"></div>
+<script src="/config.js"></script>
+<script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2/dist/umd/supabase.min.js"></script>
+<script src="/js/auth.js"></script>
+<script src="data.js"></script>
+<script src="data-stores.js"></script>
+<script src="catalog-extra.js"></script>
+<script type="text/babel" src="Primitives.jsx"></script>
+<script type="text/babel" src="FeedbackFlama.jsx"></script>
+<script type="text/babel" src="Extras.jsx"></script>
+<script type="text/babel" src="BrandIcons.jsx"></script>
+<script type="text/babel" src="Login.jsx"></script>
+<script type="text/babel" src="NavBar.jsx"></script>
+<script type="text/babel" src="FilmCard.jsx"></script>
+<script type="text/babel" src="CreatorParts.jsx"></script>
+<script type="text/babel" src="CreatorManage.jsx"></script>
+<script type="text/babel" src="Creator.jsx"></script>
+<script type="text/babel" src="CreatorEdit.jsx"></script>
+<script type="text/babel">
+  // Require auth — redirect to login if not signed in
+  AICDB_AUTH.getSession().then(session => {
+    if (!session) window.location.replace('/login.html');
+  }).catch(() => {});
+
+  // Force manage=1 so CreatorPage always treats this as the My Contents view
+  // (the URL is /my-contents.html, not /creator.html?manage=1)
+  const _url = new URL(window.location.href);
+  if (!_url.searchParams.get('manage')) {
+    _url.searchParams.set('manage', '1');
+    window.history.replaceState({}, '', _url);
+  }
+
+  ReactDOM.createRoot(document.getElementById('root')).render(<CreatorPage />);
+</script>
+</body>
+</html>

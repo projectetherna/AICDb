@@ -51,8 +51,8 @@ function ProfileMenu({ onNav, isCreator = true, isAdmin = true }) {
           background:'var(--bg-1)', border:'1px solid var(--border-default)', borderRadius:'var(--radius-lg)',
           boxShadow:'var(--shadow-3)' }}>
           <div style={{ padding:'8px 10px 10px', borderBottom:'1px solid var(--border-subtle)', marginBottom:4 }}>
-            <div style={{ font:'600 14px/1.2 var(--font-body)', color:'var(--fg-0)' }}>Ada Vance</div>
-            <div style={{ font:'var(--text-data-sm)', color:'var(--fg-2)', marginTop:3 }}>@adavance</div>
+            <div style={{ font:'600 14px/1.2 var(--font-body)', color:'var(--fg-0)' }}>Guest</div>
+            <div style={{ font:'var(--text-data-sm)', color:'var(--fg-2)', marginTop:3 }}>Not signed in</div>
           </div>
           {items.map(it => (
             <MenuRow key={it.label} icon={it.icon} iconNode={it.iconNode} danger={it.danger} admin={it.admin}
@@ -122,8 +122,29 @@ function NavLink({ label, display, icon, bold, active, onNav }) {
   );
 }
 
+// signed-out nav cluster — Sign In / Sign Up buttons (replaces the avatar)
+function AuthButtons() {
+  const [hov, setHov] = React.useState(false);
+  const go = (k) => { window.location.href = window.AICDB_PAGE(k); };
+  return (
+    <div style={{ display:'flex', alignItems:'center', gap:10, flex:'none' }}>
+      <button onClick={() => go('login')}
+        style={{ padding:'9px 15px', borderRadius:'var(--radius-pill)', cursor:'pointer', whiteSpace:'nowrap',
+          background:'transparent', border:'1px solid var(--border-strong)', color:'var(--fg-0)',
+          font:'600 13.5px/1 var(--font-body)', transition:'all var(--dur-fast)' }}
+        onMouseEnter={e => e.currentTarget.style.borderColor = 'var(--fg-2)'}
+        onMouseLeave={e => e.currentTarget.style.borderColor = 'var(--border-strong)'}>Sign In</button>
+      <button onClick={() => go('signup')} onMouseEnter={() => setHov(true)} onMouseLeave={() => setHov(false)}
+        style={{ padding:'9px 16px', borderRadius:'var(--radius-pill)', cursor:'pointer', border:'1px solid transparent', whiteSpace:'nowrap',
+          background: hov ? 'var(--coral-bright)' : 'var(--coral)', color:'var(--fg-on-accent)',
+          font:'600 13.5px/1 var(--font-body)', transition:'background var(--dur-fast)' }}>Sign Up</button>
+    </div>
+  );
+}
+
 function NavBar({ active = 'Feed', onNav, query, onQuery, onOpenResult, isCreator = true, isAdmin = true }) {
   const primaryLinks = ['Discover', 'Films', 'Series', 'Creators'];
+  const loggedIn = useAuth();
   const [focused, setFocused] = React.useState(false);
   const q = (query || '').trim().toLowerCase();
   const results = q ? window.AICDB_FILMS.filter(f =>
@@ -188,9 +209,9 @@ function NavBar({ active = 'Feed', onNav, query, onQuery, onOpenResult, isCreato
       <div className="aicdb-nav-right" style={{ display:'flex', alignItems:'center', gap:22 }}>
         <NavLink label="Feed" display="People" icon="users" bold active={active==='Feed'} onNav={onNav} />
         <NavLink label="Watchlist" display="My Watchlist" icon="bookmark" active={active==='Watchlist'} onNav={onNav} />
-        <ProfileMenu onNav={onNav} isCreator={isCreator} isAdmin={isAdmin} />
+        {loggedIn ? <ProfileMenu onNav={onNav} isCreator={isCreator} isAdmin={isAdmin} /> : <AuthButtons />}
       </div>
     </nav>
   );
 }
-Object.assign(window, { NavBar, NavLink, ProfileMenu, SearchResult });
+Object.assign(window, { NavBar, NavLink, ProfileMenu, SearchResult, AuthButtons });

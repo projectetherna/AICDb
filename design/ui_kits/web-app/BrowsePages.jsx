@@ -7,7 +7,7 @@
 function BrowseHero({ film, kicker, onOpen }) {
   if (!film) return null;
   return (
-    <div style={{ position:'relative', borderRadius:'var(--radius-xl)', overflow:'hidden', marginBottom:34,
+    <div className="aicdb-hero" style={{ position:'relative', borderRadius:'var(--radius-xl)', overflow:'hidden', marginBottom:34,
       minHeight:360, background:'var(--bg-inset)' }}>
       {/* fading poster — featured content bleeds in from the right into the dark */}
       <div style={{ position:'absolute', top:0, right:0, bottom:0, width:'62%',
@@ -20,7 +20,7 @@ function BrowseHero({ film, kicker, onOpen }) {
           + 'linear-gradient(to top, var(--bg-inset) 2%, transparent 30%)' }} />
       <div style={{ position:'absolute', inset:0, opacity:0.4,
         backgroundImage:'radial-gradient(rgba(245,243,239,0.05) 1px, transparent 1px)', backgroundSize:'5px 5px' }} />
-      <div style={{ position:'relative', padding:'48px 52px', maxWidth:560 }}>
+      <div className="aicdb-hero-body" style={{ position:'relative', padding:'48px 52px', maxWidth:560 }}>
         <div style={{ display:'flex', alignItems:'center', gap:12, marginBottom:16, flexWrap:'wrap' }}>
           <span className="overline" style={{ color:'var(--coral-bright)' }}>{kicker}</span>
           <ContentBadge type={film.type} />
@@ -174,7 +174,7 @@ function BrowsePage({ pool, kicker, durationOptions, durationMatch, onOpen }) {
   const anyActive = genre !== 'All genres' || year !== 'All years' || duration !== durationOptions[0] || score !== 'Any score';
 
   return (
-    <div style={{ maxWidth:1180, margin:'0 auto', padding:'28px 28px 90px' }}>
+    <div className="aicdb-page" style={{ maxWidth:1180, margin:'0 auto', padding:'28px 28px 90px' }}>
       <BrowseHero film={featured} kicker={kicker} onOpen={onOpen} />
 
       {/* filter bar */}
@@ -199,8 +199,12 @@ function BrowsePage({ pool, kicker, durationOptions, durationMatch, onOpen }) {
 
       {loading ? (
         <SkeletonGrid count={10} min={176} />
+      ) : !pool.length ? (
+        <EmptyState icon="film-slate" accent="var(--coral)" compact
+          title="No titles yet"
+          sub="Nothing has been published to the catalog yet. New releases will show up here." />
       ) : shown.length ? (
-        <div style={{ display:'grid', gridTemplateColumns:'repeat(auto-fill, minmax(176px, 1fr))', gap:24 }}>
+        <div className="aicdb-film-grid" style={{ display:'grid', gridTemplateColumns:'repeat(auto-fill, minmax(176px, 1fr))', gap:24 }}>
           {shown.map(f => <BrowseCard key={f.id} film={f} onOpen={onOpen} />)}
         </div>
       ) : (

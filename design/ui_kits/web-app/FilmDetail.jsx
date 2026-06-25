@@ -91,7 +91,7 @@ function FilmDetail({ film, onBack, onWatch, onCreator, onOpen }) {
           <div style={{ display:'flex', flexDirection:'column', gap:10, marginTop:16 }}>
             <SideButton icon="play" primary onClick={() => onWatch && onWatch(film)}>Watch</SideButton>
             <WatchlistSplit film={film} />
-            <SideButton icon="star" onClick={() => setRateOpen(true)}>{userScore ? `Rated ${userScore.toFixed(1)}` : 'Rate'}</SideButton>
+            <SideButton icon="star" onClick={() => { if (!window.AICDB_REQUIRE_AUTH('Sign in to rate this title.')) return; setRateOpen(true); }}>{userScore ? `Rated ${userScore.toFixed(1)}` : 'Rate'}</SideButton>
             <ShareButton />
           </div>
         </div>
@@ -155,7 +155,7 @@ function FilmDetail({ film, onBack, onWatch, onCreator, onOpen }) {
         <section style={{ marginTop:48 }}>
           <div style={{ display:'flex', alignItems:'center', justifyContent:'space-between', marginBottom:18 }}>
             <h2 style={{ font:'var(--text-h2)', color:'var(--fg-0)' }}>Reviews</h2>
-            <Button variant="secondary" icon="pencil" size="sm" onClick={() => setReviewOpen(true)}>Add review</Button>
+            <Button variant="secondary" icon="pencil" size="sm" onClick={() => { if (!window.AICDB_REQUIRE_AUTH('Sign in to write a review.')) return; setReviewOpen(true); }}>Add review</Button>
           </div>
           {reviewOpen && (
             <AddReviewBox onCancel={() => setReviewOpen(false)}

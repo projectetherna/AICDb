@@ -5,9 +5,11 @@
 
 // ---- featured hero banner ----
 function BrowseHero({ film, kicker, onOpen }) {
+  const wlIds = useWatchlist();
+  const inList = film && wlIds.includes(film.id);
   if (!film) return null;
   return (
-    <div style={{ position:'relative', borderRadius:'var(--radius-xl)', overflow:'hidden', marginBottom:34,
+    <div className="aicdb-hero" style={{ position:'relative', borderRadius:'var(--radius-xl)', overflow:'hidden', marginBottom:34,
       minHeight:360, background:'var(--bg-inset)' }}>
       {/* fading poster — featured content bleeds in from the right into the dark */}
       <div style={{ position:'absolute', top:0, right:0, bottom:0, width:'62%',
@@ -20,7 +22,7 @@ function BrowseHero({ film, kicker, onOpen }) {
           + 'linear-gradient(to top, var(--bg-inset) 2%, transparent 30%)' }} />
       <div style={{ position:'absolute', inset:0, opacity:0.4,
         backgroundImage:'radial-gradient(rgba(245,243,239,0.05) 1px, transparent 1px)', backgroundSize:'5px 5px' }} />
-      <div style={{ position:'relative', padding:'48px 52px', maxWidth:560 }}>
+      <div className="aicdb-hero-body" style={{ position:'relative', padding:'48px 52px', maxWidth:560 }}>
         <div style={{ display:'flex', alignItems:'center', gap:12, marginBottom:16, flexWrap:'wrap' }}>
           <span className="overline" style={{ color:'var(--coral-bright)' }}>{kicker}</span>
           <ContentBadge type={film.type} />
@@ -33,11 +35,13 @@ function BrowseHero({ film, kicker, onOpen }) {
           <span style={{ width:1, height:22, background:'var(--border-default)' }} />
           <span style={{ font:'var(--text-data)', color:'var(--fg-1)' }}>{film.year}</span>
           <span style={{ font:'var(--text-data)', color:'var(--fg-1)' }}>{film.seasons ? `${film.seasons} ${film.seasons===1?'season':'seasons'}` : film.runtime}</span>
-          <span style={{ font:'var(--text-data)', color:'var(--fg-1)' }}>{film.genres.join(' · ')}</span>
+          {(film.genres || []).length > 0 && (
+            <span style={{ font:'var(--text-data)', color:'var(--fg-1)' }}>{film.genres.join(' · ')}</span>
+          )}
         </div>
         <div style={{ display:'flex', gap:12 }}>
           <Button variant="primary" icon="play" onClick={() => onOpen(film)}>View title</Button>
-          <Button variant="secondary" icon="plus">Watchlist</Button>
+          <Button variant="secondary" icon={inList ? 'check' : 'plus'} onClick={() => { if (!window.AICDB_REQUIRE_AUTH('Sign in to build your watchlist.')) return; window.AICDB_WATCHLIST.toggle(film.id); }}>{inList ? 'On watchlist' : 'Watchlist'}</Button>
         </div>
       </div>
     </div>
@@ -132,7 +136,7 @@ function BrowseCard({ film, onOpen }) {
       <div style={{ font:'600 14px/1.25 var(--font-body)', color:'var(--fg-0)', marginTop:10,
         whiteSpace:'nowrap', overflow:'hidden', textOverflow:'ellipsis' }}>{film.title}</div>
       <div style={{ font:'var(--text-data-sm)', color:'var(--fg-2)', marginTop:3 }}>
-        {film.year} · {film.genres[0]}
+        {film.year}{(film.genres || []).length > 0 ? ' · ' + film.genres[0] : ''}
       </div>
     </div>
   );
@@ -153,14 +157,14 @@ function BrowsePage({ pool, kicker, durationOptions, durationMatch, onOpen }) {
     return () => clearTimeout(t);
   }, [genre, year, duration, score, sort]);
 
-  const genres = ['All genres', ...Array.from(new Set(pool.flatMap(f => f.genres))).sort()];
+  const genres = ['All genres', ...Array.from(new Set(pool.flatMap(f => f.genres || []))).sort()];
   const years = ['All years', ...Array.from(new Set(pool.map(f => f.year))).sort((a, b) => b - a).map(String)];
-  const scores = ['Any score', '9.0+', '8.0+', '7.0+', '6.0+'];
+  const scores = ['Any score', '4.5+', '4.0+', '3.5+', '3.0+'];
   const sorts = ['Highest rated', 'Newest', 'Most rated'];
 
   const ratingNum = (f) => parseFloat(String(f.ratings)) * (String(f.ratings).includes('k') ? 1000 : 1);
   let shown = pool.filter(f => {
-    if (genre !== 'All genres' && !f.genres.includes(genre)) return false;
+    if (genre !== 'All genres' && !(f.genres || []).includes(genre)) return false;
     if (year !== 'All years' && String(f.year) !== year) return false;
     if (score !== 'Any score' && f.score < parseFloat(score)) return false;
     if (duration !== durationOptions[0] && !durationMatch(f, duration)) return false;
@@ -174,7 +178,7 @@ function BrowsePage({ pool, kicker, durationOptions, durationMatch, onOpen }) {
   const anyActive = genre !== 'All genres' || year !== 'All years' || duration !== durationOptions[0] || score !== 'Any score';
 
   return (
-    <div style={{ maxWidth:1180, margin:'0 auto', padding:'28px 28px 90px' }}>
+    <div className="aicdb-page" style={{ maxWidth:1180, margin:'0 auto', padding:'28px 28px 90px' }}>
       <BrowseHero film={featured} kicker={kicker} onOpen={onOpen} />
 
       {/* filter bar */}
@@ -199,8 +203,12 @@ function BrowsePage({ pool, kicker, durationOptions, durationMatch, onOpen }) {
 
       {loading ? (
         <SkeletonGrid count={10} min={176} />
+      ) : !pool.length ? (
+        <EmptyState icon="film-slate" accent="var(--coral)" compact
+          title="No titles yet"
+          sub="Nothing has been published to the catalog yet. New releases will show up here." />
       ) : shown.length ? (
-        <div style={{ display:'grid', gridTemplateColumns:'repeat(auto-fill, minmax(176px, 1fr))', gap:24 }}>
+        <div className="aicdb-film-grid" style={{ display:'grid', gridTemplateColumns:'repeat(auto-fill, minmax(176px, 1fr))', gap:24 }}>
           {shown.map(f => <BrowseCard key={f.id} film={f} onOpen={onOpen} />)}
         </div>
       ) : (
@@ -213,8 +221,17 @@ function BrowsePage({ pool, kicker, durationOptions, durationMatch, onOpen }) {
   );
 }
 
-function FilmsPage({ onOpen }) {
-  const pool = window.AICDB_FILMS.filter(f => f.type === 'movie' || f.type === 'short' || f.type === 'vertical');
+// films prop: null = catalog still loading, [] = loaded but empty, [...] = ready.
+function FilmsPage({ onOpen, films }) {
+  if (films === null) {
+    return (
+      <div className="aicdb-page" style={{ maxWidth:1180, margin:'0 auto', padding:'28px 28px 90px' }}>
+        <div className="aicdb-skel" style={{ borderRadius:'var(--radius-xl)', height:360, marginBottom:34 }} />
+        <SkeletonGrid count={10} min={176} />
+      </div>
+    );
+  }
+  const pool = films.filter(f => f.type === 'movie' || f.type === 'short' || f.type === 'vertical');
   const mins = (f) => parseInt(String(f.runtime).replace(/[^0-9]/g, ''), 10) || 0;
   return (
     <BrowsePage pool={pool} kicker="Featured film" onOpen={onOpen}
@@ -227,8 +244,16 @@ function FilmsPage({ onOpen }) {
   );
 }
 
-function SeriesPage({ onOpen }) {
-  const pool = window.AICDB_FILMS.filter(f => f.type === 'series');
+function SeriesPage({ onOpen, films }) {
+  if (films === null) {
+    return (
+      <div className="aicdb-page" style={{ maxWidth:1180, margin:'0 auto', padding:'28px 28px 90px' }}>
+        <div className="aicdb-skel" style={{ borderRadius:'var(--radius-xl)', height:360, marginBottom:34 }} />
+        <SkeletonGrid count={10} min={176} />
+      </div>
+    );
+  }
+  const pool = films.filter(f => f.type === 'series');
   return (
     <BrowsePage pool={pool} kicker="Featured series" onOpen={onOpen}
       durationOptions={['Any length', '1 season', '2 seasons', '3+ seasons']}

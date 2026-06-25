@@ -1,4 +1,4 @@
-/* @ds-bundle: {"format":3,"namespace":"AICDbDesignSystem_beee55","components":[],"sourceHashes":{"ui_kits/web-app/AddContent.jsx":"841024c56188","ui_kits/web-app/AddContentFields.jsx":"f81466fc96a9","ui_kits/web-app/AddContentPreview.jsx":"47935a4ec899","ui_kits/web-app/Admin.jsx":"07ce68c5046b","ui_kits/web-app/AdminContent.jsx":"e0acd1f4c9cc","ui_kits/web-app/AdminUsersStats.jsx":"f3836da7f22a","ui_kits/web-app/App.jsx":"915771d52c46","ui_kits/web-app/BrandIcons.jsx":"338ce21d71f6","ui_kits/web-app/BrowsePages.jsx":"7de65006cdec","ui_kits/web-app/Creator.jsx":"e5c28c2ba7ff","ui_kits/web-app/CreatorManage.jsx":"13d8705ce7c5","ui_kits/web-app/CreatorParts.jsx":"6599d52b5e86","ui_kits/web-app/CreatorSetup.jsx":"f443e4cbffd9","ui_kits/web-app/CreatorsPage.jsx":"3cdf04a94395","ui_kits/web-app/DetailParts.jsx":"f29b6a4b7fa1","ui_kits/web-app/Discover.jsx":"92dbcfe14338","ui_kits/web-app/Extras.jsx":"79ecf2500b5e","ui_kits/web-app/Feed.jsx":"22c8fa0d6a5d","ui_kits/web-app/Feedback.jsx":"89124ec19adc","ui_kits/web-app/FeedbackFlama.jsx":"0fb7830ff60d","ui_kits/web-app/FilmCard.jsx":"a0f898203919","ui_kits/web-app/FilmDetail.jsx":"fd2fccc86955","ui_kits/web-app/Login.jsx":"59ecd26305e1","ui_kits/web-app/LoginModal.jsx":"f29e5b41f9e0","ui_kits/web-app/NavBar.jsx":"c3a5a777113b","ui_kits/web-app/Preferences.jsx":"f6e9b65367ac","ui_kits/web-app/Primitives.jsx":"f4b26cbe6071","ui_kits/web-app/Profile.jsx":"43c64e1c6fb8","ui_kits/web-app/RatingPanel.jsx":"6368b16f0516","ui_kits/web-app/Signup.jsx":"22ca588ba027","ui_kits/web-app/Watching.jsx":"86be44dc0f38","ui_kits/web-app/WhatIs.jsx":"56870d4ca99c","ui_kits/web-app/admin-data.js":"cac8ef796684","ui_kits/web-app/catalog-extra.js":"c88976da13eb","ui_kits/web-app/data.js":"b11227b6f9b7","ui_kits/web-app/theme-init.js":"2a9267cc07a1"},"inlinedExternals":[],"unexposedExports":[]} */
+/* @ds-bundle: {"format":3,"namespace":"AICDbDesignSystem_beee55","components":[],"sourceHashes":{"ui_kits/web-app/AddContent.jsx":"841024c56188","ui_kits/web-app/AddContentFields.jsx":"9a2a02fdcc7e","ui_kits/web-app/AddContentPreview.jsx":"47935a4ec899","ui_kits/web-app/Admin.jsx":"bf41cbc33f17","ui_kits/web-app/AdminContent.jsx":"e0acd1f4c9cc","ui_kits/web-app/AdminUsersStats.jsx":"54b3d87b0f3b","ui_kits/web-app/App.jsx":"bf7fc507b56c","ui_kits/web-app/BrandIcons.jsx":"338ce21d71f6","ui_kits/web-app/BrowsePages.jsx":"a6248724fea8","ui_kits/web-app/Creator.jsx":"83db059c1987","ui_kits/web-app/CreatorManage.jsx":"13d8705ce7c5","ui_kits/web-app/CreatorParts.jsx":"6599d52b5e86","ui_kits/web-app/CreatorSetup.jsx":"99d5a26e204b","ui_kits/web-app/CreatorsPage.jsx":"9b9c0e5c61d2","ui_kits/web-app/DetailParts.jsx":"acb98a8fb0c7","ui_kits/web-app/Discover.jsx":"0a81ca9835f7","ui_kits/web-app/Extras.jsx":"fbbdc5cd42eb","ui_kits/web-app/Feed.jsx":"bad652c3ae30","ui_kits/web-app/Feedback.jsx":"89124ec19adc","ui_kits/web-app/FeedbackFlama.jsx":"0fb7830ff60d","ui_kits/web-app/FilmCard.jsx":"d776b7febc9d","ui_kits/web-app/FilmDetail.jsx":"b5a46a8bbe25","ui_kits/web-app/Login.jsx":"dd3494c28e4d","ui_kits/web-app/LoginModal.jsx":"1597e8e269be","ui_kits/web-app/NavBar.jsx":"b36c4ec1e2c3","ui_kits/web-app/Preferences.jsx":"f6e9b65367ac","ui_kits/web-app/Primitives.jsx":"670a6b57187b","ui_kits/web-app/Profile.jsx":"322982f38abc","ui_kits/web-app/RatingPanel.jsx":"6368b16f0516","ui_kits/web-app/Signup.jsx":"3d316378aa2d","ui_kits/web-app/Watching.jsx":"86be44dc0f38","ui_kits/web-app/WhatIs.jsx":"56870d4ca99c","ui_kits/web-app/admin-data.js":"d608708a0d9f","ui_kits/web-app/catalog-extra.js":"4f0361909440","ui_kits/web-app/data.js":"72bb4fa41d90","ui_kits/web-app/theme-init.js":"2a9267cc07a1"},"inlinedExternals":[],"unexposedExports":[]} */
 
 (() => {
 
@@ -1677,31 +1677,8 @@ function EpisodeEmbeds({
 }
 
 // ---- the user's previously-added series (for "add episode to existing series") ----
-const AC_MY_SERIES = [{
-  id: 'echoes',
-  name: 'Echoes of Tomorrow',
-  g: ['#10302d', '#4ecdc4'],
-  genres: ['Sci-Fi', 'Drama'],
-  seasons: 3,
-  episodes: 24,
-  description: 'Across three timelines, a family keeps almost meeting itself — an aching, generation-spanning epic rendered entirely in latent space.'
-}, {
-  id: 'glass',
-  name: 'Glass Orchard',
-  g: ['#0f2e2b', '#3aa9a1'],
-  genres: ['Mystery', 'Drama'],
-  seasons: 1,
-  episodes: 8,
-  description: 'In a town where the trees grow glass fruit, a botanist investigates why the harvest has started showing faces.'
-}, {
-  id: 'quiet',
-  name: 'The Quiet Sequence',
-  g: ['#241a3a', '#7c6fe0'],
-  genres: ['Sci-Fi', 'Thriller'],
-  seasons: 4,
-  episodes: 32,
-  description: 'A research station listens to a signal that only repeats when nobody is awake to hear it.'
-}];
+// Empty by default — the user hasn't added any series yet.
+const AC_MY_SERIES = [];
 
 // ---- Series submission mode: brand-new series vs. add an episode to an existing one ----
 function SeriesModeCard({
@@ -3022,38 +2999,34 @@ function Dashboard({
     icon: 'users',
     label: 'Total Users',
     value: fmtCount(s.totalUsers),
-    delta: '+4.2%',
     tone: 'var(--teal)'
   }, {
     icon: 'film-slate',
     label: 'Total Content',
     value: s.totalContent,
-    delta: '+3',
     tone: 'var(--coral)'
   }, {
     icon: 'hourglass-medium',
     label: 'Pending Reviews',
     value: s.pendingReviews,
     tone: 'var(--warning)',
-    alert: true
+    alert: s.pendingReviews > 0
   }, {
     icon: 'pulse',
     label: 'Active Today',
     value: fmtCount(s.activeToday),
-    delta: '+1.8%',
     tone: 'var(--info)'
   }, {
     icon: 'star',
     label: 'Total Ratings',
     value: fmtCount(s.totalRatings),
-    delta: '+12k',
     tone: 'var(--coral)'
   }, {
     icon: 'flag',
     label: 'Reported Items',
     value: s.reportedItems,
     tone: 'var(--danger)',
-    alert: true
+    alert: s.reportedItems > 0
   }];
   return /*#__PURE__*/React.createElement("div", null, /*#__PURE__*/React.createElement(APageHead, {
     title: "Dashboard",
@@ -3102,10 +3075,17 @@ function Dashboard({
       background: 'var(--teal-bright)',
       boxShadow: '0 0 8px rgba(78,205,196,0.9)'
     }
-  }), " Live")), window.ADMIN_ACTIVITY.map((a, i) => /*#__PURE__*/React.createElement(ActivityRow, {
+  }), " Live")), window.ADMIN_ACTIVITY.length ? window.ADMIN_ACTIVITY.map((a, i) => /*#__PURE__*/React.createElement(ActivityRow, {
     key: i,
     a: a
-  }))), /*#__PURE__*/React.createElement("div", {
+  })) : /*#__PURE__*/React.createElement("div", {
+    style: {
+      padding: '28px 0',
+      textAlign: 'center',
+      font: 'var(--text-body-sm)',
+      color: 'var(--fg-3)'
+    }
+  }, "No activity yet.")), /*#__PURE__*/React.createElement("div", {
     style: {
       display: 'flex',
       flexDirection: 'column',
@@ -3422,7 +3402,7 @@ function AdminSidebar({
       font: '600 13px/1.2 var(--font-body)',
       color: 'var(--fg-0)'
     }
-  }, "Ada Vance"), /*#__PURE__*/React.createElement("div", {
+  }, "Admin"), /*#__PURE__*/React.createElement("div", {
     style: {
       font: 'var(--text-data-sm)',
       color: 'var(--fg-2)'
@@ -4962,8 +4942,7 @@ function StatisticsPage() {
     }
   }, /*#__PURE__*/React.createElement(ChartCard, {
     title: "Active users",
-    value: fmtCount(active[active.length - 1]),
-    delta: "+1.8%"
+    value: fmtCount(active[active.length - 1])
   }, /*#__PURE__*/React.createElement("div", {
     style: {
       display: 'flex',
@@ -4984,8 +4963,7 @@ function StatisticsPage() {
     }
   }, "Avg ", fmtCount(avgActive), " \xB7 ", range.toLowerCase(), " active")), /*#__PURE__*/React.createElement(ChartCard, {
     title: "New registrations",
-    value: fmtCount(s.regs.reduce((a, b) => a + b, 0)),
-    delta: "+6.4%"
+    value: fmtCount(s.regs.reduce((a, b) => a + b, 0))
   }, /*#__PURE__*/React.createElement("div", {
     style: {
       height: 34
@@ -5288,6 +5266,7 @@ function BrowseGrid({
   sub
 }) {
   return /*#__PURE__*/React.createElement("div", {
+    className: "aicdb-page",
     style: {
       maxWidth: 1180,
       margin: '0 auto',
@@ -5311,6 +5290,7 @@ function BrowseGrid({
       color: 'var(--fg-2)'
     }
   }, sub || `${films.length} ${films.length === 1 ? 'title' : 'titles'}`)), films.length ? /*#__PURE__*/React.createElement("div", {
+    className: "aicdb-film-grid",
     style: {
       display: 'grid',
       gridTemplateColumns: 'repeat(auto-fill, minmax(150px, 1fr))',
@@ -5557,26 +5537,7 @@ function WatchlistView({
 }
 
 // the signed-in user's own reviews (text only — score shown separately if they rated it)
-const MY_REVIEWS = [{
-  id: 'echoes-of-tomorrow',
-  when: '2 days ago',
-  score: 5.0,
-  body: "Still the bar. The third act rewires how you think about memory on a second watch — I keep finding new seams in the edit."
-}, {
-  id: 'saltwater-gods',
-  when: '1 week ago',
-  score: 4.5,
-  body: "The drowned-pantheon sequence is the most beautiful thing I've seen come out of a diffusion pipeline. Loses a little momentum mid-film, but the ending earns it."
-}, {
-  id: 'glass-orchard',
-  when: '3 weeks ago',
-  score: 4.0,
-  body: "Quiet, patient, and gorgeously lit. Not for everyone, but if you let it breathe it gets under your skin."
-}, {
-  id: 'redshift',
-  when: '1 month ago',
-  body: "Technically dazzling. I wanted a little more heart underneath the spectacle — still very much worth your time."
-}];
+const MY_REVIEWS = [];
 function MyReviewRow({
   r,
   onOpen
@@ -5740,8 +5701,27 @@ function App() {
   const [detail, setDetail] = React.useState(null);
   const [watching, setWatching] = React.useState(null);
   const [query, setQuery] = React.useState('');
+  const [loading, setLoading] = React.useState(true);
+  React.useEffect(() => {
+    const t = setTimeout(() => setLoading(false), 900);
+    return () => clearTimeout(t);
+  }, []);
+  const loggedIn = useAuth();
   const films = window.AICDB_FILMS;
   const watchlist = useWatchlist();
+
+  // login-only in-app views — signed-out visitors get bounced to the login page
+  const GATED = ['Profile', 'Watchlist', 'Feed', 'My Reviews', 'Preferences'];
+  const blocked = !loggedIn && GATED.includes(nav);
+  React.useEffect(() => {
+    if (!loading && blocked) {
+      try {
+        window.location.replace(window.AICDB_PAGE('login'));
+      } catch (e) {
+        window.location.href = window.AICDB_PAGE('login');
+      }
+    }
+  }, [loading, blocked]);
   const open = f => {
     if (!f) {
       goNav('Films');
@@ -5770,7 +5750,12 @@ function App() {
   };
   let view,
     showFooter = true;
-  if (watching) {
+  if (loading) {
+    return /*#__PURE__*/React.createElement(LoadingScreen, null);
+  } else if (blocked) {
+    // redirecting to login — keep the dark logo splash up so gated content never flashes
+    return /*#__PURE__*/React.createElement(LoadingScreen, null);
+  } else if (watching) {
     return /*#__PURE__*/React.createElement(Watching, {
       film: watching,
       onBack: () => {
@@ -5858,7 +5843,7 @@ function App() {
     }
   }, view), showFooter && /*#__PURE__*/React.createElement(Footer, {
     onNav: goNav
-  }));
+  }), /*#__PURE__*/React.createElement(AuthPromptHost, null));
 }
 ReactDOM.createRoot(document.getElementById('root')).render(/*#__PURE__*/React.createElement(App, null));
 })(); } catch (e) { __ds_ns.__errors.push({ path: "ui_kits/web-app/App.jsx", error: String((e && e.message) || e) }); }
@@ -6033,6 +6018,7 @@ function BrowseHero({
 }) {
   if (!film) return null;
   return /*#__PURE__*/React.createElement("div", {
+    className: "aicdb-hero",
     style: {
       position: 'relative',
       borderRadius: 'var(--radius-xl)',
@@ -6067,6 +6053,7 @@ function BrowseHero({
       backgroundSize: '5px 5px'
     }
   }), /*#__PURE__*/React.createElement("div", {
+    className: "aicdb-hero-body",
     style: {
       position: 'relative',
       padding: '48px 52px',
@@ -6418,6 +6405,7 @@ function BrowsePage({
   };
   const anyActive = genre !== 'All genres' || year !== 'All years' || duration !== durationOptions[0] || score !== 'Any score';
   return /*#__PURE__*/React.createElement("div", {
+    className: "aicdb-page",
     style: {
       maxWidth: 1180,
       margin: '0 auto',
@@ -6489,7 +6477,14 @@ function BrowsePage({
   }, loading ? 'Loading titles…' : `${shown.length} ${shown.length === 1 ? 'title' : 'titles'}`), loading ? /*#__PURE__*/React.createElement(SkeletonGrid, {
     count: 10,
     min: 176
+  }) : !pool.length ? /*#__PURE__*/React.createElement(EmptyState, {
+    icon: "film-slate",
+    accent: "var(--coral)",
+    compact: true,
+    title: "No titles yet",
+    sub: "Nothing has been published to the catalog yet. New releases will show up here."
   }) : shown.length ? /*#__PURE__*/React.createElement("div", {
+    className: "aicdb-film-grid",
     style: {
       display: 'grid',
       gridTemplateColumns: 'repeat(auto-fill, minmax(176px, 1fr))',
@@ -6555,47 +6550,13 @@ try { (() => {
 // About section + (creator-only) Creator Studio management panel.
 // Reuses CreatorParts.jsx, CreatorManage.jsx, Primitives, FilmCard, NavBar.
 
-// ---- the creator + their catalog (fictional, mockup data) ----
-const CREATOR = {
-  name: 'Maya Okonkwo',
-  initials: 'M',
-  location: 'Lagos · Berlin',
-  joined: 'Creating since 2023',
-  avatar: ['#d85a30', '#9d8df1'],
-  // gradient fallback if no avatarImg
-  avatarImg: null,
-  banner: null,
-  // gradient placeholder if null
-  followers: 48200,
-  manifesto: "I don't generate films — I haunt them into existence. Every frame is a memory I haven't had yet. Diffusion is just the séance.",
-  social: {
-    youtube: '#',
-    instagram: '#',
-    x: '#',
-    tiktok: '#',
-    website: '#'
-  },
-  tools: ['Runway Gen-3', 'Sora', 'Midjourney v6', 'ElevenLabs', 'Kling 1.5', 'Topaz', 'DaVinci Resolve'],
-  influences: ['Wong Kar-wai', 'Tarkovsky', 'Hideaki Anno', 'Neo-noir', 'Liminal spaces', 'Saul Bass'],
-  notes: "Currently deep in a feature-length piece about a city that dreams its own residents.\n\nOpen to scoring collaborations and prompt-architecture residencies. If you've trained a grain model you're proud of, my inbox is always open — I'm hunting for the texture of 16mm rendered in latent space.\n\nNo NFTs. Don't ask.",
-  // works the creator has published (ids into AICDB_FILMS)
-  works: ['echoes-of-tomorrow', 'glass-orchard', 'synthetic-dreams', 'the-long-render', 'redshift', 'paper-suns']
-};
+// ---- the creator + their catalog ----
+// No hand-authored default creator — a creator page only renders for a real
+// (user-created) creator account; otherwise it shows an empty state.
+const CREATOR = null;
 
-// drafts in progress (creator-only studio)
-const DRAFTS = [{
-  title: 'The City That Dreams (feature)',
-  edited: '2 hours ago',
-  pct: 72
-}, {
-  title: 'Untitled — Lagos 2099',
-  edited: '4 days ago',
-  pct: 41
-}, {
-  title: 'Grain Study #7 (short)',
-  edited: '3 weeks ago',
-  pct: 18
-}];
+// drafts in progress (creator-only studio) — none by default
+const DRAFTS = [];
 
 // ---- build a creator object from a stored (user-created) creator account ----
 function creatorFromAccount(acct) {
@@ -6638,10 +6599,9 @@ function resolveCreator() {
     const acct = window.AICDB_CREATOR_ACCOUNTS.byId(accountId);
     if (acct) return creatorFromAccount(acct);
   }
-  if (!name) return CREATOR;
+  if (!name) return null;
   const reg = window.AICDB_CREATOR_BY_NAME ? window.AICDB_CREATOR_BY_NAME[name] : null;
-  if (!reg) return CREATOR;
-  if (reg.name === CREATOR.name) return CREATOR; // rich hand-authored default (Maya)
+  if (!reg) return null;
   const works = window.AICDB_FILMS.filter(f => f.creator === reg.name).map(f => f.id);
   const handleClean = reg.handle ? reg.handle.replace('@', '') : reg.name;
   return {
@@ -6973,6 +6933,76 @@ function CreatorPage() {
     });
   }
   const creator = isMyContents ? creatorFromAccount(accounts[0]) : resolveCreator();
+
+  // No real creator to show (e.g. the page was opened without a valid creator)
+  if (!creator) {
+    return /*#__PURE__*/React.createElement("div", {
+      style: {
+        minHeight: '100vh'
+      }
+    }, /*#__PURE__*/React.createElement(NavBar, {
+      active: "",
+      onNav: goApp,
+      query: "",
+      onQuery: () => {},
+      onOpenResult: () => {}
+    }), /*#__PURE__*/React.createElement("div", {
+      style: {
+        maxWidth: 560,
+        margin: '0 auto',
+        padding: '90px 28px',
+        textAlign: 'center'
+      }
+    }, /*#__PURE__*/React.createElement("div", {
+      style: {
+        width: 96,
+        height: 96,
+        margin: '0 auto 24px',
+        borderRadius: '50%',
+        display: 'flex',
+        alignItems: 'center',
+        justifyContent: 'center',
+        background: 'var(--bg-1)',
+        border: '1px solid var(--border-subtle)'
+      }
+    }, /*#__PURE__*/React.createElement(Icon, {
+      name: "user",
+      size: 40,
+      color: "var(--fg-3)"
+    })), /*#__PURE__*/React.createElement("h1", {
+      style: {
+        font: '700 clamp(26px,4vw,34px)/1.1 var(--font-display)',
+        letterSpacing: '-0.015em',
+        color: 'var(--fg-0)',
+        margin: '0 0 14px'
+      }
+    }, "No creator to show"), /*#__PURE__*/React.createElement("p", {
+      style: {
+        font: 'var(--text-body-lg)',
+        color: 'var(--fg-2)',
+        margin: '0 auto 28px',
+        maxWidth: 420
+      }
+    }, "There\u2019s no creator account here yet. When creators publish to Dreamwall, their pages will appear here."), /*#__PURE__*/React.createElement("a", {
+      onClick: () => goApp(''),
+      style: {
+        display: 'inline-flex',
+        alignItems: 'center',
+        gap: 9,
+        padding: '13px 24px',
+        borderRadius: 'var(--radius-md)',
+        background: 'var(--coral)',
+        color: 'var(--fg-on-accent)',
+        font: '600 15px/1 var(--font-body)',
+        textDecoration: 'none',
+        cursor: 'pointer'
+      }
+    }, /*#__PURE__*/React.createElement(Icon, {
+      name: "arrow-left",
+      size: 16,
+      color: "var(--fg-on-accent)"
+    }), " Back to browsing")));
+  }
   const drafts = creator === CREATOR ? DRAFTS : [];
   const byId = filmsById();
   const works = creator.works.map(id => byId[id]).filter(Boolean);
@@ -8319,6 +8349,7 @@ function SetupCard({
 // ---- main (viewer) account card ----
 function MainAccountCard() {
   const m = window.AICDB_MAIN_ACCOUNT;
+  if (!m) return null;
   return /*#__PURE__*/React.createElement(SetupCard, {
     style: {
       display: 'flex',
@@ -9543,6 +9574,24 @@ function CreatorsPage({
   onOpen
 }) {
   const all = window.AICDB_CREATORS;
+  if (!all.length) {
+    return /*#__PURE__*/React.createElement("div", {
+      style: {
+        maxWidth: 1180,
+        margin: '0 auto',
+        padding: '48px 28px 90px'
+      }
+    }, /*#__PURE__*/React.createElement(EmptyState, {
+      icon: "users-three",
+      accent: "var(--coral)",
+      title: "No creators yet",
+      sub: "No one has set up a creator account on Dreamwall yet. Be the first to publish your work.",
+      actionLabel: "Create a creator account",
+      onAction: () => {
+        window.location.href = 'Dreamwall%20Add%20Creator%20Account.html';
+      }
+    }));
+  }
   const featured = all.slice().sort((a, b) => b.followers - a.followers)[0];
   const rest = all.filter(c => c.id !== featured.id);
   return /*#__PURE__*/React.createElement("div", {
@@ -9700,7 +9749,10 @@ function WatchlistSplit({
       boxShadow: 'var(--shadow-1)'
     }
   }, /*#__PURE__*/React.createElement("button", {
-    onClick: () => window.AICDB_WATCHLIST.toggle(film.id),
+    onClick: () => {
+      if (!window.AICDB_REQUIRE_AUTH('Sign in to build your watchlist.')) return;
+      window.AICDB_WATCHLIST.toggle(film.id);
+    },
     style: {
       flex: 1,
       display: 'inline-flex',
@@ -9764,7 +9816,10 @@ function WatchlistSplit({
   }, "Add to list"), /*#__PURE__*/React.createElement(ListRow, {
     name: "Watchlist",
     checked: inList,
-    onClick: () => window.AICDB_WATCHLIST.toggle(film.id)
+    onClick: () => {
+      if (!window.AICDB_REQUIRE_AUTH('Sign in to build your watchlist.')) return;
+      window.AICDB_WATCHLIST.toggle(film.id);
+    }
   }), Object.keys(lists).map(n => /*#__PURE__*/React.createElement(ListRow, {
     key: n,
     name: n,
@@ -9913,6 +9968,7 @@ function ExtraordinaryMeter({
     };
   };
   const openPopup = () => {
+    if (!window.AICDB_REQUIRE_AUTH('Sign in to rate this title’s uniqueness.')) return;
     setDraft(user != null ? user : community);
     setOpen(true);
   };
@@ -10570,6 +10626,7 @@ function Hero({
   onOpen
 }) {
   return /*#__PURE__*/React.createElement("div", {
+    className: "aicdb-hero",
     style: {
       position: 'relative',
       borderRadius: 'var(--radius-xl)',
@@ -10604,6 +10661,7 @@ function Hero({
       backgroundSize: '5px 5px'
     }
   }), /*#__PURE__*/React.createElement("div", {
+    className: "aicdb-hero-body aicdb-hero-body--right",
     style: {
       position: 'relative',
       padding: '44px 48px',
@@ -10679,6 +10737,24 @@ function Discover({
   onOpen
 }) {
   const films = window.AICDB_FILMS;
+  if (!films.length) {
+    return /*#__PURE__*/React.createElement("div", {
+      style: {
+        maxWidth: 1180,
+        margin: '0 auto',
+        padding: '32px 28px 80px'
+      }
+    }, /*#__PURE__*/React.createElement(EmptyState, {
+      icon: "film-slate",
+      accent: "var(--coral)",
+      title: "Nothing to discover yet",
+      sub: "No titles have been published to Dreamwall yet. When creators start releasing work, it\u2019ll surface here.",
+      actionLabel: "Explore creators",
+      onAction: () => {
+        window.location.href = 'index.html#Creators';
+      }
+    }));
+  }
   const byScore = [...films].sort((a, b) => b.score - a.score);
   const byStars = [...films].sort((a, b) => b.stars - a.stars);
   const byYear = [...films].sort((a, b) => b.year - a.year);
@@ -10713,6 +10789,7 @@ function Discover({
     films: random.slice(0, 6)
   }];
   return /*#__PURE__*/React.createElement("div", {
+    className: "aicdb-page",
     style: {
       maxWidth: 1180,
       margin: '0 auto',
@@ -10809,6 +10886,86 @@ function EmptyState({
     variant: "primary",
     onClick: onAction
   }, actionLabel));
+}
+
+// ============================================================
+// Loading screen — centered Dreamwall logo on a dark field, shown
+// briefly while the app boots. Transform/opacity only so it degrades
+// gracefully under reduced-motion (logo + wordmark always visible).
+// ============================================================
+function LoadingScreen() {
+  const mark = window.__resources && window.__resources.aicdbMark || '../../assets/aicdb-mark.png';
+  return /*#__PURE__*/React.createElement("div", {
+    style: {
+      position: 'fixed',
+      inset: 0,
+      zIndex: 9999,
+      display: 'flex',
+      flexDirection: 'column',
+      alignItems: 'center',
+      justifyContent: 'center',
+      gap: 28,
+      background: 'var(--bg-0)'
+    }
+  }, /*#__PURE__*/React.createElement("style", null, `
+        @keyframes aicdbLogoPulse { 0%,100% { transform: scale(1); opacity:0.82 } 50% { transform: scale(1.07); opacity:1 } }
+        @keyframes aicdbLoadBar { 0% { transform: translateX(-120%) } 100% { transform: translateX(320%) } }
+        @media (prefers-reduced-motion: reduce) { .aicdb-load-mark, .aicdb-load-bar { animation: none !important; } }
+      `), /*#__PURE__*/React.createElement("div", {
+    style: {
+      position: 'absolute',
+      inset: 0,
+      background: 'radial-gradient(56% 46% at 50% 42%, rgba(216,90,48,0.10), transparent 60%)'
+    }
+  }), /*#__PURE__*/React.createElement("div", {
+    style: {
+      position: 'relative',
+      display: 'flex',
+      alignItems: 'center',
+      gap: 16
+    }
+  }, /*#__PURE__*/React.createElement("img", {
+    className: "aicdb-load-mark",
+    src: mark,
+    width: "56",
+    height: "56",
+    alt: "",
+    style: {
+      display: 'block',
+      filter: 'drop-shadow(0 4px 16px rgba(0,0,0,0.6))',
+      animation: 'aicdbLogoPulse 1.5s var(--ease-in-out) infinite'
+    }
+  }), /*#__PURE__*/React.createElement("span", {
+    style: {
+      font: '800 34px/0.9 var(--font-display)',
+      letterSpacing: '-0.02em',
+      color: 'var(--fg-0)'
+    }
+  }, "Dream", /*#__PURE__*/React.createElement("span", {
+    style: {
+      color: 'var(--coral)'
+    }
+  }, "wall"))), /*#__PURE__*/React.createElement("div", {
+    style: {
+      position: 'relative',
+      width: 148,
+      height: 3,
+      borderRadius: 3,
+      overflow: 'hidden',
+      background: 'var(--bg-2)'
+    }
+  }, /*#__PURE__*/React.createElement("div", {
+    className: "aicdb-load-bar",
+    style: {
+      position: 'absolute',
+      top: 0,
+      bottom: 0,
+      width: '38%',
+      borderRadius: 3,
+      background: 'linear-gradient(90deg, transparent, var(--coral), transparent)',
+      animation: 'aicdbLoadBar 1.1s var(--ease-out) infinite'
+    }
+  })));
 }
 
 // ============================================================
@@ -11440,8 +11597,147 @@ function EmailConfirm({
     }
   }, "\u2190 Back to homepage"))));
 }
+
+// ============================================================
+// Auth prompt — small “Sign in to continue” popup shown when a signed-out
+// visitor attempts a gated action (rate / comment / watchlist / post).
+// Mount <AuthPromptHost/> once; fire window 'aicdb:require-auth' to open it
+// (window.AICDB_REQUIRE_AUTH() does this for you).
+// ============================================================
+function AuthPrompt({
+  onClose,
+  message
+}) {
+  React.useEffect(() => {
+    const h = e => {
+      if (e.key === 'Escape') onClose();
+    };
+    window.addEventListener('keydown', h);
+    return () => window.removeEventListener('keydown', h);
+  }, [onClose]);
+  const go = key => {
+    window.location.href = window.AICDB_PAGE(key);
+  };
+  return /*#__PURE__*/React.createElement("div", {
+    onClick: onClose,
+    style: {
+      position: 'fixed',
+      inset: 0,
+      zIndex: 2000,
+      display: 'flex',
+      alignItems: 'center',
+      justifyContent: 'center',
+      padding: 24,
+      background: 'rgba(5,5,5,0.72)',
+      backdropFilter: 'blur(6px)',
+      WebkitBackdropFilter: 'blur(6px)'
+    }
+  }, /*#__PURE__*/React.createElement("style", null, `@keyframes aicdbAuthIn{from{opacity:0;transform:translateY(12px) scale(0.98)}to{opacity:1;transform:none}}`), /*#__PURE__*/React.createElement("div", {
+    onClick: e => e.stopPropagation(),
+    style: {
+      position: 'relative',
+      width: '100%',
+      maxWidth: 392,
+      textAlign: 'center',
+      background: 'var(--bg-1)',
+      border: '1px solid var(--border-default)',
+      borderRadius: 'var(--radius-xl)',
+      boxShadow: 'var(--shadow-3)',
+      padding: '34px 30px 30px',
+      animation: 'aicdbAuthIn 0.28s var(--ease-out) both'
+    }
+  }, /*#__PURE__*/React.createElement("button", {
+    onClick: onClose,
+    "aria-label": "Close",
+    style: {
+      position: 'absolute',
+      top: 14,
+      right: 14,
+      display: 'flex',
+      padding: 7,
+      borderRadius: '50%',
+      cursor: 'pointer',
+      background: 'var(--bg-2)',
+      border: '1px solid var(--border-default)'
+    }
+  }, /*#__PURE__*/React.createElement(Icon, {
+    name: "x",
+    size: 14,
+    color: "var(--fg-1)"
+  })), /*#__PURE__*/React.createElement("div", {
+    style: {
+      width: 64,
+      height: 64,
+      margin: '0 auto 18px',
+      borderRadius: '50%',
+      position: 'relative',
+      display: 'flex',
+      alignItems: 'center',
+      justifyContent: 'center',
+      background: 'var(--bg-2)',
+      border: '1px solid var(--border-subtle)'
+    }
+  }, /*#__PURE__*/React.createElement("div", {
+    style: {
+      position: 'absolute',
+      inset: 0,
+      borderRadius: '50%',
+      background: 'radial-gradient(circle at 50% 35%, rgba(216,90,48,0.22), transparent 70%)'
+    }
+  }), /*#__PURE__*/React.createElement(Icon, {
+    name: "lock-simple",
+    size: 28,
+    color: "var(--coral-bright)",
+    weight: "fill"
+  })), /*#__PURE__*/React.createElement("h2", {
+    style: {
+      font: '600 22px/1.2 var(--font-display)',
+      color: 'var(--fg-0)',
+      margin: '0 0 9px'
+    }
+  }, "Sign in to continue"), /*#__PURE__*/React.createElement("p", {
+    style: {
+      font: 'var(--text-body)',
+      color: 'var(--fg-2)',
+      margin: '0 0 24px',
+      maxWidth: 300,
+      marginInline: 'auto'
+    }
+  }, message || 'Create a free account or sign in to rate, follow creators, and build your watchlist.'), /*#__PURE__*/React.createElement("div", {
+    style: {
+      display: 'flex',
+      gap: 10,
+      justifyContent: 'center'
+    }
+  }, /*#__PURE__*/React.createElement(Button, {
+    variant: "primary",
+    icon: "sign-in",
+    onClick: () => go('login')
+  }, "Sign in"), /*#__PURE__*/React.createElement(Button, {
+    variant: "secondary",
+    onClick: () => go('signup')
+  }, "Sign up"))));
+}
+function AuthPromptHost() {
+  const [state, setState] = React.useState(null); // null | { message }
+  React.useEffect(() => {
+    const h = e => setState({
+      message: e.detail && e.detail.message
+    });
+    window.addEventListener('aicdb:require-auth', h);
+    return () => window.removeEventListener('aicdb:require-auth', h);
+  }, []);
+  if (!state) return null;
+  return /*#__PURE__*/React.createElement(AuthPrompt, {
+    message: state.message,
+    onClose: () => setState(null)
+  });
+}
 Object.assign(window, {
   EmptyState,
+  LoadingScreen,
+  AuthPrompt,
+  AuthPromptHost,
   SkeletonCard,
   SkeletonGrid,
   SKELETON_STYLE,
@@ -11900,20 +12196,20 @@ function EmbeddedList({
 
 // ---- expandable comment thread (revealed when the comment button is clicked) ----
 const FEED_COMMENTERS = [{
-  name: 'Ada Vance',
-  handle: '@adavance',
-  av: ['#d85a30', '#9d8df1']
+  name: 'Viewer',
+  handle: '',
+  av: ['#5a5e66', '#3a3d44']
 }, {
-  name: 'Rui Tanaka',
-  handle: '@ruit',
+  name: 'Viewer',
+  handle: '',
   av: ['#4ecdc4', '#6f9ceb']
 }, {
-  name: 'Sloane Park',
-  handle: '@sloane',
+  name: 'Viewer',
+  handle: '',
   av: ['#e8a13b', '#d85a30']
 }, {
-  name: 'Devi Anand',
-  handle: '@devianand',
+  name: 'Viewer',
+  handle: '',
   av: ['#9d8df1', '#4ecdc4']
 }];
 const FEED_COMMENT_TEXT = ['This looks unreal — the lighting in the second act especially.', 'Been waiting for this drop. Queued immediately.', 'Okay the color grade is doing something different here. Love it.', 'How long was the render pipeline on this one?'];
@@ -11968,7 +12264,13 @@ function CommentThread({
   }, /*#__PURE__*/React.createElement("input", {
     value: draft,
     onChange: e => setDraft(e.target.value),
-    onFocus: () => setFocus(true),
+    onFocus: () => {
+      if (!window.AICDB_REQUIRE_AUTH('Sign in to join the conversation.')) {
+        document.activeElement && document.activeElement.blur();
+        return;
+      }
+      setFocus(true);
+    },
     onBlur: () => setFocus(false),
     placeholder: "Add a comment\u2026",
     style: {
@@ -11980,7 +12282,10 @@ function CommentThread({
       font: 'var(--text-body-sm)'
     }
   }), /*#__PURE__*/React.createElement("button", {
-    onClick: () => setDraft(''),
+    onClick: () => {
+      if (!window.AICDB_REQUIRE_AUTH('Sign in to join the conversation.')) return;
+      setDraft('');
+    },
     disabled: !draft.trim(),
     style: {
       display: 'inline-flex',
@@ -12235,23 +12540,11 @@ function PostCard({
 
 // ---- composer: identities the signed-in user can post as ----
 const POST_AS = [{
-  id: 'ada',
-  name: 'Ada Vance',
-  handle: '@adavance',
-  av: ['#d85a30', '#9d8df1'],
+  id: 'you',
+  name: 'You',
+  handle: '',
+  av: ['#5a5e66', '#3a3d44'],
   role: 'Personal'
-}, {
-  id: 'vale',
-  name: 'The Vale Collective',
-  handle: '@thevale',
-  av: ['#4ecdc4', '#6f9ceb'],
-  role: 'Creator'
-}, {
-  id: 'maya',
-  name: 'Maya Okonkwo',
-  handle: '@mayaokonkwo',
-  av: ['#d85a30', '#9d8df1'],
-  role: 'Creator'
 }];
 
 // identity (creator account) selector at the top of the composer
@@ -12539,7 +12832,7 @@ function ComposerTool({
 
 // ---- composer (creator-account version) ----
 function Composer() {
-  const [identity, setIdentity] = React.useState(POST_AS[1]);
+  const [identity, setIdentity] = React.useState(POST_AS[0]);
   const [val, setVal] = React.useState('');
   const [mentionOpen, setMentionOpen] = React.useState(false);
   const [mention, setMention] = React.useState(null);
@@ -12767,7 +13060,10 @@ function Composer() {
     }
   })), /*#__PURE__*/React.createElement(Button, {
     variant: "primary",
-    size: "sm"
+    size: "sm",
+    onClick: () => {
+      window.AICDB_REQUIRE_AUTH('Sign in to post to the community.');
+    }
   }, "Post")))));
 }
 
@@ -12873,7 +13169,7 @@ function FeedSidebar({
       color: 'var(--fg-0)',
       padding: '14px 18px 10px'
     }
-  }, "Who to follow"), suggested.map(c => /*#__PURE__*/React.createElement("div", {
+  }, "Who to follow"), suggested.length ? suggested.map(c => /*#__PURE__*/React.createElement("div", {
     key: c.id,
     style: {
       display: 'flex',
@@ -12922,7 +13218,13 @@ function FeedSidebar({
   }, fmtCount(c.followers), " followers")), /*#__PURE__*/React.createElement(FollowPill, {
     id: c.id,
     size: "sm"
-  })))), /*#__PURE__*/React.createElement("div", {
+  }))) : /*#__PURE__*/React.createElement("div", {
+    style: {
+      padding: '4px 18px 16px',
+      font: 'var(--text-body-sm)',
+      color: 'var(--fg-3)'
+    }
+  }, "No suggestions yet \u2014 check back as creators join.")), /*#__PURE__*/React.createElement("div", {
     style: {
       background: 'var(--bg-1)',
       borderRadius: 'var(--radius-lg)',
@@ -12937,7 +13239,7 @@ function FeedSidebar({
       color: 'var(--fg-0)',
       padding: '14px 18px 10px'
     }
-  }, "Trending now"), trending.map((f, i) => /*#__PURE__*/React.createElement("div", {
+  }, "Trending now"), trending.length ? trending.map((f, i) => /*#__PURE__*/React.createElement("div", {
     key: f.id,
     onClick: () => onOpen && onOpen(f),
     style: {
@@ -12990,7 +13292,13 @@ function FeedSidebar({
       color: scoreColor(f.score),
       flex: 'none'
     }
-  }, f.score.toFixed(1))))));
+  }, f.score.toFixed(1)))) : /*#__PURE__*/React.createElement("div", {
+    style: {
+      padding: '4px 18px 16px',
+      font: 'var(--text-body-sm)',
+      color: 'var(--fg-3)'
+    }
+  }, "Nothing trending yet.")));
 }
 function Feed({
   onOpen,
@@ -12999,22 +13307,7 @@ function Feed({
 }) {
   const posts = window.AICDB_FEED || [];
   const [creatorMode, setCreatorMode] = React.useState(true);
-  if (!posts.length) {
-    return /*#__PURE__*/React.createElement("div", {
-      style: {
-        maxWidth: 640,
-        margin: '0 auto',
-        padding: '40px 24px'
-      }
-    }, /*#__PURE__*/React.createElement(EmptyState, {
-      icon: "users-three",
-      accent: "var(--teal)",
-      title: "Your feed is quiet",
-      sub: "Follow some creators to see their updates, releases, and ratings here as they happen.",
-      actionLabel: "Discover creators",
-      onAction: () => onNav && onNav('Creators')
-    }));
-  }
+  const hasPosts = posts.length > 0;
   return /*#__PURE__*/React.createElement("div", {
     style: {
       maxWidth: 1000,
@@ -13094,7 +13387,7 @@ function Feed({
     }, lbl);
   }))))), creatorMode ? /*#__PURE__*/React.createElement(Composer, null) : /*#__PURE__*/React.createElement(ComposerLocked, {
     onNav: onNav
-  }), posts.map(p => /*#__PURE__*/React.createElement(PostCard, {
+  }), hasPosts ? /*#__PURE__*/React.createElement(React.Fragment, null, posts.map(p => /*#__PURE__*/React.createElement(PostCard, {
     key: p.id,
     post: p,
     onOpen: onOpen,
@@ -13106,7 +13399,14 @@ function Feed({
       font: 'var(--text-body-sm)',
       color: 'var(--fg-2)'
     }
-  }, "You're all caught up. Follow more creators to see more.")), /*#__PURE__*/React.createElement(FeedSidebar, {
+  }, "You're all caught up. Follow more creators to see more.")) : /*#__PURE__*/React.createElement(EmptyState, {
+    icon: "users-three",
+    accent: "var(--teal)",
+    title: "You\u2019re not following anyone yet",
+    sub: "When you follow creators, their releases, ratings, and updates will stream in right here.",
+    actionLabel: "Discover creators",
+    onAction: () => onNav && onNav('Creators')
+  })), /*#__PURE__*/React.createElement(FeedSidebar, {
     onCreator: onCreator,
     onOpen: onOpen
   }));
@@ -14097,6 +14397,7 @@ function WatchlistButton({
   return /*#__PURE__*/React.createElement("button", {
     onClick: e => {
       e.stopPropagation();
+      if (!window.AICDB_REQUIRE_AUTH('Sign in to build your watchlist.')) return;
       window.AICDB_WATCHLIST.toggle(film.id);
     },
     onMouseEnter: () => setHover(true),
@@ -14251,6 +14552,7 @@ function FilmRow({
       margin: '5px 0 0'
     }
   }, sub)), /*#__PURE__*/React.createElement("div", {
+    className: "aicdb-film-grid",
     style: {
       display: 'grid',
       gridTemplateColumns: 'repeat(auto-fill, minmax(150px, 1fr))',
@@ -14520,7 +14822,10 @@ function FilmDetail({
     film: film
   }), /*#__PURE__*/React.createElement(SideButton, {
     icon: "star",
-    onClick: () => setRateOpen(true)
+    onClick: () => {
+      if (!window.AICDB_REQUIRE_AUTH('Sign in to rate this title.')) return;
+      setRateOpen(true);
+    }
   }, userScore ? `Rated ${userScore.toFixed(1)}` : 'Rate'), /*#__PURE__*/React.createElement(ShareButton, null))), /*#__PURE__*/React.createElement("div", {
     className: "aicdb-detail-info",
     style: {
@@ -14703,7 +15008,10 @@ function FilmDetail({
     variant: "secondary",
     icon: "pencil",
     size: "sm",
-    onClick: () => setReviewOpen(true)
+    onClick: () => {
+      if (!window.AICDB_REQUIRE_AUTH('Sign in to write a review.')) return;
+      setReviewOpen(true);
+    }
   }, "Add review")), reviewOpen && /*#__PURE__*/React.createElement(AddReviewBox, {
     onCancel: () => setReviewOpen(false),
     onPost: rev => {
@@ -14782,9 +15090,12 @@ function Field({
   value,
   onChange,
   placeholder,
-  trailing
+  trailing,
+  error,
+  onBlur
 }) {
   const [focus, setFocus] = React.useState(false);
+  const borderColor = error ? 'var(--danger)' : focus ? 'var(--border-accent)' : 'var(--border-default)';
   return /*#__PURE__*/React.createElement("label", {
     style: {
       display: 'block'
@@ -14794,7 +15105,7 @@ function Field({
     style: {
       display: 'block',
       marginBottom: 7,
-      color: 'var(--fg-2)'
+      color: error ? 'var(--danger)' : 'var(--fg-2)'
     }
   }, label), /*#__PURE__*/React.createElement("div", {
     style: {
@@ -14804,10 +15115,10 @@ function Field({
       background: 'var(--bg-3)',
       minWidth: 0,
       border: '1px solid',
-      borderColor: focus ? 'var(--border-accent)' : 'var(--border-default)',
+      borderColor,
       borderRadius: 'var(--radius-md)',
       padding: '0 12px',
-      boxShadow: focus ? 'var(--glow-coral)' : 'none',
+      boxShadow: error ? 'none' : focus ? 'var(--glow-coral)' : 'none',
       transition: 'border-color var(--dur-fast), box-shadow var(--dur-fast)'
     }
   }, /*#__PURE__*/React.createElement("input", {
@@ -14816,7 +15127,10 @@ function Field({
     onChange: onChange,
     placeholder: placeholder,
     onFocus: () => setFocus(true),
-    onBlur: () => setFocus(false),
+    onBlur: e => {
+      setFocus(false);
+      onBlur && onBlur(e);
+    },
     style: {
       flex: 1,
       minWidth: 0,
@@ -14828,7 +15142,21 @@ function Field({
       font: 'var(--text-body)',
       padding: '12px 0'
     }
-  }), trailing));
+  }), trailing), error && /*#__PURE__*/React.createElement("p", {
+    style: {
+      display: 'flex',
+      alignItems: 'center',
+      gap: 6,
+      font: 'var(--text-caption)',
+      color: 'var(--danger)',
+      margin: '7px 2px 0'
+    }
+  }, /*#__PURE__*/React.createElement(Icon, {
+    name: "warning-circle",
+    size: 13,
+    color: "var(--danger)",
+    weight: "fill"
+  }), error));
 }
 function PrimaryWideButton({
   children,
@@ -14854,10 +15182,39 @@ function PrimaryWideButton({
     }
   }, children);
 }
+
+// shared email-format check + a small set of "already registered" addresses
+// so the signup flow can demonstrate the duplicate-email error.
+window.AICDB_EMAIL_RE = /^[^\s@]+@[^\s@]+\.[^\s@]+$/;
+window.AICDB_REGISTERED_EMAILS = ['ada@dreamwall.io', 'you@example.com', 'taken@dreamwall.io'];
 function Login() {
   const [email, setEmail] = React.useState('');
   const [pw, setPw] = React.useState('');
   const [showPw, setShowPw] = React.useState(false);
+  const [remember, setRemember] = React.useState(true);
+  const [errors, setErrors] = React.useState({});
+  const clear = k => setErrors(e => e[k] ? {
+    ...e,
+    [k]: undefined
+  } : e);
+  const validate = () => {
+    const e = {};
+    const em = email.trim();
+    if (!em) e.email = 'Email is required.';else if (!window.AICDB_EMAIL_RE.test(em)) e.email = 'Enter a valid email address.';
+    if (!pw) e.pw = 'Password is required.';else if (pw.length < 8) e.pw = 'Password must be at least 8 characters.';
+    setErrors(e);
+    return Object.keys(e).filter(k => e[k]).length === 0;
+  };
+  const submit = () => {
+    if (validate()) {
+      window.AICDB_AUTH.login();
+      window.location.href = window.AICDB_PAGE('home');
+    }
+  };
+  const social = () => {
+    window.AICDB_AUTH.login();
+    window.location.href = window.AICDB_PAGE('home');
+  };
   const socials = [{
     key: 'google',
     icon: /*#__PURE__*/React.createElement(GoogleIcon, {
@@ -14970,7 +15327,7 @@ function Login() {
     key: s.key,
     icon: s.icon,
     label: s.label,
-    onClick: () => {}
+    onClick: social
   }))), /*#__PURE__*/React.createElement("div", {
     style: {
       display: 'flex',
@@ -15005,17 +15362,25 @@ function Login() {
     label: "Email",
     type: "email",
     value: email,
-    onChange: e => setEmail(e.target.value),
+    error: errors.email,
+    onChange: e => {
+      setEmail(e.target.value);
+      clear('email');
+    },
     placeholder: "you@example.com"
   }), /*#__PURE__*/React.createElement(Field, {
     label: "Password",
     type: showPw ? 'text' : 'password',
     value: pw,
-    onChange: e => setPw(e.target.value),
+    error: errors.pw,
+    onChange: e => {
+      setPw(e.target.value);
+      clear('pw');
+    },
     placeholder: "\u2022\u2022\u2022\u2022\u2022\u2022\u2022\u2022",
     trailing: /*#__PURE__*/React.createElement("button", {
       onClick: () => setShowPw(v => !v),
-      "aria-label": "Toggle password",
+      "aria-label": showPw ? 'Hide password' : 'Show password',
       style: {
         background: 'none',
         border: 'none',
@@ -15025,22 +15390,57 @@ function Login() {
         color: 'var(--fg-2)'
       }
     }, /*#__PURE__*/React.createElement(Icon, {
-      name: showPw ? 'eye' : 'eye',
+      name: showPw ? 'eye-slash' : 'eye',
       size: 17
     }))
   }), /*#__PURE__*/React.createElement("div", {
     style: {
-      textAlign: 'right',
-      marginTop: -4
+      display: 'flex',
+      alignItems: 'center',
+      justifyContent: 'space-between',
+      gap: 12,
+      marginTop: -2
     }
-  }, /*#__PURE__*/React.createElement("a", {
+  }, /*#__PURE__*/React.createElement("label", {
+    style: {
+      display: 'inline-flex',
+      alignItems: 'center',
+      gap: 9,
+      cursor: 'pointer',
+      userSelect: 'none'
+    }
+  }, /*#__PURE__*/React.createElement("span", {
+    onClick: () => setRemember(v => !v),
+    style: {
+      width: 18,
+      height: 18,
+      flex: 'none',
+      borderRadius: 5,
+      display: 'inline-flex',
+      alignItems: 'center',
+      justifyContent: 'center',
+      border: '1px solid ' + (remember ? 'var(--coral)' : 'var(--border-strong)'),
+      background: remember ? 'var(--coral)' : 'transparent',
+      transition: 'all var(--dur-fast)'
+    }
+  }, remember && /*#__PURE__*/React.createElement(Icon, {
+    name: "check",
+    size: 12,
+    color: "var(--fg-on-accent)",
+    weight: "bold"
+  })), /*#__PURE__*/React.createElement("span", {
+    style: {
+      font: '500 12.5px/1 var(--font-body)',
+      color: 'var(--fg-1)'
+    }
+  }, "Remember me")), /*#__PURE__*/React.createElement("a", {
     style: {
       font: '500 12.5px/1 var(--font-body)',
       color: 'var(--fg-1)',
       cursor: 'pointer'
     }
   }, "Forgot password?")), /*#__PURE__*/React.createElement(PrimaryWideButton, {
-    onClick: () => {}
+    onClick: submit
   }, "Sign in")), /*#__PURE__*/React.createElement("p", {
     style: {
       textAlign: 'center',
@@ -15314,7 +15714,7 @@ function ModalEmailForm({
     placeholder: "\u2022\u2022\u2022\u2022\u2022\u2022\u2022\u2022",
     trailing: /*#__PURE__*/React.createElement("button", {
       onClick: () => setShowPw(v => !v),
-      "aria-label": "Toggle password",
+      "aria-label": showPw ? 'Hide password' : 'Show password',
       style: {
         background: 'none',
         border: 'none',
@@ -15324,7 +15724,7 @@ function ModalEmailForm({
         color: 'var(--fg-2)'
       }
     }, /*#__PURE__*/React.createElement(Icon, {
-      name: "eye",
+      name: showPw ? 'eye-slash' : 'eye',
       size: 17
     }))
   }), /*#__PURE__*/React.createElement(PrimaryWideButton, {
@@ -15504,13 +15904,13 @@ function ProfileMenu({
       font: '600 14px/1.2 var(--font-body)',
       color: 'var(--fg-0)'
     }
-  }, "Ada Vance"), /*#__PURE__*/React.createElement("div", {
+  }, "Guest"), /*#__PURE__*/React.createElement("div", {
     style: {
       font: 'var(--text-data-sm)',
       color: 'var(--fg-2)',
       marginTop: 3
     }
-  }, "@adavance")), items.map(it => /*#__PURE__*/React.createElement(MenuRow, {
+  }, "Not signed in")), items.map(it => /*#__PURE__*/React.createElement(MenuRow, {
     key: it.label,
     icon: it.icon,
     iconNode: it.iconNode,
@@ -15631,6 +16031,52 @@ function NavLink({
     weight: isPeople ? 'fill' : 'regular'
   }), text);
 }
+
+// signed-out nav cluster — Sign In / Sign Up buttons (replaces the avatar)
+function AuthButtons() {
+  const [hov, setHov] = React.useState(false);
+  const go = k => {
+    window.location.href = window.AICDB_PAGE(k);
+  };
+  return /*#__PURE__*/React.createElement("div", {
+    style: {
+      display: 'flex',
+      alignItems: 'center',
+      gap: 10,
+      flex: 'none'
+    }
+  }, /*#__PURE__*/React.createElement("button", {
+    onClick: () => go('login'),
+    style: {
+      padding: '9px 15px',
+      borderRadius: 'var(--radius-pill)',
+      cursor: 'pointer',
+      whiteSpace: 'nowrap',
+      background: 'transparent',
+      border: '1px solid var(--border-strong)',
+      color: 'var(--fg-0)',
+      font: '600 13.5px/1 var(--font-body)',
+      transition: 'all var(--dur-fast)'
+    },
+    onMouseEnter: e => e.currentTarget.style.borderColor = 'var(--fg-2)',
+    onMouseLeave: e => e.currentTarget.style.borderColor = 'var(--border-strong)'
+  }, "Sign In"), /*#__PURE__*/React.createElement("button", {
+    onClick: () => go('signup'),
+    onMouseEnter: () => setHov(true),
+    onMouseLeave: () => setHov(false),
+    style: {
+      padding: '9px 16px',
+      borderRadius: 'var(--radius-pill)',
+      cursor: 'pointer',
+      border: '1px solid transparent',
+      whiteSpace: 'nowrap',
+      background: hov ? 'var(--coral-bright)' : 'var(--coral)',
+      color: 'var(--fg-on-accent)',
+      font: '600 13.5px/1 var(--font-body)',
+      transition: 'background var(--dur-fast)'
+    }
+  }, "Sign Up"));
+}
 function NavBar({
   active = 'Feed',
   onNav,
@@ -15641,6 +16087,7 @@ function NavBar({
   isAdmin = true
 }) {
   const primaryLinks = ['Discover', 'Films', 'Series', 'Creators'];
+  const loggedIn = useAuth();
   const [focused, setFocused] = React.useState(false);
   const q = (query || '').trim().toLowerCase();
   const results = q ? window.AICDB_FILMS.filter(f => f.title.toLowerCase().includes(q) || f.creator.toLowerCase().includes(q) || f.genres.join(' ').toLowerCase().includes(q)).slice(0, 6) : [];
@@ -15821,17 +16268,18 @@ function NavBar({
     icon: "bookmark",
     active: active === 'Watchlist',
     onNav: onNav
-  }), /*#__PURE__*/React.createElement(ProfileMenu, {
+  }), loggedIn ? /*#__PURE__*/React.createElement(ProfileMenu, {
     onNav: onNav,
     isCreator: isCreator,
     isAdmin: isAdmin
-  })));
+  }) : /*#__PURE__*/React.createElement(AuthButtons, null)));
 }
 Object.assign(window, {
   NavBar,
   NavLink,
   ProfileMenu,
-  SearchResult
+  SearchResult,
+  AuthButtons
 });
 })(); } catch (e) { __ds_ns.__errors.push({ path: "ui_kits/web-app/NavBar.jsx", error: String((e && e.message) || e) }); }
 
@@ -16399,6 +16847,7 @@ const PH = {
   clock: 'clock',
   heart: 'heart',
   eye: 'eye',
+  'eye-slash': 'eye-slash',
   fire: 'fire',
   trophy: 'trophy',
   mail: 'envelope-simple',
@@ -16713,6 +17162,13 @@ function useCreatorAccounts() {
   React.useEffect(() => window.AICDB_CREATOR_ACCOUNTS.subscribe(setList), []);
   return list;
 }
+
+// Subscribe to the shared auth (logged-in) state.
+function useAuth() {
+  const [on, setOn] = React.useState(window.AICDB_AUTH.isLoggedIn());
+  React.useEffect(() => window.AICDB_AUTH.subscribe(setOn), []);
+  return on;
+}
 function ScoreRing({
   score = 0,
   size = 78
@@ -16782,6 +17238,7 @@ Object.assign(window, {
   formatDuration,
   useWatchlist,
   useCreatorAccounts,
+  useAuth,
   fmtCount
 });
 })(); } catch (e) { __ds_ns.__errors.push({ path: "ui_kits/web-app/Primitives.jsx", error: String((e && e.message) || e) }); }
@@ -16793,19 +17250,19 @@ try { (() => {
 // ContentBadge, scoreColor), NavBar, FilmCard, and AICDB_FILMS / AICDB_TYPES.
 
 const PROFILE = {
-  name: 'Ada Vance',
-  initials: 'A',
-  joined: 'Joined March 2024',
-  quote: 'Chasing the one frame that remembers me.',
-  avatar: ['#d85a30', '#9d8df1'],
-  watched: 852,
-  lists: 10,
-  avgRating: 4.2,
-  hours: 1284,
-  reviews: 96,
-  thisYear: 218,
-  favGenre: 'Sci-Fi',
-  favGenreShare: '38% of everything you watch'
+  name: 'Guest',
+  initials: 'G',
+  joined: 'Not signed in',
+  quote: '',
+  avatar: ['#5a5e66', '#3a3d44'],
+  watched: 0,
+  lists: 0,
+  avgRating: 0,
+  hours: 0,
+  reviews: 0,
+  thisYear: 0,
+  favGenre: '—',
+  favGenreShare: 'No ratings yet'
 };
 
 // films keyed by id for convenience
@@ -16816,31 +17273,7 @@ function filmsById() {
   });
   return m;
 }
-const LAST_RATED = [{
-  id: 'echoes-of-tomorrow',
-  you: 5,
-  date: '2026-05-31'
-}, {
-  id: 'synthetic-dreams',
-  you: 4.5,
-  date: '2026-05-28'
-}, {
-  id: 'glass-orchard',
-  you: 4,
-  date: '2026-05-22'
-}, {
-  id: 'the-long-render',
-  you: 3.5,
-  date: '2026-05-14'
-}, {
-  id: 'minute-of-static',
-  you: 4,
-  date: '2026-05-09'
-}, {
-  id: 'paper-suns',
-  you: 4.5,
-  date: '2026-04-30'
-}];
+const LAST_RATED = [];
 
 // the full rating history (built from the catalog) for the "See all" page.
 // Deterministic pseudo user-scores + dates so the same titles always read the same.
@@ -16888,97 +17321,11 @@ function fmtRatedDate(iso) {
     return iso;
   }
 }
-const FAVORITES = ['synthetic-dreams', 'echoes-of-tomorrow', 'glass-orchard', 'the-long-render', 'paper-suns'];
+const FAVORITES = [];
 
 // user-created lists (title + how many titles each holds)
-const CREATED_LISTS = [{
-  id: 'l1',
-  title: 'Best of Diffusion',
-  count: 24,
-  note: 'The generative films that still hold up'
-}, {
-  id: 'l2',
-  title: '3AM Static',
-  count: 12,
-  note: 'Vertical horror for the doomscroll'
-}, {
-  id: 'l3',
-  title: 'Latent Epics',
-  count: 9,
-  note: 'Generation-spanning, world-sized stories'
-}, {
-  id: 'l4',
-  title: 'Wordless',
-  count: 15,
-  note: 'No dialogue, all light'
-}, {
-  id: 'l5',
-  title: 'Hybrid Live-Action',
-  count: 18,
-  note: 'Where cameras meet the model'
-}, {
-  id: 'l6',
-  title: 'Comfort Renders',
-  count: 7,
-  note: 'Rewatchable, low-stakes, warm'
-}, {
-  id: 'l7',
-  title: 'Coastlines',
-  count: 6,
-  note: 'Films that drown you beautifully'
-}, {
-  id: 'l8',
-  title: 'Festival Circuit',
-  count: 11,
-  note: 'What the juries are arguing about'
-}, {
-  id: 'l9',
-  title: 'Shorts Under 10',
-  count: 21,
-  note: 'Quick hits worth your lunch break'
-}, {
-  id: 'l10',
-  title: 'The Uncanny Shelf',
-  count: 8,
-  note: 'Titles that learned to look back'
-}];
-const BADGES = [{
-  icon: 'trophy',
-  label: '1,000 Rated',
-  sub: 'Titles rated',
-  color: 'var(--coral-bright)',
-  ghost: 'rgba(216,90,48,0.18)'
-}, {
-  icon: 'fire',
-  label: '47-Day Streak',
-  sub: 'Daily ratings',
-  color: 'var(--type-short)',
-  ghost: 'rgba(229,178,59,0.16)'
-}, {
-  icon: 'medal',
-  label: 'Top Reviewer',
-  sub: 'Top 1% this month',
-  color: 'var(--teal-bright)',
-  ghost: 'rgba(78,205,196,0.16)'
-}, {
-  icon: 'film-slate',
-  label: 'Cinephile',
-  sub: '500 films watched',
-  color: 'var(--type-vertical)',
-  ghost: 'rgba(157,141,241,0.18)'
-}, {
-  icon: 'star',
-  label: 'Tastemaker',
-  sub: '200 helpful votes',
-  color: 'var(--coral-bright)',
-  ghost: 'rgba(216,90,48,0.18)'
-}, {
-  icon: 'sparkles',
-  label: 'Early Adopter',
-  sub: 'Joined in 2024',
-  color: 'var(--teal-bright)',
-  ghost: 'rgba(78,205,196,0.16)'
-}];
+const CREATED_LISTS = [];
+const BADGES = [];
 
 // ---- Section heading (centered or left) ----
 function SectionHeading({
@@ -17104,7 +17451,7 @@ function TopSection() {
     name: "clock",
     size: 13,
     color: "var(--fg-3)"
-  }), PROFILE.joined), /*#__PURE__*/React.createElement("p", {
+  }), PROFILE.joined), PROFILE.quote ? /*#__PURE__*/React.createElement("p", {
     style: {
       font: '400 italic 15px/1.45 var(--font-display)',
       color: 'var(--fg-1)',
@@ -17114,7 +17461,7 @@ function TopSection() {
       borderLeft: '2px solid var(--coral-dim)',
       paddingLeft: 12
     }
-  }, "\u201C", PROFILE.quote, "\u201D")), /*#__PURE__*/React.createElement("div", {
+  }, "\u201C", PROFILE.quote, "\u201D") : null), /*#__PURE__*/React.createElement("div", {
     style: {
       display: 'flex',
       flexDirection: 'column',
@@ -17431,7 +17778,7 @@ function LastRated({
       color: 'var(--fg-2)',
       margin: '0 0 16px'
     }
-  }, "The five you\u2019d save from the fire"), /*#__PURE__*/React.createElement("div", {
+  }, "The five you\u2019d save from the fire"), favFilms.length ? /*#__PURE__*/React.createElement("div", {
     style: {
       display: 'flex',
       gap: 16,
@@ -17449,7 +17796,13 @@ function LastRated({
     film: f,
     width: "auto",
     onOpen: onOpen || (() => {})
-  }))))));
+  })))) : /*#__PURE__*/React.createElement(EmptyState, {
+    icon: "heart",
+    accent: "var(--teal)",
+    compact: true,
+    title: "No favorites yet",
+    sub: "Mark the titles you love and the five you\u2019d save from the fire will live here."
+  })));
 }
 
 // ---- full page: every rating, with type + sort filters ----
@@ -17790,7 +18143,7 @@ function LowerSection() {
       marginBottom: 24,
       textAlign: 'center'
     }
-  }, "Achievements"), /*#__PURE__*/React.createElement("div", {
+  }, "Achievements"), BADGES.length ? /*#__PURE__*/React.createElement("div", {
     style: {
       maxWidth: 680,
       margin: '0 auto',
@@ -17802,7 +18155,13 @@ function LowerSection() {
   }, BADGES.map(b => /*#__PURE__*/React.createElement(BadgeItem, {
     key: b.label,
     b: b
-  }))));
+  }))) : /*#__PURE__*/React.createElement(EmptyState, {
+    icon: "medal",
+    accent: "var(--coral)",
+    compact: true,
+    title: "No achievements yet",
+    sub: "Rate titles, write reviews, and keep a streak going to start earning badges."
+  }));
 }
 
 // ---- BOTTOM: statistics ----
@@ -17941,6 +18300,7 @@ function BottomSection() {
       maxWidth: 300
     }
   }, PROFILE.favGenreShare))), /*#__PURE__*/React.createElement("div", {
+    className: "aicdb-stat-cards",
     style: {
       display: 'grid',
       gridTemplateColumns: '1fr 1fr',
@@ -17995,6 +18355,7 @@ function BottomSection() {
     value: PROFILE.reviews,
     label: "Reviews written"
   }))), /*#__PURE__*/React.createElement("div", {
+    className: "aicdb-stat-strip",
     style: {
       display: 'grid',
       gridTemplateColumns: 'repeat(4, 1fr)',
@@ -18009,7 +18370,7 @@ function BottomSection() {
   }), /*#__PURE__*/React.createElement(StatCard, {
     icon: "fire",
     color: "var(--type-short)",
-    value: "47",
+    value: "0",
     unit: "days",
     label: "Current streak"
   }), /*#__PURE__*/React.createElement(StatCard, {
@@ -18020,13 +18381,13 @@ function BottomSection() {
   }), /*#__PURE__*/React.createElement(StatCard, {
     icon: "trophy",
     color: "var(--teal)",
-    value: "Top 1%",
+    value: "\u2014",
     label: "Reviewer rank"
   })));
 }
 
 // ---- Followed Creators — profile cards for creators the user follows ----
-const FOLLOWED_CREATOR_IDS = ['maya', 'vale', 'theo', 'noor', 'nullframe', 'ito'];
+const FOLLOWED_CREATOR_IDS = [];
 function FollowedSeal({
   size = 14
 }) {
@@ -19343,6 +19704,7 @@ function Profile({
   }, !embedded && /*#__PURE__*/React.createElement(NavBar, {
     active: ""
   }), /*#__PURE__*/React.createElement("div", {
+    className: "aicdb-page",
     style: {
       maxWidth: 1100,
       margin: '0 auto',
@@ -19868,13 +20230,35 @@ function StepForm({
     pw2: ''
   });
   const [showPw, setShowPw] = React.useState(false);
-  const set = k => e => setF(s => ({
-    ...s,
-    [k]: e.target.value
-  }));
+  const [errors, setErrors] = React.useState({});
+  const set = k => e => {
+    const v = e.target.value;
+    setF(s => ({
+      ...s,
+      [k]: v
+    }));
+    setErrors(er => er[k] ? {
+      ...er,
+      [k]: undefined
+    } : er);
+  };
   const pwOk = f.pw.length >= 8;
   const match = f.pw2.length > 0 && f.pw === f.pw2;
   const mismatch = f.pw2.length > 0 && f.pw !== f.pw2;
+  const validate = () => {
+    const e = {};
+    if (!f.first.trim()) e.first = 'First name is required.';
+    if (!f.last.trim()) e.last = 'Last name is required.';
+    const em = f.email.trim().toLowerCase();
+    if (!em) e.email = 'Email is required.';else if (!window.AICDB_EMAIL_RE.test(em)) e.email = 'Enter a valid email address.';else if ((window.AICDB_REGISTERED_EMAILS || []).includes(em)) e.email = 'That email is already registered. Try signing in instead.';
+    if (!f.pw) e.pw = 'Password is required.';else if (!pwOk) e.pw = 'Password must be at least 8 characters.';
+    if (!f.pw2) e.pw2 = 'Please confirm your password.';else if (f.pw !== f.pw2) e.pw2 = 'Passwords don’t match.';
+    setErrors(e);
+    return Object.keys(e).filter(k => e[k]).length === 0;
+  };
+  const submit = () => {
+    if (validate()) onSubmit(f.email);
+  };
   return /*#__PURE__*/React.createElement("div", null, /*#__PURE__*/React.createElement(BackLink, {
     onClick: onBack
   }), /*#__PURE__*/React.createElement(Header, {
@@ -19899,6 +20283,7 @@ function StepForm({
   }, /*#__PURE__*/React.createElement(Field, {
     label: "First name",
     value: f.first,
+    error: errors.first,
     onChange: set('first'),
     placeholder: "Ada"
   })), /*#__PURE__*/React.createElement("div", {
@@ -19909,23 +20294,26 @@ function StepForm({
   }, /*#__PURE__*/React.createElement(Field, {
     label: "Last name",
     value: f.last,
+    error: errors.last,
     onChange: set('last'),
     placeholder: "Lovelace"
   }))), /*#__PURE__*/React.createElement(Field, {
     label: "Email",
     type: "email",
     value: f.email,
+    error: errors.email,
     onChange: set('email'),
     placeholder: "you@example.com"
   }), /*#__PURE__*/React.createElement("div", null, /*#__PURE__*/React.createElement(Field, {
     label: "Password",
     type: showPw ? 'text' : 'password',
     value: f.pw,
+    error: errors.pw,
     onChange: set('pw'),
     placeholder: "\u2022\u2022\u2022\u2022\u2022\u2022\u2022\u2022",
     trailing: /*#__PURE__*/React.createElement("button", {
       onClick: () => setShowPw(v => !v),
-      "aria-label": "Toggle password",
+      "aria-label": showPw ? 'Hide password' : 'Show password',
       style: {
         background: 'none',
         border: 'none',
@@ -19935,10 +20323,10 @@ function StepForm({
         color: 'var(--fg-2)'
       }
     }, /*#__PURE__*/React.createElement(Icon, {
-      name: "eye",
+      name: showPw ? 'eye-slash' : 'eye',
       size: 17
     }))
-  }), /*#__PURE__*/React.createElement("p", {
+  }), !errors.pw && /*#__PURE__*/React.createElement("p", {
     style: {
       font: 'var(--text-caption)',
       color: f.pw.length === 0 ? 'var(--fg-3)' : pwOk ? 'var(--teal)' : 'var(--fg-2)',
@@ -19948,22 +20336,23 @@ function StepForm({
     label: "Confirm password",
     type: showPw ? 'text' : 'password',
     value: f.pw2,
+    error: errors.pw2,
     onChange: set('pw2'),
     placeholder: "\u2022\u2022\u2022\u2022\u2022\u2022\u2022\u2022"
-  }), mismatch && /*#__PURE__*/React.createElement("p", {
+  }), !errors.pw2 && mismatch && /*#__PURE__*/React.createElement("p", {
     style: {
       font: 'var(--text-caption)',
       color: 'var(--danger)',
       margin: '8px 2px 0'
     }
-  }, "Passwords don\u2019t match."), match && /*#__PURE__*/React.createElement("p", {
+  }, "Passwords don\u2019t match."), !errors.pw2 && match && /*#__PURE__*/React.createElement("p", {
     style: {
       font: 'var(--text-caption)',
       color: 'var(--teal)',
       margin: '8px 2px 0'
     }
   }, "\u2713 Passwords match.")), /*#__PURE__*/React.createElement(PrimaryWideButton, {
-    onClick: () => onSubmit(f.email)
+    onClick: submit
   }, "Create account")), /*#__PURE__*/React.createElement("p", {
     style: {
       textAlign: 'center',
@@ -20788,81 +21177,19 @@ window.ADMIN_USERS = function () {
     works: window.AICDB_CREATOR_STATS ? window.AICDB_CREATOR_STATS(c).works : 0,
     banned: false
   }));
-  const viewers = [{
-    id: 'u-lena',
-    name: 'Lena Reyes',
-    handle: '@lenar',
-    av: ['#d85a30', '#e5b23b'],
-    joined: '2024-02-11',
-    role: 'viewer',
-    works: 0,
-    banned: false
-  }, {
-    id: 'u-marco',
-    name: 'Marco Vidal',
-    handle: '@marcov',
-    av: ['#9d8df1', '#d85a30'],
-    joined: '2024-04-03',
-    role: 'viewer',
-    works: 0,
-    banned: false
-  }, {
-    id: 'u-framek',
-    name: 'theframekeeper',
-    handle: '@framekeeper',
-    av: ['#4ecdc4', '#6f9ceb'],
-    joined: '2023-09-19',
-    role: 'viewer',
-    works: 0,
-    banned: false
-  }, {
-    id: 'u-ada',
-    name: 'Ada Vance',
-    handle: '@adavance',
-    av: ['#d85a30', '#9d8df1'],
-    joined: '2024-01-02',
-    role: 'admin',
-    works: 0,
-    banned: false
-  }, {
-    id: 'u-spam1',
-    name: 'gen_spam_films',
-    handle: '@genspam',
-    av: ['#5a5e66', '#3a3d44'],
-    joined: '2025-05-28',
-    role: 'viewer',
-    works: 0,
-    banned: true,
-    banReason: 'Spam submissions'
-  }, {
-    id: 'u-troll',
-    name: 'rate_bomber',
-    handle: '@ratebomber',
-    av: ['#7a3a3a', '#3a1f1f'],
-    joined: '2025-04-12',
-    role: 'viewer',
-    works: 0,
-    banned: true,
-    banReason: 'Rating manipulation'
-  }, {
-    id: 'u-quiet',
-    name: 'quiet_watcher',
-    handle: '@quietw',
-    av: ['#3a8fb0', '#1a2b33'],
-    joined: '2025-02-08',
-    role: 'viewer',
-    works: 0,
-    banned: false
-  }, {
-    id: 'u-newby',
-    name: 'first_frame',
-    handle: '@firstframe',
-    av: ['#e5b23b', '#4ecdc4'],
-    joined: '2025-06-01',
-    role: 'viewer',
-    works: 0,
-    banned: false
-  }];
+  const viewers = [];
+  /* removed sample viewer/admin accounts
+  const _viewers_sample = [
+    { id:'u-lena',   name:'Lena Reyes',     handle:'@lenar',        av:['#d85a30','#e5b23b'], joined:'2024-02-11', role:'viewer',  works:0, banned:false },
+    { id:'u-marco',  name:'Marco Vidal',    handle:'@marcov',       av:['#9d8df1','#d85a30'], joined:'2024-04-03', role:'viewer',  works:0, banned:false },
+    { id:'u-framek', name:'theframekeeper', handle:'@framekeeper',  av:['#4ecdc4','#6f9ceb'], joined:'2023-09-19', role:'viewer',  works:0, banned:false },
+    { id:'u-ada',    name:'Ada Vance',      handle:'@adavance',     av:['#d85a30','#9d8df1'], joined:'2024-01-02', role:'admin',   works:0, banned:false },
+    { id:'u-spam1',  name:'gen_spam_films', handle:'@genspam',      av:['#5a5e66','#3a3d44'], joined:'2025-05-28', role:'viewer',  works:0, banned:true,  banReason:'Spam submissions' },
+    { id:'u-troll',  name:'rate_bomber',    handle:'@ratebomber',   av:['#7a3a3a','#3a1f1f'], joined:'2025-04-12', role:'viewer',  works:0, banned:true,  banReason:'Rating manipulation' },
+    { id:'u-quiet',  name:'quiet_watcher',  handle:'@quietw',       av:['#3a8fb0','#1a2b33'], joined:'2025-02-08', role:'viewer',  works:0, banned:false },
+    { id:'u-newby',  name:'first_frame',    handle:'@firstframe',   av:['#e5b23b','#4ecdc4'], joined:'2025-06-01', role:'viewer',  works:0, banned:false },
+  ];
+  */
   viewers.forEach(v => {
     if (!v.email) v.email = v.handle.replace('@', '') + '@gmail.com';
   });
@@ -20885,279 +21212,54 @@ window.ADMIN_SUBMISSIONS = function () {
     date: (f.year || 2024) + '-0' + (1 + f.title.length % 9) + '-1' + f.title.length % 9
   }));
   // pending = brand-new submissions awaiting review (no score yet)
-  const pending = [{
-    id: 'p-tidewalkers',
-    title: 'Tidewalkers',
-    creator: 'Maya Okonkwo',
-    type: 'movie',
-    g: ['#0e2a2e', '#2f8f8a'],
-    date: '2026-06-02',
-    status: 'pending'
-  }, {
-    id: 'p-grainstudy7',
-    title: 'Grain Study #7',
-    creator: 'Maya Okonkwo',
-    type: 'short',
-    g: ['#2b2512', '#d0a93a'],
-    date: '2026-06-01',
-    status: 'pending'
-  }, {
-    id: 'p-thelongway',
-    title: 'The Long Way Down',
-    creator: '@nullframe',
-    type: 'vertical',
-    g: ['#241a3a', '#9d8df1'],
-    date: '2026-05-31',
-    status: 'pending'
-  }, {
-    id: 'p-saltmarsh',
-    title: 'Saltmarsh',
-    creator: 'Noor Farah',
-    type: 'series',
-    g: ['#10302d', '#3fae9f'],
-    date: '2026-05-30',
-    status: 'pending'
-  }, {
-    id: 'p-emberlight',
-    title: 'Emberlight',
-    creator: 'Bashir Halabi',
-    type: 'movie',
-    g: ['#2e1a14', '#c0653a'],
-    date: '2026-05-29',
-    status: 'pending'
-  }, {
-    id: 'p-nullcity',
-    title: 'Null City',
-    creator: 'Cosmic Pixel Co.',
-    type: 'movie',
-    g: ['#1a2b33', '#3a8fb0'],
-    date: '2026-05-28',
-    status: 'pending'
-  }];
+  const pending = [];
   // rejected = bounced submissions, with a reason
-  const rejected = [{
-    id: 'r-deepfake1',
-    title: 'Untitled (Celebrity)',
-    creator: '@genspam',
-    type: 'movie',
-    g: ['#3a3d44', '#5a5e66'],
-    date: '2026-05-22',
-    status: 'rejected',
-    reason: 'Unauthorized likeness of a real person'
-  }, {
-    id: 'r-lowq',
-    title: 'test test test',
-    creator: '@firstframe',
-    type: 'short',
-    g: ['#262624', '#3a3a38'],
-    date: '2026-05-20',
-    status: 'rejected',
-    reason: 'Low-effort / placeholder content'
-  }, {
-    id: 'r-dup',
-    title: 'Redshift (re-upload)',
-    creator: '@ratebomber',
-    type: 'movie',
-    g: ['#341512', '#e5484d'],
-    date: '2026-05-18',
-    status: 'rejected',
-    reason: 'Duplicate of existing title'
-  }];
+  const rejected = [];
+  /* removed sample pending/rejected submissions
+  const _pending_sample = [
+    { id:'p-grainstudy7', title:'Grain Study #7',        creator:'Maya Okonkwo',        type:'short',  g:['#2b2512','#d0a93a'], date:'2026-06-01', status:'pending' },
+    { id:'p-thelongway',  title:'The Long Way Down',     creator:'@nullframe',          type:'vertical',g:['#241a3a','#9d8df1'], date:'2026-05-31', status:'pending' },
+    { id:'p-saltmarsh',   title:'Saltmarsh',             creator:'Noor Farah',          type:'series', g:['#10302d','#3fae9f'], date:'2026-05-30', status:'pending' },
+    { id:'p-emberlight',  title:'Emberlight',            creator:'Bashir Halabi',       type:'movie',  g:['#2e1a14','#c0653a'], date:'2026-05-29', status:'pending' },
+    { id:'p-nullcity',    title:'Null City',             creator:'Cosmic Pixel Co.',    type:'movie',  g:['#1a2b33','#3a8fb0'], date:'2026-05-28', status:'pending' },
+  ];
+  // rejected = bounced submissions, with a reason
+  const rejected = [
+    { id:'r-deepfake1',  title:'Untitled (Celebrity)',  creator:'@genspam',   type:'movie', g:['#3a3d44','#5a5e66'], date:'2026-05-22', status:'rejected', reason:'Unauthorized likeness of a real person' },
+    { id:'r-lowq',       title:'test test test',        creator:'@firstframe',type:'short', g:['#262624','#3a3a38'], date:'2026-05-20', status:'rejected', reason:'Low-effort / placeholder content' },
+    { id:'r-dup',        title:'Redshift (re-upload)',  creator:'@ratebomber',type:'movie', g:['#341512','#e5484d'], date:'2026-05-18', status:'rejected', reason:'Duplicate of existing title' },
+  ];
+  */
   return [...pending, ...published, ...rejected];
 }();
 
 // ---- reports: content + comments ----
 window.ADMIN_REPORTS = {
-  content: [{
-    id: 'rc1',
-    target: 'Redshift (re-upload)',
-    targetType: 'Movie',
-    by: '@framekeeper',
-    reason: 'Duplicate / re-upload of existing content',
-    date: '2026-06-02',
-    severity: 'medium'
-  }, {
-    id: 'rc2',
-    target: 'Untitled (Celebrity)',
-    targetType: 'Movie',
-    by: '@lenar',
-    reason: 'Uses a real person’s likeness without consent',
-    date: '2026-06-01',
-    severity: 'high'
-  }, {
-    id: 'rc3',
-    target: 'Minute of Static',
-    targetType: 'Vertical',
-    by: '@quietw',
-    reason: 'Disturbing imagery, missing content warning',
-    date: '2026-05-30',
-    severity: 'low'
-  }, {
-    id: 'rc4',
-    target: 'Null City',
-    targetType: 'Movie',
-    by: '@marcov',
-    reason: 'Suspected AI-model license violation',
-    date: '2026-05-29',
-    severity: 'medium'
-  }],
-  comments: [{
-    id: 'rm1',
-    target: '“This is the worst thing I’ve…”',
-    targetType: 'Review on Redshift',
-    by: '@marcov',
-    reason: 'Harassment toward the creator',
-    date: '2026-06-02',
-    severity: 'high'
-  }, {
-    id: 'rm2',
-    target: '“Rate this 1 star everyone, it…”',
-    targetType: 'Comment on Saltwater Gods',
-    by: '@lenar',
-    reason: 'Organizing review-bombing',
-    date: '2026-06-01',
-    severity: 'high'
-  }, {
-    id: 'rm3',
-    target: '“dm me for free prompt packs”',
-    targetType: 'Comment on Glass Orchard',
-    by: '@quietw',
-    reason: 'Spam / self-promotion',
-    date: '2026-05-31',
-    severity: 'low'
-  }]
+  content: [],
+  comments: []
 };
 
 // ---- bug reports submitted via the Feedback Flama (beta bug reporter) ----
-window.ADMIN_BUG_REPORTS = [{
-  id: 'bg1',
-  by: '@lenar',
-  page: 'Film detail',
-  desc: 'Star rating control jumps back to 0 after I submit a half-star score — the value doesn’t stick on reload.',
-  image: true,
-  date: '2026-06-03'
-}, {
-  id: 'bg2',
-  by: '@marcov',
-  page: 'Feed',
-  desc: 'Upvote count flickers and briefly shows the downvote total when I click fast.',
-  image: false,
-  date: '2026-06-03'
-}, {
-  id: 'bg3',
-  by: '@framekeeper',
-  page: 'Add Content',
-  desc: 'Poster upload preview is stretched on the 2:3 dropzone — looks squished until I refresh.',
-  image: true,
-  date: '2026-06-02'
-}, {
-  id: 'bg4',
-  by: '@quietw',
-  page: 'Profile',
-  desc: 'Followed Creators cards overflow the container on a narrow window and clip the Following button.',
-  image: true,
-  date: '2026-06-02'
-}, {
-  id: 'bg5',
-  by: '@firstframe',
-  page: 'Watchlist',
-  desc: 'Removing a title from the hover rail removes the wrong row sometimes.',
-  image: false,
-  date: '2026-06-01'
-}, {
-  id: 'bg6',
-  by: '@marcov',
-  page: 'Creators',
-  desc: 'Follow button on the featured creator stays on “Following” even after I unfollow and come back.',
-  image: false,
-  date: '2026-05-31'
-}];
+window.ADMIN_BUG_REPORTS = [];
 
 // ---- recent activity feed (dashboard) ----
-window.ADMIN_ACTIVITY = [{
-  kind: 'register',
-  who: 'first_frame',
-  detail: 'created an account',
-  time: '4m ago',
-  av: ['#e5b23b', '#4ecdc4']
-}, {
-  kind: 'submission',
-  who: 'Maya Okonkwo',
-  detail: 'submitted “Tidewalkers” for review',
-  time: '22m ago',
-  av: ['#d85a30', '#9d8df1']
-}, {
-  kind: 'report',
-  who: 'theframekeeper',
-  detail: 'reported “Redshift (re-upload)”',
-  time: '38m ago',
-  av: ['#4ecdc4', '#6f9ceb']
-}, {
-  kind: 'submission',
-  who: '@nullframe',
-  detail: 'submitted “The Long Way Down”',
-  time: '1h ago',
-  av: ['#9d8df1', '#d85a30']
-}, {
-  kind: 'register',
-  who: 'quiet_watcher',
-  detail: 'created an account',
-  time: '2h ago',
-  av: ['#3a8fb0', '#1a2b33']
-}, {
-  kind: 'report',
-  who: 'lenar',
-  detail: 'reported a comment on “Saltwater Gods”',
-  time: '3h ago',
-  av: ['#d85a30', '#e5b23b']
-}, {
-  kind: 'submission',
-  who: 'Noor Farah',
-  detail: 'submitted “Saltmarsh” for review',
-  time: '5h ago',
-  av: ['#a04a8f', '#e5b23b']
-}, {
-  kind: 'ban',
-  who: 'rate_bomber',
-  detail: 'was banned for rating manipulation',
-  time: '6h ago',
-  av: ['#7a3a3a', '#3a1f1f']
-}, {
-  kind: 'register',
-  who: 'cinephile_22',
-  detail: 'created an account',
-  time: '8h ago',
-  av: ['#6f9ceb', '#9d8df1']
-}];
+window.ADMIN_ACTIVITY = [];
 
 // ---- aggregate platform stats (dashboard cards) ----
 window.ADMIN_STATS = {
-  totalUsers: 128400,
-  totalContent: window.AICDB_FILMS.length + 6,
+  totalUsers: window.ADMIN_USERS.length,
+  totalContent: window.AICDB_FILMS.length,
   pendingReviews: window.ADMIN_SUBMISSIONS.filter(s => s.status === 'pending').length,
-  activeToday: 18230,
-  totalRatings: 1240000,
+  activeToday: 0,
+  totalRatings: 0,
   reportedItems: window.ADMIN_REPORTS.content.length + window.ADMIN_REPORTS.comments.length
 };
 
-// ---- time series for charts ----
-window.ADMIN_SERIES = function () {
-  // 30 days of active users (with weekly rhythm) and new registrations
-  const active = [],
-    regs = [];
-  let base = 14000;
-  for (let i = 0; i < 30; i++) {
-    const weekend = i % 7 === 5 || i % 7 === 6 ? 1.18 : 1;
-    const trend = 1 + i * 0.012;
-    const noise = 0.92 + i * 37 % 17 / 100;
-    active.push(Math.round(base * weekend * trend * noise));
-    regs.push(Math.round(120 + i * 6 + i * 53 % 19 * 11 * (weekend > 1 ? 1.3 : 1)));
-  }
-  return {
-    active,
-    regs
-  };
-}();
+// ---- time series for charts (flat/empty — no activity yet) ----
+window.ADMIN_SERIES = {
+  active: new Array(30).fill(0),
+  regs: new Array(30).fill(0)
+};
 
 // ---- leaderboards ----
 window.ADMIN_LEADERS = function () {
@@ -21196,273 +21298,77 @@ try { (() => {
 })();
 
 // ---- additional titles ----
+// (sample catalog removed — platform starts with no published titles)
+/* removed sample titles
 window.AICDB_FILMS.push(
-// movies
-{
-  id: 'saltwater-gods',
-  title: 'Saltwater Gods',
-  type: 'movie',
-  year: 2025,
-  runtime: '141 min',
-  score: 9.0,
-  stars: 5,
-  ratings: '33.4k',
-  g: ['#0e2a2e', '#2f8f8a'],
-  genres: ['Fantasy', 'Drama'],
-  technique: 'Diffusion',
-  creator: 'Maya Okonkwo',
-  synopsis: 'A drowned pantheon wakes beneath a fishing town, and the only person who can hear them is the girl who stopped believing.'
-}, {
-  id: 'the-cartographer',
-  title: 'The Cartographer',
-  type: 'movie',
-  year: 2025,
-  runtime: '134 min',
-  score: 8.9,
-  stars: 4.5,
-  ratings: '21.7k',
-  g: ['#13212e', '#2f6f8f'],
-  genres: ['Adventure', 'Fantasy'],
-  technique: 'Hybrid Live-Action',
-  creator: 'Nova Pictures',
-  synopsis: 'A mapmaker is hired to chart a country that rearranges itself every night — and falls in love with a road that no longer exists.'
-}, {
-  id: 'mother-tongue',
-  title: 'Mother Tongue',
-  type: 'movie',
-  year: 2024,
-  runtime: '96 min',
-  score: 8.5,
-  stars: 4.5,
-  ratings: '14.2k',
-  g: ['#2c1a2e', '#a04a8f'],
-  genres: ['Drama'],
-  technique: 'Diffusion',
-  creator: 'Noor Farah',
-  synopsis: 'Three generations of women speak a private language no model can translate — until one tries.'
-}, {
-  id: 'vapor-trail',
-  title: 'Vapor Trail',
-  type: 'movie',
-  year: 2025,
-  runtime: '108 min',
-  score: 7.7,
-  stars: 4,
-  ratings: '8.9k',
-  g: ['#1a2b33', '#3a8fb0'],
-  genres: ['Sci-Fi', 'Drama'],
-  technique: 'Text-to-Video',
-  creator: 'Selma Reyes',
-  synopsis: 'A test pilot keeps outliving her own flights. Quiet science fiction about loud, unfinished feelings.'
-}, {
-  id: 'eclipse-theory',
-  title: 'Eclipse Theory',
-  type: 'movie',
-  year: 2023,
-  runtime: '119 min',
-  score: 6.9,
-  stars: 3.5,
-  ratings: '7.1k',
-  g: ['#2a2412', '#b08a2f'],
-  genres: ['Thriller', 'Sci-Fi'],
-  technique: 'Diffusion',
-  creator: 'Cosmic Pixel Co.',
-  synopsis: 'During a 7-minute eclipse, every clock on Earth runs backwards — and a detective gets exactly that long to prevent a murder.'
-},
-// series
-{
-  id: 'the-quiet-sequence',
-  title: 'The Quiet Sequence',
-  type: 'series',
-  year: 2025,
-  runtime: '4 seasons',
-  seasons: 4,
-  score: 8.6,
-  stars: 4.5,
-  ratings: '40.2k',
-  g: ['#10302d', '#3fae9f'],
-  genres: ['Drama'],
-  technique: 'Hybrid Live-Action',
-  creator: 'The Vale Collective',
-  synopsis: 'A monastery of sound engineers records the last quiet places on Earth before they vanish. Four seasons, almost no dialogue.'
-}, {
-  id: 'nightvale-frequencies',
-  title: 'Nightvale Frequencies',
-  type: 'series',
-  year: 2024,
-  runtime: '2 seasons',
-  seasons: 2,
-  score: 8.2,
-  stars: 4,
-  ratings: '17.5k',
-  g: ['#1e1530', '#6b5bd0'],
-  genres: ['Mystery', 'Horror'],
-  technique: 'Diffusion',
-  creator: 'Theo Vance',
-  synopsis: 'A pirate radio host broadcasts to a town that may not exist. Every caller knows something they shouldn\u2019t.'
-}, {
-  id: 'hollow-sun',
-  title: 'Hollow Sun',
-  type: 'series',
-  year: 2025,
-  runtime: '2 seasons',
-  seasons: 2,
-  score: 7.4,
-  stars: 3.5,
-  ratings: '11.0k',
-  g: ['#2e1a14', '#c0653a'],
-  genres: ['Western', 'Sci-Fi'],
-  technique: 'Diffusion',
-  creator: 'Bashir Halabi',
-  synopsis: 'A frontier town orbits a dying star. The sheriff is the only one who remembers it used to give light.'
-}, {
-  id: 'margin-of-error',
-  title: 'Margin of Error',
-  type: 'series',
-  year: 2024,
-  runtime: '1 season',
-  seasons: 1,
-  score: 7.8,
-  stars: 4,
-  ratings: '9.3k',
-  g: ['#1c2433', '#4a73b0'],
-  genres: ['Comedy', 'Drama'],
-  technique: 'Text-to-Video',
-  creator: 'Selma Reyes',
-  synopsis: 'The world\u2019s worst quality-assurance team tests reality itself. Every bug they find rewrites a life.'
-},
-// shorts
-{
-  id: 'tin-halo',
-  title: 'Tin Halo',
-  type: 'short',
-  year: 2025,
-  runtime: '8 min',
-  score: 8.1,
-  stars: 4,
-  ratings: '5.4k',
-  g: ['#2b2512', '#d0a93a'],
-  genres: ['Animation', 'Drama'],
-  technique: 'Frame Interp.',
-  creator: 'Ito Render Lab',
-  synopsis: 'A scrapyard angel earns its wings one rusted feather at a time. Eight minutes, no dialogue, all light.'
-}, {
-  id: 'bottle-episode',
-  title: 'Bottle Episode',
-  type: 'short',
-  year: 2024,
-  runtime: '14 min',
-  score: 7.0,
-  stars: 3.5,
-  ratings: '3.8k',
-  g: ['#241a1a', '#9a5a5a'],
-  genres: ['Drama'],
-  technique: 'Text-to-Video',
-  creator: '@nullframe',
-  synopsis: 'Two strangers, one stalled subway car, fourteen real-time minutes. Shot vertical, built for the scroll.'
-});
+  // movies
+  { id:'saltwater-gods', title:'Saltwater Gods', type:'movie', year:2025, runtime:'141 min', score:9.0, stars:5, ratings:'33.4k',
+    g:['#0e2a2e','#2f8f8a'], genres:['Fantasy','Drama'], technique:'Diffusion', creator:'Maya Okonkwo',
+    synopsis:'A drowned pantheon wakes beneath a fishing town, and the only person who can hear them is the girl who stopped believing.' },
+  { id:'the-cartographer', title:'The Cartographer', type:'movie', year:2025, runtime:'134 min', score:8.9, stars:4.5, ratings:'21.7k',
+    g:['#13212e','#2f6f8f'], genres:['Adventure','Fantasy'], technique:'Hybrid Live-Action', creator:'Nova Pictures',
+    synopsis:'A mapmaker is hired to chart a country that rearranges itself every night — and falls in love with a road that no longer exists.' },
+  { id:'mother-tongue', title:'Mother Tongue', type:'movie', year:2024, runtime:'96 min', score:8.5, stars:4.5, ratings:'14.2k',
+    g:['#2c1a2e','#a04a8f'], genres:['Drama'], technique:'Diffusion', creator:'Noor Farah',
+    synopsis:'Three generations of women speak a private language no model can translate — until one tries.' },
+  { id:'vapor-trail', title:'Vapor Trail', type:'movie', year:2025, runtime:'108 min', score:7.7, stars:4, ratings:'8.9k',
+    g:['#1a2b33','#3a8fb0'], genres:['Sci-Fi','Drama'], technique:'Text-to-Video', creator:'Selma Reyes',
+    synopsis:'A test pilot keeps outliving her own flights. Quiet science fiction about loud, unfinished feelings.' },
+  { id:'eclipse-theory', title:'Eclipse Theory', type:'movie', year:2023, runtime:'119 min', score:6.9, stars:3.5, ratings:'7.1k',
+    g:['#2a2412','#b08a2f'], genres:['Thriller','Sci-Fi'], technique:'Diffusion', creator:'Cosmic Pixel Co.',
+    synopsis:'During a 7-minute eclipse, every clock on Earth runs backwards — and a detective gets exactly that long to prevent a murder.' },
+  // series
+  { id:'the-quiet-sequence', title:'The Quiet Sequence', type:'series', year:2025, runtime:'4 seasons', seasons:4, score:8.6, stars:4.5, ratings:'40.2k',
+    g:['#10302d','#3fae9f'], genres:['Drama'], technique:'Hybrid Live-Action', creator:'The Vale Collective',
+    synopsis:'A monastery of sound engineers records the last quiet places on Earth before they vanish. Four seasons, almost no dialogue.' },
+  { id:'nightvale-frequencies', title:'Nightvale Frequencies', type:'series', year:2024, runtime:'2 seasons', seasons:2, score:8.2, stars:4, ratings:'17.5k',
+    g:['#1e1530','#6b5bd0'], genres:['Mystery','Horror'], technique:'Diffusion', creator:'Theo Vance',
+    synopsis:'A pirate radio host broadcasts to a town that may not exist. Every caller knows something they shouldn\u2019t.' },
+  { id:'hollow-sun', title:'Hollow Sun', type:'series', year:2025, runtime:'2 seasons', seasons:2, score:7.4, stars:3.5, ratings:'11.0k',
+    g:['#2e1a14','#c0653a'], genres:['Western','Sci-Fi'], technique:'Diffusion', creator:'Bashir Halabi',
+    synopsis:'A frontier town orbits a dying star. The sheriff is the only one who remembers it used to give light.' },
+  { id:'margin-of-error', title:'Margin of Error', type:'series', year:2024, runtime:'1 season', seasons:1, score:7.8, stars:4, ratings:'9.3k',
+    g:['#1c2433','#4a73b0'], genres:['Comedy','Drama'], technique:'Text-to-Video', creator:'Selma Reyes',
+    synopsis:'The world\u2019s worst quality-assurance team tests reality itself. Every bug they find rewrites a life.' },
+  // shorts
+  { id:'tin-halo', title:'Tin Halo', type:'short', year:2025, runtime:'8 min', score:8.1, stars:4, ratings:'5.4k',
+    g:['#2b2512','#d0a93a'], genres:['Animation','Drama'], technique:'Frame Interp.', creator:'Ito Render Lab',
+    synopsis:'A scrapyard angel earns its wings one rusted feather at a time. Eight minutes, no dialogue, all light.' },
+  { id:'bottle-episode', title:'Bottle Episode', type:'short', year:2024, runtime:'14 min', score:7.0, stars:3.5, ratings:'3.8k',
+    g:['#241a1a','#9a5a5a'], genres:['Drama'], technique:'Text-to-Video', creator:'@nullframe',
+    synopsis:'Two strangers, one stalled subway car, fourteen real-time minutes. Shot vertical, built for the scroll.' },
+);
+*/
 
 // ---- creators registry. `name` matches film.creator strings so works/score derive at runtime ----
-window.AICDB_CREATORS = [{
-  id: 'vale',
-  name: 'The Vale Collective',
-  handle: '@thevale',
-  av: ['#4ecdc4', '#6f9ceb'],
-  followers: 92400,
-  verified: true,
-  location: 'Remote',
-  tagline: 'A six-person studio building generation-spanning epics in latent space.'
-}, {
-  id: 'maya',
-  name: 'Maya Okonkwo',
-  handle: '@mayaokonkwo',
-  av: ['#d85a30', '#9d8df1'],
-  followers: 48200,
-  verified: true,
-  location: 'Lagos \u00b7 Berlin',
-  tagline: "I don't generate films \u2014 I haunt them into existence."
-}, {
-  id: 'nova',
-  name: 'Nova Pictures',
-  handle: '@novapictures',
-  av: ['#2f6f8f', '#4ecdc4'],
-  followers: 54800,
-  verified: true,
-  location: 'Reykjav\u00edk',
-  tagline: "Maps to places that don't exist yet."
-}, {
-  id: 'theo',
-  name: 'Theo Vance',
-  handle: '@theovance',
-  av: ['#6b5bd0', '#9d8df1'],
-  followers: 38900,
-  verified: true,
-  location: 'Manchester',
-  tagline: "Frequencies you can't unhear."
-}, {
-  id: 'noor',
-  name: 'Noor Farah',
-  handle: '@noorfarah',
-  av: ['#a04a8f', '#e5b23b'],
-  followers: 31800,
-  verified: true,
-  location: 'Amman',
-  tagline: 'Botanist turned showrunner. I grow stories the way orchards grow fruit.'
-}, {
-  id: 'bashir',
-  name: 'Bashir Halabi',
-  handle: '@bashirhalabi',
-  av: ['#c44a2a', '#e5b23b'],
-  followers: 27600,
-  verified: true,
-  location: 'Beirut',
-  tagline: 'One perfect frame at a time. Patience is my render farm.'
-}, {
-  id: 'ito',
-  name: 'Ito Render Lab',
-  handle: '@itorenderlab',
-  av: ['#e5b23b', '#4ecdc4'],
-  followers: 22300,
-  verified: true,
-  location: 'Kyoto',
-  tagline: 'Wordless miniatures. The light touches the smallest things first.'
-}, {
-  id: 'nullframe',
-  name: '@nullframe',
-  handle: '@nullframe',
-  av: ['#9d8df1', '#d85a30'],
-  followers: 64100,
-  verified: false,
-  location: 'Online',
-  tagline: 'Built for the scroll. Sixty floors, one minute, no mercy.'
-}, {
-  id: 'cosmic',
-  name: 'Cosmic Pixel Co.',
-  handle: '@cosmicpixel',
-  av: ['#e5484d', '#6f9ceb'],
-  followers: 18900,
-  verified: false,
-  location: 'Austin',
-  tagline: 'Genre-fluid pixel pushers. We chase stars that run away.'
-}, {
-  id: 'selma',
-  name: 'Selma Reyes',
-  handle: '@selmareyes',
-  av: ['#3a8fb0', '#1a2b33'],
-  followers: 12700,
-  verified: false,
-  location: 'Lisbon',
-  tagline: 'Quiet sci-fi about loud feelings.'
-}, {
-  id: 'deadair',
-  name: '@deadair',
-  handle: '@deadair',
-  av: ['#7c6fe0', '#1e1a36'],
-  followers: 15200,
-  verified: false,
-  location: 'Unknown',
-  tagline: 'At 3:33 the static learns your face.'
-}];
+window.AICDB_CREATORS = [];
+/* removed sample creators registry
+const _AICDB_CREATORS_SAMPLE = [
+  { id:'vale',     name:'The Vale Collective', handle:'@thevale',     av:['#4ecdc4','#6f9ceb'], followers:92400, verified:true,
+    location:'Remote', tagline:'A six-person studio building generation-spanning epics in latent space.' },
+  { id:'maya',     name:'Maya Okonkwo',        handle:'@mayaokonkwo', av:['#d85a30','#9d8df1'], followers:48200, verified:true,
+    location:'Lagos \u00b7 Berlin', tagline:"I don't generate films \u2014 I haunt them into existence." },
+  { id:'nova',     name:'Nova Pictures',       handle:'@novapictures',av:['#2f6f8f','#4ecdc4'], followers:54800, verified:true,
+    location:'Reykjav\u00edk', tagline:"Maps to places that don't exist yet." },
+  { id:'theo',     name:'Theo Vance',          handle:'@theovance',   av:['#6b5bd0','#9d8df1'], followers:38900, verified:true,
+    location:'Manchester', tagline:"Frequencies you can't unhear." },
+  { id:'noor',     name:'Noor Farah',          handle:'@noorfarah',   av:['#a04a8f','#e5b23b'], followers:31800, verified:true,
+    location:'Amman', tagline:'Botanist turned showrunner. I grow stories the way orchards grow fruit.' },
+  { id:'bashir',   name:'Bashir Halabi',       handle:'@bashirhalabi',av:['#c44a2a','#e5b23b'], followers:27600, verified:true,
+    location:'Beirut', tagline:'One perfect frame at a time. Patience is my render farm.' },
+  { id:'ito',      name:'Ito Render Lab',      handle:'@itorenderlab',av:['#e5b23b','#4ecdc4'], followers:22300, verified:true,
+    location:'Kyoto', tagline:'Wordless miniatures. The light touches the smallest things first.' },
+  { id:'nullframe', name:'@nullframe',         handle:'@nullframe',   av:['#9d8df1','#d85a30'], followers:64100, verified:false,
+    location:'Online', tagline:'Built for the scroll. Sixty floors, one minute, no mercy.' },
+  { id:'cosmic',   name:'Cosmic Pixel Co.',    handle:'@cosmicpixel', av:['#e5484d','#6f9ceb'], followers:18900, verified:false,
+    location:'Austin', tagline:'Genre-fluid pixel pushers. We chase stars that run away.' },
+  { id:'selma',    name:'Selma Reyes',         handle:'@selmareyes',  av:['#3a8fb0','#1a2b33'], followers:12700, verified:false,
+    location:'Lisbon', tagline:'Quiet sci-fi about loud feelings.' },
+  { id:'deadair',  name:'@deadair',            handle:'@deadair',     av:['#7c6fe0','#1e1a36'], followers:15200, verified:false,
+    location:'Unknown', tagline:'At 3:33 the static learns your face.' },
+];
+*/
+
 window.AICDB_CREATOR_BY_NAME = {};
 window.AICDB_CREATORS.forEach(c => {
   window.AICDB_CREATOR_BY_NAME[c.name] = c;
@@ -21480,98 +21386,40 @@ window.AICDB_CREATOR_STATS = function (creator) {
 };
 
 // ---- social feed: posts from creators (newest first) ----
-window.AICDB_FEED = [{
-  id: 'p1',
-  creator: 'maya',
-  time: '2h',
-  kind: 'upload',
-  film: 'saltwater-gods',
-  text: 'Three years in latent space. <b>Saltwater Gods</b> is finally live. Go drown in it. \u{1F30A}',
-  likes: 1240,
-  comments: 89,
-  reposts: 142
-}, {
-  id: 'p2',
-  creator: 'vale',
-  time: '5h',
-  kind: 'text',
-  text: 'Season 4 of The Quiet Sequence wrapped today. We\u2019re exhausted and we already miss it. Thank you to everyone who rated S3 \u2014 your notes literally shaped the finale.',
-  likes: 980,
-  comments: 64,
-  reposts: 51
-}, {
-  id: 'p3',
-  creator: 'noor',
-  time: '8h',
-  kind: 'rating',
-  film: 'the-cartographer',
-  stars: 4.5,
-  text: 'Nova Pictures did something extraordinary here. The map sequence alone is worth your whole evening.',
-  likes: 412,
-  comments: 23,
-  reposts: 18
-}, {
-  id: 'p4',
-  creator: 'bashir',
-  time: '11h',
-  kind: 'text',
-  mention: 'the-long-render',
-  text: 'Unpopular opinion: a high score was never the goal. A single frame someone still remembers ten years from now \u2014 that\u2019s the whole job.',
-  likes: 1510,
-  comments: 203,
-  reposts: 188
-}, {
-  id: 'p5',
-  creator: 'theo',
-  time: '14h',
-  kind: 'list',
-  listTitle: 'Late Night Static',
-  listFilms: ['minute-of-static', 'nightvale-frequencies', 'hollow-sun', 'sixty-seconds-down'],
-  text: 'A playlist for 3am. Don\u2019t say I didn\u2019t warn you.',
-  likes: 523,
-  comments: 37,
-  reposts: 44
-}, {
-  id: 'p6',
-  creator: 'nullframe',
-  time: '18h',
-  kind: 'upload',
-  film: 'bottle-episode',
-  text: 'new drop. 14 minutes this time. i\u2019m growing.',
-  likes: 660,
-  comments: 41,
-  reposts: 30
-}, {
-  id: 'p7',
-  creator: 'ito',
-  time: '1d',
-  kind: 'upload',
-  film: 'tin-halo',
-  text: 'Tin Halo \u2014 8 minutes, no dialogue, all light. Headphones on, lights off.',
-  likes: 388,
-  comments: 19,
-  reposts: 22
-}, {
-  id: 'p8',
-  creator: 'maya',
-  time: '1d',
-  kind: 'rating',
-  film: 'echoes-of-tomorrow',
-  stars: 5,
-  text: 'Rewatched the entire thing the night before my own premiere. Still the bar. Forever the bar. @thevale',
-  likes: 734,
-  comments: 52,
-  reposts: 61
-}, {
-  id: 'p9',
-  creator: 'nova',
-  time: '2d',
-  kind: 'text',
-  text: 'Prepping something big for next quarter. If you\u2019ve trained a coastline model you\u2019re proud of, my inbox is open. No coastlines too small.',
-  likes: 295,
-  comments: 28,
-  reposts: 12
-}];
+window.AICDB_FEED = [];
+/* removed sample social feed
+const _AICDB_FEED_SAMPLE = [
+  { id:'p1', creator:'maya', time:'2h', kind:'upload', film:'saltwater-gods',
+    text:'Three years in latent space. <b>Saltwater Gods</b> is finally live. Go drown in it. \u{1F30A}',
+    likes:1240, comments:89, reposts:142 },
+  { id:'p2', creator:'vale', time:'5h', kind:'text',
+    text:'Season 4 of The Quiet Sequence wrapped today. We\u2019re exhausted and we already miss it. Thank you to everyone who rated S3 \u2014 your notes literally shaped the finale.',
+    likes:980, comments:64, reposts:51 },
+  { id:'p3', creator:'noor', time:'8h', kind:'rating', film:'the-cartographer', stars:4.5,
+    text:'Nova Pictures did something extraordinary here. The map sequence alone is worth your whole evening.',
+    likes:412, comments:23, reposts:18 },
+  { id:'p4', creator:'bashir', time:'11h', kind:'text', mention:'the-long-render',
+    text:'Unpopular opinion: a high score was never the goal. A single frame someone still remembers ten years from now \u2014 that\u2019s the whole job.',
+    likes:1510, comments:203, reposts:188 },
+  { id:'p5', creator:'theo', time:'14h', kind:'list', listTitle:'Late Night Static',
+    listFilms:['minute-of-static','nightvale-frequencies','hollow-sun','sixty-seconds-down'],
+    text:'A playlist for 3am. Don\u2019t say I didn\u2019t warn you.',
+    likes:523, comments:37, reposts:44 },
+  { id:'p6', creator:'nullframe', time:'18h', kind:'upload', film:'bottle-episode',
+    text:'new drop. 14 minutes this time. i\u2019m growing.',
+    likes:660, comments:41, reposts:30 },
+  { id:'p7', creator:'ito', time:'1d', kind:'upload', film:'tin-halo',
+    text:'Tin Halo \u2014 8 minutes, no dialogue, all light. Headphones on, lights off.',
+    likes:388, comments:19, reposts:22 },
+  { id:'p8', creator:'maya', time:'1d', kind:'rating', film:'echoes-of-tomorrow', stars:5,
+    text:'Rewatched the entire thing the night before my own premiere. Still the bar. Forever the bar. @thevale',
+    likes:734, comments:52, reposts:61 },
+  { id:'p9', creator:'nova', time:'2d', kind:'text',
+    text:'Prepping something big for next quarter. If you\u2019ve trained a coastline model you\u2019re proud of, my inbox is open. No coastlines too small.',
+    likes:295, comments:28, reposts:12 },
+];
+*/
+
 window.AICDB_FILM_BY_ID = {};
 window.AICDB_FILMS.forEach(f => {
   window.AICDB_FILM_BY_ID[f.id] = f;
@@ -21751,128 +21599,19 @@ window.AICDB_TYPES = {
     icon: 'smartphone'
   }
 };
-window.AICDB_FILMS = [{
-  id: 'synthetic-dreams',
-  title: 'Synthetic Dreams',
-  type: 'movie',
-  year: 2025,
-  runtime: '142 min',
-  score: 8.7,
-  stars: 4.5,
-  ratings: '24.1k',
-  g: ['#3a2118', '#d85a30'],
-  genres: ['Sci-Fi', 'Neo-Noir'],
-  technique: 'Diffusion',
-  creator: 'Maya Okonkwo',
-  synopsis: 'A memory-broker in a rain-slicked megacity discovers the dreams she sells are bleeding into a shared reality no one can switch off.'
-}, {
-  id: 'echoes-of-tomorrow',
-  title: 'Echoes of Tomorrow',
-  type: 'series',
-  year: 2024,
-  runtime: '3 seasons',
-  score: 9.1,
-  stars: 5,
-  ratings: '58.3k',
-  g: ['#10302d', '#4ecdc4'],
-  genres: ['Sci-Fi', 'Drama'],
-  technique: 'Hybrid Live-Action',
-  creator: 'The Vale Collective',
-  synopsis: 'Across three timelines, a family keeps almost meeting itself. An aching, generation-spanning epic rendered entirely in latent space.'
-}, {
-  id: 'paper-suns',
-  title: 'Paper Suns',
-  type: 'short',
-  year: 2025,
-  runtime: '11 min',
-  score: 7.9,
-  stars: 4,
-  ratings: '6.2k',
-  g: ['#332a12', '#e5b23b'],
-  genres: ['Animation'],
-  technique: 'Frame Interp.',
-  creator: 'Ito Render Lab',
-  synopsis: 'A folded-paper world unfurls at dawn. A wordless miniature about the things light touches first.'
-}, {
-  id: 'sixty-seconds-down',
-  title: 'Sixty Seconds Down',
-  type: 'vertical',
-  year: 2025,
-  runtime: '1 min',
-  score: 7.2,
-  stars: 3.5,
-  ratings: '12.8k',
-  g: ['#241a3a', '#9d8df1'],
-  genres: ['Thriller'],
-  technique: 'Text-to-Video',
-  creator: '@nullframe',
-  synopsis: 'An elevator. A stranger. Sixty floors. Shot for the phone, built for the scroll.'
-}, {
-  id: 'the-long-render',
-  title: 'The Long Render',
-  type: 'movie',
-  year: 2024,
-  runtime: '128 min',
-  score: 8.3,
-  stars: 4,
-  ratings: '19.4k',
-  g: ['#2a1410', '#c44a2a'],
-  genres: ['Drama'],
-  technique: 'Diffusion',
-  creator: 'Bashir Halabi',
-  synopsis: 'A reclusive director spends a decade generating a single perfect frame — and loses everyone who waited for it.'
-}, {
-  id: 'glass-orchard',
-  title: 'Glass Orchard',
-  type: 'series',
-  year: 2025,
-  runtime: '1 season',
-  score: 8.8,
-  stars: 4.5,
-  ratings: '31.0k',
-  g: ['#0f2e2b', '#3aa9a1'],
-  genres: ['Mystery', 'Drama'],
-  technique: 'Hybrid Live-Action',
-  creator: 'Noor Farah',
-  synopsis: 'In a town where the trees grow glass fruit, a botanist investigates why the harvest has started showing faces.'
-}, {
-  id: 'redshift',
-  title: 'Redshift',
-  type: 'movie',
-  year: 2025,
-  runtime: '117 min',
-  score: 6.4,
-  stars: 3,
-  ratings: '9.7k',
-  g: ['#341512', '#e5484d'],
-  genres: ['Sci-Fi', 'Action'],
-  technique: 'Diffusion',
-  creator: 'Cosmic Pixel Co.',
-  synopsis: 'A salvage crew chases a derelict generation-ship toward a star that is moving away faster than light should allow.'
-}, {
-  id: 'minute-of-static',
-  title: 'Minute of Static',
-  type: 'vertical',
-  year: 2024,
-  runtime: '1 min',
-  score: 7.6,
-  stars: 4,
-  ratings: '15.2k',
-  g: ['#1e1a36', '#7c6fe0'],
-  genres: ['Horror'],
-  technique: 'Text-to-Video',
-  creator: '@deadair',
-  synopsis: 'Every night at 3:33 the channel cuts to static — and something on the other side is learning to look back.'
-}];
+
+// Catalog is intentionally empty — the platform starts with no published
+// titles, so every surface renders its empty state.
+window.AICDB_FILMS = [];
 
 // Watchlist store — shared across pages, persisted to localStorage.
 window.AICDB_WATCHLIST = function () {
   const KEY = 'aicdb_watchlist';
   let ids;
   try {
-    ids = JSON.parse(localStorage.getItem(KEY) || '["glass-orchard","redshift"]');
+    ids = JSON.parse(localStorage.getItem(KEY) || '[]');
   } catch (e) {
-    ids = ['glass-orchard', 'redshift'];
+    ids = [];
   }
   const subs = new Set();
   function emit() {
@@ -21946,100 +21685,72 @@ window.AICDB_CREATOR_ACCOUNTS = function () {
   };
 }();
 
-// the signed-in user's main (viewer) account — shown atop the creator-setup page
-window.AICDB_MAIN_ACCOUNT = {
-  name: 'Ada Vance',
-  handle: '@adavance',
-  avatar: ['#d85a30', '#9d8df1'],
-  joined: 'Joined March 2024'
-};
+// the signed-in user's main (viewer) account. No demo account exists by
+// default — surfaces that show it guard for null.
+window.AICDB_MAIN_ACCOUNT = null;
 
 // Signed-in viewer stats. `loggedTitles` gates power-user features (e.g. the
 // uniqueness/Sıradışılık rating, which needs 1000+ logged titles to access).
 window.AICDB_VIEWER = {
-  loggedTitles: 1240
+  loggedTitles: 0
 };
 window.AICDB_UNIQUENESS_MIN_LOGGED = 1000;
 
 // Per-title detail metadata — quotes, series counts, crew, production, "extraordinary" meter.
-window.AICDB_DETAILS = {
+window.AICDB_DETAILS = {};
+/* removed sample per-title detail metadata
+const _AICDB_DETAILS_SAMPLE = {
   'synthetic-dreams': {
     quote: 'Every dream I sell is a door someone forgets to close.',
-    extraordinary: 78,
-    budget: '$2.4M',
-    duration: '14 months',
-    contributors: 38,
+    extraordinary: 78, budget: '$2.4M', duration: '14 months', contributors: 38,
     models: ['Diffusion v6', 'VoxSynth 2', 'ToneField'],
-    crew: [['Direction', 'Maya Okonkwo'], ['Prompt Architect', 'Yuki Tanaka'], ['Model Supervisor', 'Dapo Okafor'], ['Sound Design', 'Lena Sørensen'], ['Voice Synthesis', 'Atlas Voices'], ['Edit & Compositing', 'Reva Mehta']]
+    crew: [['Direction','Maya Okonkwo'],['Prompt Architect','Yuki Tanaka'],['Model Supervisor','Dapo Okafor'],['Sound Design','Lena Sørensen'],['Voice Synthesis','Atlas Voices'],['Edit & Compositing','Reva Mehta']],
   },
   'echoes-of-tomorrow': {
-    seasons: 3,
-    episodes: 24,
+    seasons: 3, episodes: 24,
     quote: 'We keep almost meeting ourselves — and almost is its own kind of forever.',
-    extraordinary: 91,
-    budget: '$11.8M',
-    duration: '2 years',
-    contributors: 84,
+    extraordinary: 91, budget: '$11.8M', duration: '2 years', contributors: 84,
     models: ['Hybrid-Render X', 'VoxSynth 3', 'MotionField Pro', 'NeRF-Live'],
-    crew: [['Showrunner', 'The Vale Collective'], ['Prompt Architect', 'Iris Calloway'], ['Model Supervisor', 'Theo Vance'], ['Sound Design', 'Marisol Reyes'], ['Voice Cast', 'Live + Synth Ensemble'], ['Continuity AI', 'Juno Park']]
+    crew: [['Showrunner','The Vale Collective'],['Prompt Architect','Iris Calloway'],['Model Supervisor','Theo Vance'],['Sound Design','Marisol Reyes'],['Voice Cast','Live + Synth Ensemble'],['Continuity AI','Juno Park']],
   },
   'paper-suns': {
     quote: 'The light always touches the smallest things first.',
-    extraordinary: 64,
-    budget: '$180k',
-    duration: '5 months',
-    contributors: 9,
+    extraordinary: 64, budget: '$180k', duration: '5 months', contributors: 9,
     models: ['FrameInterp 4', 'PaperGAN'],
-    crew: [['Direction', 'Ito Render Lab'], ['Animation Lead', 'Kenji Aoyama'], ['Prompt Architect', 'Mira Sato'], ['Sound Design', 'Field & Fold'], ['Score', 'Hana Vermeer']]
+    crew: [['Direction','Ito Render Lab'],['Animation Lead','Kenji Aoyama'],['Prompt Architect','Mira Sato'],['Sound Design','Field & Fold'],['Score','Hana Vermeer']],
   },
   'sixty-seconds-down': {
     quote: 'Sixty floors. One of us is not getting off.',
-    extraordinary: 52,
-    budget: '$45k',
-    duration: '6 weeks',
-    contributors: 5,
+    extraordinary: 52, budget: '$45k', duration: '6 weeks', contributors: 5,
     models: ['Text-to-Video 3', 'VoxSynth 2'],
-    crew: [['Direction', '@nullframe'], ['Prompt Architect', 'D. Reyes'], ['Sound Design', 'Nullroom'], ['Voice Synthesis', 'Atlas Voices']]
+    crew: [['Direction','@nullframe'],['Prompt Architect','D. Reyes'],['Sound Design','Nullroom'],['Voice Synthesis','Atlas Voices']],
   },
   'the-long-render': {
     quote: 'A perfect frame costs you every imperfect year.',
-    extraordinary: 83,
-    budget: '$3.1M',
-    duration: '4 years',
-    contributors: 27,
+    extraordinary: 83, budget: '$3.1M', duration: '4 years', contributors: 27,
     models: ['Diffusion v6', 'ToneField', 'GrainEngine'],
-    crew: [['Direction', 'Bashir Halabi'], ['Prompt Architect', 'Selin Aydın'], ['Model Supervisor', 'M. Costa'], ['Sound Design', 'Halabi Audio'], ['Edit & Compositing', 'Noa Frank']]
+    crew: [['Direction','Bashir Halabi'],['Prompt Architect','Selin Aydın'],['Model Supervisor','M. Costa'],['Sound Design','Halabi Audio'],['Edit & Compositing','Noa Frank']],
   },
   'glass-orchard': {
-    seasons: 1,
-    episodes: 8,
+    seasons: 1, episodes: 8,
     quote: 'The fruit grows faces because the orchard remembers.',
-    extraordinary: 74,
-    budget: '$6.4M',
-    duration: '18 months',
-    contributors: 52,
+    extraordinary: 74, budget: '$6.4M', duration: '18 months', contributors: 52,
     models: ['Hybrid-Render X', 'VoxSynth 3', 'BotanyGAN'],
-    crew: [['Showrunner', 'Noor Farah'], ['Prompt Architect', 'Eli Brandt'], ['Model Supervisor', 'S. Aziz'], ['Sound Design', 'Orchard Foley'], ['Voice Cast', 'Live Ensemble'], ['Edit & Compositing', 'Dana Wu']]
+    crew: [['Showrunner','Noor Farah'],['Prompt Architect','Eli Brandt'],['Model Supervisor','S. Aziz'],['Sound Design','Orchard Foley'],['Voice Cast','Live Ensemble'],['Edit & Compositing','Dana Wu']],
   },
   'redshift': {
     quote: 'The star is running. So are we.',
-    extraordinary: 47,
-    budget: '$2.0M',
-    duration: '11 months',
-    contributors: 31,
+    extraordinary: 47, budget: '$2.0M', duration: '11 months', contributors: 31,
     models: ['Diffusion v6', 'MotionField Pro'],
-    crew: [['Direction', 'Cosmic Pixel Co.'], ['Prompt Architect', 'V. Sokolov'], ['Model Supervisor', 'R. Okonjo'], ['Sound Design', 'Pixel Audio'], ['Voice Synthesis', 'Atlas Voices']]
+    crew: [['Direction','Cosmic Pixel Co.'],['Prompt Architect','V. Sokolov'],['Model Supervisor','R. Okonjo'],['Sound Design','Pixel Audio'],['Voice Synthesis','Atlas Voices']],
   },
-  'minute-of-static': {
-    quote: 'At 3:33 the static learns your face.',
-    extraordinary: 69,
-    budget: '$30k',
-    duration: '4 weeks',
-    contributors: 4,
+  'minute-of-static-removed': {
+    quote: '', extraordinary: 0, budget: '', duration: '', contributors: 0,
     models: ['Text-to-Video 3', 'GrainEngine'],
-    crew: [['Direction', '@deadair'], ['Prompt Architect', 'K. Mraz'], ['Sound Design', 'Dead Air Foley']]
-  }
+    crew: [['Direction','@deadair'],['Prompt Architect','K. Mraz'],['Sound Design','Dead Air Foley']],
+  },
 };
+*/
 
 // Derived community stats for a title (from its rating count).
 window.AICDB_STAT = function (film) {
@@ -22052,28 +21763,94 @@ window.AICDB_STAT = function (film) {
     completion: 0.78 + (film.score - 7) * 0.03
   };
 };
-window.AICDB_REVIEWS = [{
-  user: 'Lena R.',
-  av: ['#d85a30', '#e5b23b'],
-  stars: 5,
-  when: '2 days ago',
-  likes: 142,
-  body: "The diffusion grain isn't a limitation here — it's the whole point. Every frame looks like a half-remembered dream. Stunning."
-}, {
-  user: 'theframekeeper',
-  av: ['#4ecdc4', '#6f9ceb'],
-  stars: 4,
-  when: '1 week ago',
-  likes: 88,
-  body: "Ambitious to a fault. The middle act loses the plot in its own latent space, but that final render is worth the price of admission."
-}, {
-  user: 'Marco V.',
-  av: ['#9d8df1', '#d85a30'],
-  stars: 4.5,
-  when: '2 weeks ago',
-  likes: 54,
-  body: "Proof that 'AI-generated' and 'has a soul' aren't mutually exclusive. I've rewatched the rooftop sequence five times."
-}];
+window.AICDB_REVIEWS = [];
+
+// ============================================================
+// Auth — logged-out by default. Persisted to localStorage so the
+// signed-in state survives navigation between pages.
+// ============================================================
+window.AICDB_AUTH = function () {
+  const KEY = 'aicdb_logged_in';
+  let on;
+  try {
+    on = JSON.parse(localStorage.getItem(KEY) || 'false');
+  } catch (e) {
+    on = false;
+  }
+  const subs = new Set();
+  function emit() {
+    try {
+      localStorage.setItem(KEY, JSON.stringify(on));
+    } catch (e) {}
+    subs.forEach(fn => fn(on));
+  }
+  return {
+    isLoggedIn: () => !!on,
+    login: () => {
+      on = true;
+      emit();
+    },
+    logout: () => {
+      on = false;
+      emit();
+    },
+    subscribe: fn => {
+      subs.add(fn);
+      return () => subs.delete(fn);
+    }
+  };
+}();
+
+// Resolve a logical page key to a URL that works in BOTH the dev UI-kit
+// (lowercase siblings) and the bundled root snapshots ("Dreamwall X.html").
+window.AICDB_PAGE = function () {
+  const file = decodeURIComponent(location.pathname.split('/').pop() || '');
+  const isBundle = /^Dreamwall /.test(file);
+  const kit = {
+    home: 'index.html',
+    login: 'login.html',
+    signup: 'signup.html',
+    profile: 'profile.html',
+    watchlist: 'index.html#Watchlist',
+    feed: 'index.html#Feed',
+    mycontents: 'my-contents.html'
+  };
+  const root = {
+    home: 'Dreamwall Web App.html',
+    login: 'Dreamwall Login.html',
+    signup: 'Dreamwall Sign Up.html',
+    profile: 'Dreamwall Profile.html',
+    watchlist: 'Dreamwall Web App.html#Watchlist',
+    feed: 'Dreamwall Web App.html#Feed',
+    mycontents: 'Dreamwall My Contents.html'
+  };
+  const map = isBundle ? root : kit;
+  return key => map[key] || key;
+}();
+
+// Gate an interactive action behind auth. Returns true if signed in; otherwise
+// fires 'aicdb:require-auth' (the AuthPromptHost shows the "Sign in to continue"
+// popup) and returns false so callers can bail.
+window.AICDB_REQUIRE_AUTH = function (message) {
+  if (window.AICDB_AUTH.isLoggedIn()) return true;
+  window.dispatchEvent(new CustomEvent('aicdb:require-auth', {
+    detail: {
+      message
+    }
+  }));
+  return false;
+};
+
+// Hard guard for login-only standalone pages — redirects to login when signed out.
+window.AICDB_GUARD = function () {
+  if (window.AICDB_AUTH.isLoggedIn()) return true;
+  try {
+    location.replace(window.AICDB_PAGE('login'));
+  } catch (e) {
+    location.href = window.AICDB_PAGE('login');
+  }
+  return false;
+};
 })(); } catch (e) { __ds_ns.__errors.push({ path: "ui_kits/web-app/data.js", error: String((e && e.message) || e) }); }
 
 // ui_kits/web-app/theme-init.js
